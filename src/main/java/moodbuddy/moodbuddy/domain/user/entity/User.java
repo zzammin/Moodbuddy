@@ -16,12 +16,14 @@ public class User extends BaseEntity {
     @GeneratedValue
     @Column(name = "user_id")
     private Long id;
+
+    @Column(name = "user_email")
     private String userEmail;
     private String userName;
     private String userNickName;
     private String userBirth;
     private LocalDateTime userNoticeTime;
-    private int userDiaryNums = 0;
+    private Integer userDiaryNums = 0;
     private String userRole = "ROLE_USER";
 
     // deleted 역할이 무엇인 지 몰라서 빼둠
