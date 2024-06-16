@@ -18,6 +18,6 @@ public class Diary extends BaseEntity {
     private DiaryEmotion diaryEmotion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary_id")
+    @JoinColumn(name = "user_id")
     private User user;
 }
