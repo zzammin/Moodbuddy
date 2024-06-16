@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 public class User extends BaseEntity {
@@ -16,8 +18,14 @@ public class User extends BaseEntity {
     private Long id;
     private String userEmail;
     private String userName;
-
     private String userNickName;
-
+    private String userBirth;
+    private LocalDateTime userNoticeTime;
+    private int userDiaryNums = 0;
     private String userRole = "ROLE_USER";
+
+    // deleted 역할이 무엇인 지 몰라서 빼둠
+
+    /** 생성자 **/
+    protected User() {}
 }
