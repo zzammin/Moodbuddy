@@ -14,6 +14,7 @@ public class ProfileImage extends BaseEntity {
 
     @OneToOne(mappedBy = "profile_image", fetch = FetchType.LAZY, orphanRemoval = true)
     private Profile profile;
+    private String profileImgURL = "";
     /** 생성자 **/
     protected ProfileImage() {}
 }
