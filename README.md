@@ -1,0 +1,2 @@
+# Server
+MoodBuddy Server
