@@ -51,16 +51,15 @@
 - `branch 규칙`
     - 각자의 깃 닉네임을 딴 branch 명을 사용한다.
     - 예시
-        - git checkout -b feature/이슈번호-기능
-        - git checkout -b feature/12-UserAPI
+        - git checkout -b mung
 
 <br>
 
 - `commit message 규칙`
     - 종류: 메시지
     - 예시
-        - feat: 커밋 내용 - #이슈번호
-        - feat: 로그인 구현 - #2 
+        - feat: 커밋 내용 - #브랜치명
+        - feat: 로그인 구현 - #mung
 <br>
 
 - `PR 규칙`
