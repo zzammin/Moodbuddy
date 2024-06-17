@@ -39,3 +39,5 @@ src/test
 
 ### VS Code ###
 .vscode/
+
+.DS_Store
