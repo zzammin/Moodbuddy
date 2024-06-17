@@ -12,7 +12,8 @@ public class ProfileImage extends BaseEntity {
     @Column(name = "profile_image_id")
     private Long id;
 
-    @OneToOne(mappedBy = "profile_image", fetch = FetchType.LAZY, orphanRemoval = true)
+    @ManyToOne
+    @JoinColumn(name = "profile_id")
     private Profile profile;
     private String profileImgURL = "";
     /** 생성자 **/

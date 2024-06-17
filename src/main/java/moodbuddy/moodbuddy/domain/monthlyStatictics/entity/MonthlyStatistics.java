@@ -12,7 +12,8 @@ public class MonthlyStatistics extends BaseEntity {
     @GeneratedValue
     @Column(name = "monthly_statistics_id")
     private Long id;
-    @OneToOne(mappedBy = "monthly_statistics", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     // 월별 통계 잠시 스탑

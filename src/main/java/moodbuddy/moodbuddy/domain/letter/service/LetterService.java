@@ -1,4 +1,4 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
-public interface DiaryService {
+public interface LetterService {
 }

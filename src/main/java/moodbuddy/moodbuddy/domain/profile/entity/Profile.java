@@ -14,7 +14,8 @@ public class Profile extends BaseEntity {
     private Long id;
     private String profileNickName;
     private String profileComment = "";
-    @OneToOne(mappedBy = "profile", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
     /** 생성자 **/
     protected Profile() {}

@@ -1,4 +1,4 @@
 package moodbuddy.moodbuddy.domain.letter.dto;
 
-public class DiaryRequestDTO {
+public class LetterRequestDTO {
 }
