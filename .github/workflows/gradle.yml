@@ -57,5 +57,5 @@ jobs:
             sudo docker stop ${{ secrets.DOCKER_REPO }}
             sudo docker rm ${{ secrets.DOCKER_REPO }}
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            sudo docker run -p 8080:8080 -d --net mybridge --name=${{ secrets.DOCKER_REPO }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            sudo docker run -p 8080:8080 -d --net my-network --name=${{ secrets.DOCKER_REPO }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
  
