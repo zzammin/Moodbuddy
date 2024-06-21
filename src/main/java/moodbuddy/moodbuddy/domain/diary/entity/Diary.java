@@ -16,6 +16,7 @@ public class Diary extends BaseEntity {
     private String diaryContent;
     private DiaryWeather diaryWeather;
     private DiaryEmotion diaryEmotion;
+    private String diarySummary;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
