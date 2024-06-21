@@ -23,6 +23,9 @@
     <a href="https://github.com/dylee00">
       <img src="https://avatars.githubusercontent.com/u/135154209?v=4" width="100">
     </a>
+    <a href="https://github.com/zzammin">
+      <img src="https://avatars.githubusercontent.com/u/105933726?v=4" width="100"> 
+    </a>
 </p>
 
 ## 📝 규칙
