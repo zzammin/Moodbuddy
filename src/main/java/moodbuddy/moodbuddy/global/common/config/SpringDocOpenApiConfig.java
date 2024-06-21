@@ -14,7 +14,8 @@ public class SpringDocOpenApiConfig {
     @Bean
     public OpenAPI getOpenApi() {
 
-        return new OpenAPI().components(new Components())
+        return new
+                OpenAPI().components(new Components())
                 .info(getInfo());
 
     }
