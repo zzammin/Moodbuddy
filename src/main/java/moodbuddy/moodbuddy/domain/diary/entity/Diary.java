@@ -19,8 +19,9 @@ public class Diary extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiaryEmotion diaryEmotion;
     private String diarySummary;
+    private String userEmail; // ManyToOne으로 User와 Diary를 연결하는 것이 아닌, userEmail을 칼럼으로 넣음
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id")
+//    private User user;
 }
