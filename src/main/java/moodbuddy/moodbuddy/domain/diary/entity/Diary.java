@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 public class Diary extends BaseEntity {
@@ -15,6 +17,9 @@ public class Diary extends BaseEntity {
 
     @Column(name = "diary_title", nullable = false, length = 255)
     private String diaryTitle;
+
+    @Column(name = "diary_date", nullable = false)
+    private LocalDateTime diaryDate;
 
     @Lob
     @Column(name = "diary_content")
