@@ -31,6 +31,12 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
+    public DiaryResDeleteDTO delete(Long diaryId) {
+        return new DiaryResDeleteDTO();
+    }
+
+    @Override
+    @Transactional
     public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftDTO) {
         return new DiaryResDraftSaveDTO();
     }

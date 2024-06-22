@@ -13,10 +13,13 @@ public interface DiaryService {
     // 일기 수정
     DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO);
 
+    // 일기 삭제
+    DiaryResDeleteDTO delete(Long diaryId);
+
     // 일기 임시 저장
     DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO);
 
-    // 일기 임시 저장 조회
+    // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();
 
     // 일기 하나 조회
