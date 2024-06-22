@@ -28,6 +28,10 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_emotion", nullable = false, length = 255)
     private DiaryEmotion diaryEmotion;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diary_status", nullable = false)
+    private DiaryStatus diaryStatus;
+
     @Column(name = "diary_summary", nullable = false, length = 255)
     private String diarySummary;
 
