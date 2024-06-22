@@ -14,7 +14,9 @@ public class Diary extends BaseEntity {
     private Long id;
     private String diaryTitle;
     private String diaryContent;
+    @Enumerated(EnumType.STRING)
     private DiaryWeather diaryWeather;
+    @Enumerated(EnumType.STRING)
     private DiaryEmotion diaryEmotion;
     private String diarySummary;
 
