@@ -16,5 +16,7 @@ public class DiaryImage extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id")
     private Diary diary;
+
+    @Column(name = "diary_img_url")
     private String diaryImgURL = "";
 }
