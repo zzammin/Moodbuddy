@@ -15,7 +15,7 @@
 - **Database** : MySQL
 - **ORM** : Hibernate (Spring Data JPA 사용)
 
-## 🧑‍🤝‍🧑 맴버구성
+## 🧑‍🤝‍🧑 멤버구성
 <p>
     <a href="https://github.com/M-ung">
       <img src="https://avatars.githubusercontent.com/u/126846468?v=4" width="100">
