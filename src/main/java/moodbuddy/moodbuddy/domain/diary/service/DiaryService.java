@@ -6,9 +6,11 @@ import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 
+import java.io.IOException;
+
 public interface DiaryService {
     // 일기 저장
-    DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO);
+    DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
 
     // 일기 수정
     DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO);

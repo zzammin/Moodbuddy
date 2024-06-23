@@ -70,6 +70,9 @@ dependencies {
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // mapper
+    implementation 'org.modelmapper:modelmapper:2.4.4'
 }
 
 tasks.named('test') {
