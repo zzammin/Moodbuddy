@@ -32,17 +32,37 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryService] save");
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, JwtUtil.getEmail()); // DiaryReqSaveDTO -> Diary
-        diary = diaryRepository.save(diary); // diary 저장
-        diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary); // 이미지 저장 로직 시행
 
-        return DiaryMapper.toDto(diary); // mapper 후 리턴
+        String userEmail = JwtUtil.getEmail();
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userEmail);
+        diary = diaryRepository.save(diary);
+
+        if (diaryReqSaveDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
+        }
+
+        return DiaryMapper.toSaveDTO(diary);
     }
 
     @Override
     @Transactional
-    public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) {
-        return new DiaryResUpdateDTO();
+    public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
+        log.info("[DiaryService] update");
+
+        Diary diary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()).get(); // 예외 처리 로직 추가
+
+        diary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
+
+        if (diaryReqUpdateDTO.getImagesToDelete() != null) {
+            diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
+        }
+
+        if (diaryReqUpdateDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
+        }
+
+        diary = diaryRepository.save(diary);
+        return DiaryMapper.toUpdateDTO(diary);
     }
 
     @Override

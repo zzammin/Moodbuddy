@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface DiaryImageService {
     void saveDiaryImages(List<MultipartFile> diaryImgList, Diary diary) throws IOException;
+    void deleteDiaryImages(List<String> imagesToDelete) throws IOException;
 }
 

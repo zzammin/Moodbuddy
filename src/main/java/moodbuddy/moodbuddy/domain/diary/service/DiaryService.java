@@ -13,7 +13,7 @@ public interface DiaryService {
     DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
 
     // 일기 수정
-    DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO);
+    DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
 
     // 일기 삭제
     DiaryResDeleteDTO delete(Long diaryId);

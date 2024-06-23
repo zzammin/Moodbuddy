@@ -49,4 +49,11 @@ public class Diary extends BaseEntity {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id")
 //    private User user;
+
+    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather) {
+        this.diaryTitle = title;
+        this.diaryDate = date;
+        this.diaryContent = content;
+        this.diaryWeather = weather;
+    }
 }

@@ -4,4 +4,5 @@ import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DiaryImageRepository extends JpaRepository<DiaryImage, Long> {
+    DiaryImage findByDiaryImgURL(String diaryImgURL);
 }

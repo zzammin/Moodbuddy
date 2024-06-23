@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.domain.diaryImage.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +46,7 @@ public class DiaryImageServiceImpl implements DiaryImageService {
             String originalFilename = diaryImg.getOriginalFilename();
             String filePath = imgFolder + "/" + originalFilename;
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(diaryImg.getSize());
-            metadata.setContentType(diaryImg.getContentType());
-
-            amazonS3.putObject(bucket, filePath, diaryImg.getInputStream(), metadata);
+            amazonS3.putObject(bucket, filePath, diaryImg.getInputStream(), new ObjectMetadata());
             return amazonS3.getUrl(bucket, filePath).toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload image", e);
@@ -65,5 +62,30 @@ public class DiaryImageServiceImpl implements DiaryImageService {
                 .collect(Collectors.toList());
 
         diaryImageRepository.saveAll(diaryImages);
+    }
+
+    @Override
+    public void deleteDiaryImages(List<String> imagesToDelete) {
+        for (String imageUrl : imagesToDelete) {
+            try {
+                deleteImageFromS3(imageUrl);
+                deleteImageFromDatabase(imageUrl);
+            } catch (IOException e) {
+                log.error("Failed to delete image from S3", e);
+                throw new RuntimeException("Failed to delete image from S3", e);
+            }
+        }
+    }
+
+    private void deleteImageFromS3(String imageUrl) throws IOException {
+        String filePath = imgFolder + "/" + imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        amazonS3.deleteObject(new DeleteObjectRequest(bucket, filePath));
+    }
+
+    private void deleteImageFromDatabase(String imageUrl) {
+        DiaryImage diaryImage = diaryImageRepository.findByDiaryImgURL(imageUrl);
+        if (diaryImage != null) {
+            diaryImageRepository.delete(diaryImage);
+        }
     }
 }

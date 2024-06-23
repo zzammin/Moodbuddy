@@ -2,6 +2,7 @@ package moodbuddy.moodbuddy.domain.diary.mapper;
 
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResSaveDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResUpdateDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
@@ -24,7 +25,10 @@ public class DiaryMapper {
                 .build();
     }
 
-    public static DiaryResSaveDTO toDto(Diary diary) {
+    public static DiaryResSaveDTO toSaveDTO(Diary diary) {
         return modelMapper.map(diary, DiaryResSaveDTO.class);
+    }
+    public static DiaryResUpdateDTO toUpdateDTO(Diary diary) {
+        return modelMapper.map(diary, DiaryResUpdateDTO.class);
     }
 }
