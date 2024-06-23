@@ -9,6 +9,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
@@ -31,12 +32,11 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryService] save");
-
-        Diary diary = createDiaryFromDTO(diaryReqSaveDTO); // DiaryReqSaveDTO -> Diary
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, JwtUtil.getEmail()); // DiaryReqSaveDTO -> Diary
         diary = diaryRepository.save(diary); // diary 저장
         diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary); // 이미지 저장 로직 시행
 
-        return modelMapper.map(diary, DiaryResSaveDTO.class); // mapper 후 리턴
+        return DiaryMapper.toDto(diary); // mapper 후 리턴
     }
 
     @Override
@@ -78,16 +78,4 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     /** 추가 메서드 **/
-    private Diary createDiaryFromDTO(DiaryReqSaveDTO diaryReqSaveDTO) {
-        return Diary.builder()
-                .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
-                .diaryDate(diaryReqSaveDTO.getDiaryDate())
-                .diaryContent(diaryReqSaveDTO.getDiaryContent())
-                .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
-                .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
-                .diaryStatus(DiaryStatus.PUBLISHED) // 문장 요약 로직 필요
-                .diarySummary("summary")
-                .userEmail(JwtUtil.getEmail())
-                .build();
-    }
 }
