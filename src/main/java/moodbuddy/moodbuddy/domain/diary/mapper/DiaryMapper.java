@@ -18,8 +18,8 @@ public class DiaryMapper {
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
                 .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
-                .diaryStatus(DiaryStatus.PUBLISHED) // 문장 요약 로직 필요
-                .diarySummary("summary")
+                .diaryStatus(DiaryStatus.PUBLISHED)
+                .diarySummary("summary") // 문장 요약 로직 필요
                 .userEmail(userEmail)
                 .build();
     }
