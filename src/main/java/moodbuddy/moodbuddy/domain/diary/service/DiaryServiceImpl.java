@@ -83,6 +83,16 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
+    public DiaryResDraftDeleteDTO draftDelete(Long diaryId) {
+        return null;
+    }
+
+    @Override
+    public DiaryResDraftDeleteAllDTO draftDeleteAll() {
+        return null;
+    }
+
+    @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
         return new DiaryResFindOneDTO();
     }
