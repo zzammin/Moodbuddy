@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,9 +84,15 @@ public class DiaryImageServiceImpl implements DiaryImageService {
     }
 
     private void deleteImageFromDatabase(String imageUrl) {
-        DiaryImage diaryImage = diaryImageRepository.findByDiaryImgURL(imageUrl);
-        if (diaryImage != null) {
-            diaryImageRepository.delete(diaryImage);
+        Optional<DiaryImage> optionalDiaryImage = diaryImageRepository.findByDiaryImgURL(imageUrl); // 예외 로직 추가
+        if (optionalDiaryImage.get() != null) {
+            diaryImageRepository.delete(optionalDiaryImage.get());
         }
+    }
+
+    @Override
+    public List<DiaryImage> findImagesByDiary(Diary diary) {
+        Optional<List<DiaryImage>> optionalDiaryList = diaryImageRepository.findByDiary(diary); // 예외 로직 추가
+        return optionalDiaryList.get();
     }
 }

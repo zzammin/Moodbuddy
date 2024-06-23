@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.domain.diary.mapper;
 
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDeleteDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResSaveDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResUpdateDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
@@ -28,7 +29,6 @@ public class DiaryMapper {
     public static DiaryResSaveDTO toSaveDTO(Diary diary) {
         return modelMapper.map(diary, DiaryResSaveDTO.class);
     }
-    public static DiaryResUpdateDTO toUpdateDTO(Diary diary) {
-        return modelMapper.map(diary, DiaryResUpdateDTO.class);
-    }
+    public static DiaryResUpdateDTO toUpdateDTO(Diary diary) { return modelMapper.map(diary, DiaryResUpdateDTO.class); }
+    public static DiaryResDeleteDTO toDeleteDTO(Diary diary) { return modelMapper.map(diary, DiaryResDeleteDTO.class); }
 }

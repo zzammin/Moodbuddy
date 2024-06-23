@@ -11,12 +11,15 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
+import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -68,7 +71,22 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public DiaryResDeleteDTO delete(Long diaryId) {
-        return new DiaryResDeleteDTO();
+        log.info("[DiaryService] delete");
+
+        Diary diary = diaryRepository.findById(diaryId).get(); // 예외 처리 로직 추가
+
+        List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+        List<String> imageUrls = images.stream()
+                .map(DiaryImage::getDiaryImgURL)
+                .collect(Collectors.toList());
+
+        if (!imageUrls.isEmpty()) {
+            diaryImageService.deleteDiaryImages(imageUrls);
+        }
+
+        diaryRepository.delete(diary);
+
+        return DiaryMapper.toDeleteDTO(diary);
     }
 
     @Override
