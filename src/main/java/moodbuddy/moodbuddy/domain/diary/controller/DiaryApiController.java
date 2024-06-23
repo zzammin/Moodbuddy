@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDeleteDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResSaveDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResUpdateDTO;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
@@ -38,6 +39,18 @@ public class DiaryApiController {
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
         } catch (Exception e) {
             log.error("[DiaryApiController] update", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/delete/{diaryId}")
+    public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
+        log.info("[DiaryApiController] delete");
+        try {
+            DiaryResDeleteDTO result = diaryService.delete(diaryId);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] delete", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }

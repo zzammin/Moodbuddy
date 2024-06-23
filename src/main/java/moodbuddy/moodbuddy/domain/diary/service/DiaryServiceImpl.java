@@ -8,7 +8,6 @@ import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
