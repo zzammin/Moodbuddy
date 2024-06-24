@@ -1,8 +1,9 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
 import lombok.RequiredArgsConstructor;
-import moodbuddy.moodbuddy.domain.letter.dto.LetterRequestDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.LetterResponseDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterReqDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterResDetailsDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterResPageDTO;
 import moodbuddy.moodbuddy.domain.letter.repository.LetterRepository;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
@@ -23,11 +24,10 @@ public class LetterServiceImpl implements LetterService {
 
     /**
      * 고민상담소 첫 페이지
-     * @param userId
      * @return
      */
     @Override
-    public LetterResponseDTO letterPage(Long userId){
+    public LetterResPageDTO letterPage(){
         // userId를 통해 userRepository에서 유저 조회 (Optional 사용)
         // -> user_id, birthday, letter_nums 가져와서 DTO에 넣기
 
@@ -46,29 +46,26 @@ public class LetterServiceImpl implements LetterService {
 
     /**
      * 고민 편지 작성
-     * @param userId
      * @param letterRequestDTO
      * @return
      */
     // writeLetter가 호출되면, 12시간 타이머를 설정해둬야 하는데, 이걸 어떻게 할 수 있을까?
     // 이후에 12시간 타이머가 끝나면, 카카오톡 알림톡 전송 (쏘다 API 이용)
     @Override
-    public LetterResponseDTO writeLetter(Long userId, LetterRequestDTO letterRequestDTO){
+    public void writeLetter(LetterReqDTO letterRequestDTO){
         // @Builder 애노테이션을 통한 빌더 형식으로 Letter 저장하기!
         // letter_id : Letter의 user_id 컬럼 값으로 userId가 없다면 letter_id를 1로 설정하고, userId가 있다면 userId를 가진 Letter row의 letter_id의 max 값 + 1로 설정
         // user_id : userId를 Letter의 user_id로 저장
         // format, worry_content : letterRequestDTO에서 worry_content와 format 가져와서 저장
-        return null;
     }
 
     /**
      * 고민 편지 내용
-     * @param userId
      * @param letterId
      * @return
      */
     @Override
-    public LetterResponseDTO details(Long userId, Long letterId){
+    public LetterResDetailsDTO details(Long letterId){
         // letterId와 userId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
         // -> 이 Letter의 worry_content, answer_content를 DTO에 넣기
         return null;

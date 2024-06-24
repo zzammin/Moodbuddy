@@ -1,12 +1,13 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
-import moodbuddy.moodbuddy.domain.letter.dto.LetterRequestDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.LetterResponseDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterReqDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterResDetailsDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.LetterResPageDTO;
 
 public interface LetterService {
-    LetterResponseDTO letterPage(Long userId);
+    LetterResPageDTO letterPage();
 
-    LetterResponseDTO writeLetter(Long userId, LetterRequestDTO letterRequestDTO);
+    void writeLetter(LetterReqDTO letterRequestDTO);
 
-    LetterResponseDTO details(Long userId, Long letterId);
+    LetterResDetailsDTO details(Long letterId);
 }

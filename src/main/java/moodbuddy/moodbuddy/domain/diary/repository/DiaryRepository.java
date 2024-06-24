@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
-    @Query(value = "select * from Diary d where d.userId = :userId and TO_CHAR(d.createdTime, 'yyyyMM') LIKE :month", nativeQuery = true)
-    List<Diary> findByUserIdAndMonth(@Param("userId") Long userId, @Param("month") String month);
+    @Query(value = "select d from Diary d where d.userEmail = :userEmail and function('DATE_FORMAT', d.createdTime, '%Y-%m') like :month")
+    List<Diary> findByUserEmailAndMonth(@Param("userEmail") String userEmail, @Param("month") String month);
+
+    @Query("select d from Diary d where d.userEmail = :userEmail and function('DATE_FORMAT', d.createdTime, '%Y-%m-%d') like :day")
+    Optional<Diary> findByUserEmailAndDay(@Param("userEmail") String userEmail, @Param("day") String day);
 }

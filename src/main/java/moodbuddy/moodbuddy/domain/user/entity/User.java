@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import moodbuddy.moodbuddy.domain.letter.entity.Letter;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Builder
@@ -32,4 +34,8 @@ public class User extends BaseEntity {
 
     /** 생성자 **/
     protected User() {}
+
+    @OneToMany(mappedBy = "letterUser", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Letter> letters;
+
 }
