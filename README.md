@@ -15,13 +15,16 @@
 - **Database** : MySQL
 - **ORM** : Hibernate (Spring Data JPA 사용)
 
-## 🧑‍🤝‍🧑 맴버구성
+## 🧑‍🤝‍🧑 멤버 구성
 <p>
     <a href="https://github.com/M-ung">
       <img src="https://avatars.githubusercontent.com/u/126846468?v=4" width="100">
     </a>
     <a href="https://github.com/dylee00">
       <img src="https://avatars.githubusercontent.com/u/135154209?v=4" width="100">
+    </a>
+    <a href="https://github.com/zzammin">
+      <img src="https://avatars.githubusercontent.com/u/105933726?v=4" width="100"> 
     </a>
 </p>
 
