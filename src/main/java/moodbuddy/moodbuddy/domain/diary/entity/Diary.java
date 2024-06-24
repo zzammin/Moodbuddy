@@ -29,11 +29,11 @@ public class Diary extends BaseEntity {
     private String diaryContent;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_weather", nullable = false, length = 255)
+    @Column(name = "diary_weather", nullable = false)
     private DiaryWeather diaryWeather;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_emotion", nullable = false, length = 255)
+    @Column(name = "diary_emotion", nullable = false)
     private DiaryEmotion diaryEmotion;
 
     @Enumerated(EnumType.STRING)
@@ -43,7 +43,7 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_summary", nullable = false, length = 255)
     private String diarySummary;
 
-    @Column(name = "user_email", nullable = false, length = 255)
+    @Column(name = "user_email", nullable = false, length = 50)
     private String userEmail; // ManyToOne으로 User와 Diary를 연결하는 것이 아닌, userEmail을 칼럼으로 넣음
 
 //    @ManyToOne(fetch = FetchType.LAZY)
