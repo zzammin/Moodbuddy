@@ -73,6 +73,9 @@ dependencies {
 
     // mapper
     implementation 'org.modelmapper:modelmapper:2.4.4'
+
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:3.3.1'
 }
 
 tasks.named('test') {

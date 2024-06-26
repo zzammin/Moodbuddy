@@ -12,7 +12,7 @@ public class ProfileImage extends BaseEntity {
     @Column(name = "profile_image_id")
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "profile_id")
     private Profile profile;
     private String profileImgURL = "";

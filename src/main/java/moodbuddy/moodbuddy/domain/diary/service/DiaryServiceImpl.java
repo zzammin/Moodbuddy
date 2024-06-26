@@ -1,5 +1,8 @@
 package moodbuddy.moodbuddy.domain.diary.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
@@ -14,11 +17,12 @@ import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -30,6 +34,7 @@ public class DiaryServiceImpl implements DiaryService {
     private final ModelMapper modelMapper;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
+    private final WebClient naverWebClient; // 인스턴스 이름을 NaverCloudConfig의 WebClient의 빈 이름(naverWebClient)과 맞추고 DI 진행
 
     @Override
     @Transactional
@@ -37,7 +42,9 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryService] save");
 
         String userEmail = JwtUtil.getEmail();
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userEmail);
+        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
+
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userEmail, summary);
         diary = diaryRepository.save(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
@@ -136,6 +143,7 @@ public class DiaryServiceImpl implements DiaryService {
     // try-catch 문 쓰자!
     @Override
     public DiaryResCalendarMonthListDTO monthlyCalendar(DiaryReqCalendarMonthDTO calendarMonthDTO){
+        log.info("[DiaryService] monthlyCalendar");
         try{
             // -> userEmail 가져오기
             String userEmail = JwtUtil.getEmail();
@@ -158,9 +166,55 @@ public class DiaryServiceImpl implements DiaryService {
                     .diaryResCalendarMonthDTOList(diaryResCalendarMonthDTOList)
                     .build();
         } catch (Exception e) {
-            log.error("[DiaryServiceImpl] monthlyCalendar", e);
-            throw new RuntimeException("월간 캘린더 데이터를 가져오는 중 오류가 발생했습니다.", e);
+            log.error("[DiaryService] monthlyCalendar", e);
+            throw new RuntimeException("[DiaryService] monthlyCalendar error", e);
         }
+    }
+
+    /**
+     * 일기 한 줄 요약
+     * @param content
+     * @return
+     */
+    public String summarize(String content){
+        log.info("[DiaryService] summarize");
+        try {
+            // getRequestBody 메소드에 일기 내용을 전달하여, Request Body 를 위한 Map 생성
+            Map<String,Object> requestBody = getRequestBody(content);
+
+            // naverWebClient 를 사용하여 API 호출
+            String response = naverWebClient.post()
+                    .body(BodyInserters.fromValue(requestBody)) // 1. BodyInserters 가 무엇인가?
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(response);
+            return jsonNode.path("summary").asText(); // summary 결과
+        } catch (Exception e){
+            log.error("[DiaryService] summarize error",e);
+            throw new RuntimeException("[DiaryService] monthlyCalendar error", e);
+        }
+    }
+
+    /**
+     * 네이버 클라우드 API 연동을 위한 Request Body 생성
+     * @param content
+     * @return
+     */
+    public Map<String,Object> getRequestBody(String content){
+        Map<String, Object> documentObject = new HashMap<>(); // DocumentObject 를 위한 Map 생성
+        documentObject.put("content", content); // 요약할 내용 (일기 내용)
+
+        Map<String, Object> optionObject = new HashMap<>(); // OptionObject 를 위한 Map 생성
+        optionObject.put("language", "ko"); // 한국어
+        optionObject.put("summaryCount", 1); // 요약 줄 수 (1줄)
+
+        Map<String, Object> requestBody = new HashMap<>(); // Request Body 를 위한 Map 생성
+        requestBody.put("document", documentObject);
+        requestBody.put("option", optionObject);
+        return requestBody;
     }
 
     /**
@@ -171,6 +225,7 @@ public class DiaryServiceImpl implements DiaryService {
     // "일기 작성할 때" , 그 일기 내용을 Diary 테이블의 content 컬럼에 저장하고, 문서 요약 API에 보내서 요약된 내용을 summary 컬럼에 저장한다.
     @Override
     public DiaryResCalendarSummaryDTO summary(DiaryReqCalendarSummaryDTO calendarSummaryDTO) {
+        log.info("[DiaryService] summary");
         try {
             // userEmail 가져오기
             String userEmail = JwtUtil.getEmail();
@@ -185,8 +240,8 @@ public class DiaryServiceImpl implements DiaryService {
                             .build())
                     .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
         } catch(Exception e){
-            log.error("[DiaryServiceImpl] summary", e);
-            throw new RuntimeException("캘린더 요약 데이터를 가져오는 중 오류가 발생했습니다.", e);
+            log.error("[DiaryService] summary", e);
+            throw new RuntimeException("[DiaryService] summary error", e);
         }
     }
 }

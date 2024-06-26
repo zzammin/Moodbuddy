@@ -61,7 +61,7 @@ public class DiaryApiController {
     @Operation(summary = "캘린더 달 이동", description = "캘린더의 달을 이동시킵니다.")
     public ResponseEntity<?> monthlyCalendar(
             @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
-            DiaryReqCalendarMonthDTO calendarMonthDTO
+            @RequestBody DiaryReqCalendarMonthDTO calendarMonthDTO
     ){
         return ResponseEntity.ok(diaryService.monthlyCalendar(calendarMonthDTO));
     }
@@ -70,7 +70,7 @@ public class DiaryApiController {
     @Operation(summary = "일기 한 줄 요약", description = "사용자가 선택한 날짜의 일기를 한 줄로 요약합니다.")
     public ResponseEntity<?> summary(
             @Parameter(description = "사용자가 선택한 날짜를 담고 있는 DTO")
-            DiaryReqCalendarSummaryDTO calendarSummaryDTO
+            @RequestBody DiaryReqCalendarSummaryDTO calendarSummaryDTO
     ){
         return ResponseEntity.ok(diaryService.summary(calendarSummaryDTO));
     }

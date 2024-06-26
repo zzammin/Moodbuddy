@@ -35,7 +35,4 @@ public class User extends BaseEntity {
     /** 생성자 **/
     protected User() {}
 
-    @OneToMany(mappedBy = "letterUser", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Letter> letters;
-
 }

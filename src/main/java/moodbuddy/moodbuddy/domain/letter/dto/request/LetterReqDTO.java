@@ -1,8 +1,10 @@
-package moodbuddy.moodbuddy.domain.letter.dto;
+package moodbuddy.moodbuddy.domain.letter.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -11,4 +13,6 @@ public class LetterReqDTO {
     private Integer letterFormat;
     @Schema(description = "사용자가 작성한 고민 편지 내용")
     private String letterWorryContent;
+    @Schema(description = "사용자가 고민 편지를 작성한 날짜")
+    private LocalDateTime letterDate;
 }

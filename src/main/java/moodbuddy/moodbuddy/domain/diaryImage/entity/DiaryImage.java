@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.domain.diaryImage.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
@@ -9,6 +10,7 @@ import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 @Entity
 @Getter
 @Builder
+@AllArgsConstructor
 public class DiaryImage extends BaseEntity {
     @Id
     @GeneratedValue
