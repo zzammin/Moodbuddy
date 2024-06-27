@@ -36,15 +36,8 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
 
-    private static final ModelMapper modelMapper = new ModelMapper();
-
-    // try-catch 문 쓰자!
-
-    /**
-     * 고민상담소 첫 페이지
-     * @return
-     */
     @Override
+    @Transactional
     public LetterResPageDTO letterPage(){
         log.info("[LetterService] letterPage");
         try{
@@ -61,6 +54,7 @@ public class LetterServiceImpl implements LetterService {
                 // user_id를 통해 letterRepository에서 편지 리스트 조회 (List<Letter>)
                 List<Letter> letters = letterRepository.findByUserId(userId);
 
+                // 편지 리스트에서 답장이 있으면 answerCheck 를 1로, 없으면 0으로 설정하여 구성한 리스트
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
                         .map(letter -> LetterResPageAnswerDTO.builder()
                                         .letterCreatedTime(letter.getCreatedTime())
@@ -68,18 +62,12 @@ public class LetterServiceImpl implements LetterService {
                                         .build())
                         .collect(Collectors.toList());
 
-                // builder 형식으로 LetterResPageDTO 생성
-                // optionalUser -> nickname, profile_comment 가져와서 DTO에 넣기
-                // optionalProfile -> birthday, letter_nums 가져와서 DTO에 넣기
-                // optionalProfileImage -> image_url 가져와서 DTO에 넣기
-                // optionalLetter -> Letter 각각의 createdTime을 가져오고 answer_content 가 있으면 그 createdTime 의 answerCheck = 1, 없으면 answerCheck = 0으로 설정
-
                 return LetterResPageDTO.builder()
                         .profileNickname(optionalProfile.get().getProfileNickName())
                         .userBirth(optionalUser.get().getUserBirth())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)
-                        .userLetterNums(optionalUser.get().getUserDiaryNums())
+                        .userLetterNums(optionalUser.get().getUserLetterNums())
                         .letterResPageAnswerDTOList(letterResPageAnswerDTOList)
                         .build();
             }
@@ -90,14 +78,10 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    /**
-     * 고민 편지 작성
-     * @param letterReqDTO
-     * @return
-     */
     // writeLetter가 호출되면, 12시간 타이머를 설정해둬야 하는데, 이걸 어떻게 할 수 있을까?
     // 이후에 12시간 타이머가 끝나면, 카카오톡 알림톡 전송 (쏘다 API 이용)
     @Override
+    @Transactional
     public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
         log.info("[LetterService] writeLetter");
         try{
@@ -118,12 +102,8 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    /**
-     * 고민 편지 내용
-     * @param letterId
-     * @return
-     */
     @Override
+    @Transactional
     public LetterResDetailsDTO details(Long letterId){
         log.info("[LetterService] details");
         try{

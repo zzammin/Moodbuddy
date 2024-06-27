@@ -2,7 +2,6 @@ package moodbuddy.moodbuddy.domain.diary.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
@@ -13,6 +12,8 @@ import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
+import moodbuddy.moodbuddy.domain.user.entity.User;
+import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DiaryServiceImpl implements DiaryService {
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
     private final WebClient naverWebClient; // 인스턴스 이름을 NaverCloudConfig의 WebClient의 빈 이름(naverWebClient)과 맞추고 DI 진행
@@ -40,7 +42,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryService] save");
-
+        Long userId = JwtUtil.getMemberId();
         String userEmail = JwtUtil.getEmail();
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
 
@@ -51,7 +53,20 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
         }
 
+        // 일기 작성하면 편지지 개수 늘려주기
+        letterNumPlus(userId);
+
         return DiaryMapper.toSaveDTO(diary);
+    }
+
+    @Override
+    @Transactional
+    public void letterNumPlus(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            int letterNums = optionalUser.get().getUserLetterNums() + 1;
+            userRepository.updateLetterNumsById(userId, letterNums);
+        }
     }
 
     @Override
@@ -134,14 +149,8 @@ public class DiaryServiceImpl implements DiaryService {
 
     /** 추가 메서드 **/
 
-    /**
-     * 캘린더 달 이동 (캘린더의 < , > 버튼)
-     * @param calendarMonthDTO
-     * @return
-     */
-
-    // try-catch 문 쓰자!
     @Override
+    @Transactional
     public DiaryResCalendarMonthListDTO monthlyCalendar(DiaryReqCalendarMonthDTO calendarMonthDTO){
         log.info("[DiaryService] monthlyCalendar");
         try{
@@ -171,11 +180,45 @@ public class DiaryServiceImpl implements DiaryService {
         }
     }
 
-    /**
-     * 일기 한 줄 요약
-     * @param content
-     * @return
-     */
+    @Override
+    @Transactional
+    public DiaryResCalendarSummaryDTO summary(DiaryReqCalendarSummaryDTO calendarSummaryDTO) {
+        log.info("[DiaryService] summary");
+        try {
+            // userEmail 가져오기
+            String userEmail = JwtUtil.getEmail();
+
+            // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
+            Optional<Diary> summaryDiary = diaryRepository.findByUserEmailAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
+
+            // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
+            return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()
+                            .diaryTitle(diary.getDiaryTitle())
+                            .diarySummary(diary.getDiarySummary())
+                            .build())
+                    .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
+        } catch(Exception e){
+            log.error("[DiaryService] summary", e);
+            throw new RuntimeException("[DiaryService] summary error", e);
+        }
+    }
+
+    @Override
+    public Map<String,Object> getRequestBody(String content){
+        Map<String, Object> documentObject = new HashMap<>(); // DocumentObject 를 위한 Map 생성
+        documentObject.put("content", content); // 요약할 내용 (일기 내용)
+
+        Map<String, Object> optionObject = new HashMap<>(); // OptionObject 를 위한 Map 생성
+        optionObject.put("language", "ko"); // 한국어
+        optionObject.put("summaryCount", 1); // 요약 줄 수 (1줄)
+
+        Map<String, Object> requestBody = new HashMap<>(); // Request Body 를 위한 Map 생성
+        requestBody.put("document", documentObject);
+        requestBody.put("option", optionObject);
+        return requestBody;
+    }
+
+    @Override
     public String summarize(String content){
         log.info("[DiaryService] summarize");
         try {
@@ -195,53 +238,6 @@ public class DiaryServiceImpl implements DiaryService {
         } catch (Exception e){
             log.error("[DiaryService] summarize error",e);
             throw new RuntimeException("[DiaryService] monthlyCalendar error", e);
-        }
-    }
-
-    /**
-     * 네이버 클라우드 API 연동을 위한 Request Body 생성
-     * @param content
-     * @return
-     */
-    public Map<String,Object> getRequestBody(String content){
-        Map<String, Object> documentObject = new HashMap<>(); // DocumentObject 를 위한 Map 생성
-        documentObject.put("content", content); // 요약할 내용 (일기 내용)
-
-        Map<String, Object> optionObject = new HashMap<>(); // OptionObject 를 위한 Map 생성
-        optionObject.put("language", "ko"); // 한국어
-        optionObject.put("summaryCount", 1); // 요약 줄 수 (1줄)
-
-        Map<String, Object> requestBody = new HashMap<>(); // Request Body 를 위한 Map 생성
-        requestBody.put("document", documentObject);
-        requestBody.put("option", optionObject);
-        return requestBody;
-    }
-
-    /**
-     * 일기 한 줄 요약 보여주기
-     * @param calendarSummaryDTO
-     * @return
-     */
-    // "일기 작성할 때" , 그 일기 내용을 Diary 테이블의 content 컬럼에 저장하고, 문서 요약 API에 보내서 요약된 내용을 summary 컬럼에 저장한다.
-    @Override
-    public DiaryResCalendarSummaryDTO summary(DiaryReqCalendarSummaryDTO calendarSummaryDTO) {
-        log.info("[DiaryService] summary");
-        try {
-            // userEmail 가져오기
-            String userEmail = JwtUtil.getEmail();
-
-            // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByUserEmailAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
-
-            // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
-            return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()
-                            .diaryTitle(diary.getDiaryTitle())
-                            .diarySummary(diary.getDiarySummary())
-                            .build())
-                    .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
-        } catch(Exception e){
-            log.error("[DiaryService] summary", e);
-            throw new RuntimeException("[DiaryService] summary error", e);
         }
     }
 }

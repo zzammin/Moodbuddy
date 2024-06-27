@@ -13,5 +13,5 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
     List<Letter> findByUserId(@Param("userId") Long userId);
 
     @Query("select l from Letter l where l.id = :letterId and l.user.id = :userId")
-    Optional<Letter> findByIdAndUserId(Long letterId, Long userId);
+    Optional<Letter> findByIdAndUserId(@Param("letterId") Long letterId, @Param("userId") Long userId);
 }

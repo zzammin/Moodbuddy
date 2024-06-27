@@ -27,7 +27,9 @@ public class User extends BaseEntity {
     private String userNickName;
     private String userBirth;
     private LocalDateTime userNoticeTime;
-    private Integer userDiaryNums = 0;
+    private Integer userCurDiaryNums = 0;
+    private Integer userLastDiaryNums = 0;
+    private Integer userLetterNums = 0;
     private String userRole = "ROLE_USER";
 
     // deleted 역할이 무엇인 지 몰라서 빼둠
