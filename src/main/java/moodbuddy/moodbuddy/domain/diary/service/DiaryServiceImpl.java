@@ -166,7 +166,7 @@ public class DiaryServiceImpl implements DiaryService {
 
             List<DiaryResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> DiaryResCalendarMonthDTO.builder()
-                            .diaryCreatedTime(diary.getCreatedTime())
+                            .diaryDate(diary.getDiaryDate())
                             .diaryEmotion(diary.getDiaryEmotion())
                             .build())
                     .collect(Collectors.toList());
