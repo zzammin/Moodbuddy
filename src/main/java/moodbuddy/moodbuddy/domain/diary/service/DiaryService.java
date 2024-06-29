@@ -18,7 +18,7 @@ public interface DiaryService {
     DiaryResDeleteDTO delete(Long diaryId);
 
     // 일기 임시 저장
-    DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO);
+    DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;
 
     // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();

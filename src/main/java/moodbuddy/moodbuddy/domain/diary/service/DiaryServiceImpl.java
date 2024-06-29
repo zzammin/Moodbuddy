@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.*;
@@ -46,7 +45,7 @@ public class DiaryServiceImpl implements DiaryService {
         String userEmail = JwtUtil.getEmail();
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
 
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userEmail, summary);
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, userEmail, summary);
         diary = diaryRepository.save(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
@@ -113,8 +112,22 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftDTO) {
-        return new DiaryResDraftSaveDTO();
+    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
+        log.info("[DiaryService] draftSave");
+        Long userId = JwtUtil.getMemberId();
+        String userEmail = JwtUtil.getEmail();
+
+        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userEmail);
+        diary = diaryRepository.save(diary);
+
+        if (diaryReqDraftSaveDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
+        }
+
+        // 일기 작성하면 편지지 개수 늘려주기
+        letterNumPlus(userId);
+
+        return DiaryMapper.toDraftSaveDTO(diary);
     }
 
     @Override

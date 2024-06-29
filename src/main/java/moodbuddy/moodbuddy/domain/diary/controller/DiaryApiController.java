@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarMonthDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarSummaryDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
@@ -28,7 +25,7 @@ public class DiaryApiController {
             DiaryResSaveDTO result = diaryService.save(diaryReqSaveDTO);
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
         } catch (Exception e) {
-            log.error("[DiaryApiController] error", e);
+            log.error("[DiaryApiController] save", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }
@@ -53,6 +50,18 @@ public class DiaryApiController {
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete", result));
         } catch (Exception e) {
             log.error("[DiaryApiController] delete", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @PostMapping("/draftSave")
+    public ResponseEntity<?> draftSave(@RequestBody DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) {
+        log.info("[DiaryApiController] draftSave");
+        try {
+            DiaryResDraftSaveDTO result = diaryService.draftSave(diaryReqDraftSaveDTO);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] draftSave", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }
