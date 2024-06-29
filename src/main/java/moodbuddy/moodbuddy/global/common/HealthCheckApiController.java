@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthCheckApiController {
     @GetMapping
     public ResponseEntity<?> healthcheck() {
-        return ResponseEntity.ok().body("202406201828 healthCheck 완료.");
+        return ResponseEntity.ok().body("202406291833 healthCheck 완료.");
     }
 }
 
