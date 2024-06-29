@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**"))
                 .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**"))
                 .requestMatchers(new AntPathRequestMatcher("/user/sign-up"))
+                .requestMatchers(new AntPathRequestMatcher("/api/healthCheck"))
                 .requestMatchers(new AntPathRequestMatcher("/user/login")));
     }
 
@@ -55,6 +56,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/user/sign-up",
                                 "/user/login",
+                                "/api/healthCheck",
                                 "/*"
                         ).permitAll() // 위 경로들은 모두 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
