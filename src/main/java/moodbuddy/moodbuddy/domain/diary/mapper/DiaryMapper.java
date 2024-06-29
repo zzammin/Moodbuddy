@@ -15,7 +15,7 @@ public class DiaryMapper {
     private static final ModelMapper modelMapper = new ModelMapper();
 
 
-    public static Diary toEntity(DiaryReqSaveDTO diaryReqSaveDTO, String userEmail, String summary) {
+    public static Diary toEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long userId, String summary) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
@@ -24,7 +24,7 @@ public class DiaryMapper {
                 .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
                 .diaryStatus(DiaryStatus.PUBLISHED)
                 .diarySummary(summary) // 문장 요약 로직 필요
-                .userEmail(userEmail)
+                .userId(userId)
                 .build();
     }
 

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,7 +15,7 @@ public class LetterResPageDTO {
     @Schema(description = "프로필 닉네임")
     private String profileNickname;
     @Schema(description = "유저 생일")
-    private String userBirth;
+    private LocalDateTime userBirth;
     @Schema(description = "프로필 코멘트")
     private String profileComment;
     @Schema(description = "프로필 이미지")
