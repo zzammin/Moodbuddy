@@ -86,21 +86,25 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
 
-        Diary diary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()).get(); // 예외 처리 로직 추가
+        Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId());// 예외 처리 로직 추가
+        if(!optionalDiary.isPresent()) {
+            // 에러 추가
+        }
 
-        diary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
+        Diary findDiary = optionalDiary.get();
+        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
 
         if (diaryReqUpdateDTO.getImagesToDelete() != null) {
             diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
         }
 
         if (diaryReqUpdateDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
+            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), findDiary);
         }
 
 //        saveDocument(diary);
 
-        return DiaryMapper.toUpdateDTO(diary);
+        return DiaryMapper.toUpdateDTO(findDiary);
     }
 
     @Override

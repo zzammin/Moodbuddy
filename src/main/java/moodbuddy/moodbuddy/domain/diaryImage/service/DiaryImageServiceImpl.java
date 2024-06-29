@@ -66,6 +66,7 @@ public class DiaryImageServiceImpl implements DiaryImageService {
     }
 
     @Override
+    @Transactional
     public void deleteDiaryImages(List<String> imagesToDelete) {
         for (String imageUrl : imagesToDelete) {
             try {
@@ -85,14 +86,16 @@ public class DiaryImageServiceImpl implements DiaryImageService {
 
     private void deleteImageFromDatabase(String imageUrl) {
         Optional<DiaryImage> optionalDiaryImage = diaryImageRepository.findByDiaryImgURL(imageUrl); // 예외 로직 추가
-        if (optionalDiaryImage.get() != null) {
+        if (optionalDiaryImage.isPresent()) {
             diaryImageRepository.delete(optionalDiaryImage.get());
+        } else {
+            log.warn("DiaryImage not found for URL: " + imageUrl);
         }
     }
 
     @Override
     public List<DiaryImage> findImagesByDiary(Diary diary) {
         Optional<List<DiaryImage>> optionalDiaryList = diaryImageRepository.findByDiary(diary); // 예외 로직 추가
-        return optionalDiaryList.get();
+        return optionalDiaryList.orElseThrow(() -> new RuntimeException("No images found for the given diary"));
     }
 }

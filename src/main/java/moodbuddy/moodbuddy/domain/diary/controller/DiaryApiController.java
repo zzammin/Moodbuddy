@@ -35,7 +35,7 @@ public class DiaryApiController {
 
     @PatchMapping("/update")
     @Operation(summary = "일기 수정")
-    public ResponseEntity<?> update(@RequestBody DiaryReqUpdateDTO diaryReqUpdateDTO) {
+    public ResponseEntity<?> update(@ModelAttribute DiaryReqUpdateDTO diaryReqUpdateDTO) {
         log.info("[DiaryApiController] update");
         try {
             DiaryResUpdateDTO result = diaryService.update(diaryReqUpdateDTO);
