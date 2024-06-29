@@ -12,8 +12,7 @@ public class DiaryMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-
-    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, String userEmail, String summary) {
+    public static Diary toEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long userId, String summary) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
@@ -22,18 +21,18 @@ public class DiaryMapper {
                 .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
                 .diaryStatus(DiaryStatus.PUBLISHED)
                 .diarySummary(summary) // 문장 요약 로직 필요
-                .userEmail(userEmail)
+                .userId(userId)
                 .build();
     }
 
-    public static Diary toDraftDiaryEntity(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO, String userEmail) {
+    public static Diary toDraftDiaryEntity(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO, Long userId) {
         return Diary.builder()
                 .diaryTitle(diaryReqDraftSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqDraftSaveDTO.getDiaryDate())
                 .diaryContent(diaryReqDraftSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqDraftSaveDTO.getDiaryWeather())
                 .diaryStatus(DiaryStatus.DRAFT )
-                .userEmail(userEmail)
+                .userId(userId)
                 .build();
     }
 

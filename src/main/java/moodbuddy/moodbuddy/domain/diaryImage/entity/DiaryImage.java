@@ -22,7 +22,7 @@ public class DiaryImage extends BaseEntity {
     private Diary diary;
 
     @Column(name = "diary_img_url")
-    private String diaryImgURL = "";
+    private String diaryImgURL;
 
     protected DiaryImage() {
 

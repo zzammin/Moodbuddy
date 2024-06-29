@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface DiaryRepositoryCustom {
-    DiaryResDraftFindAllDTO draftFindAll(String userEmail);
+    DiaryResDraftFindAllDTO draftFindAll(Long userId);
     DiaryResFindOneDTO findOne(Long diaryId);
-    Page<DiaryResFindOneDTO> findAllPageable(String userEmail, Pageable pageable);
+    Page<DiaryResFindOneDTO> findAllPageable(Long userId, Pageable pageable);
 }

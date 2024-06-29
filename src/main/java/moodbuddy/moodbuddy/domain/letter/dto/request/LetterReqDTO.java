@@ -13,6 +13,8 @@ public class LetterReqDTO {
     private Integer letterFormat;
     @Schema(description = "사용자가 작성한 고민 편지 내용")
     private String letterWorryContent;
+    @Schema(description = "사용자가 작성한 고민 편지에 대한 답장")
+    private String letterAnswerContent;
     @Schema(description = "사용자가 고민 편지를 작성한 날짜")
     private LocalDateTime letterDate;
 }

@@ -43,7 +43,7 @@ public class QDiary extends EntityPathBase<Diary> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
 
-    public final StringPath userEmail = createString("userEmail");
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QDiary(String variable) {
         super(Diary.class, forVariable(variable));

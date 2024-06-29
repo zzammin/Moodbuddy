@@ -24,5 +24,5 @@ public class DiaryResFindOneDTO {
     private DiaryEmotion diaryEmotion;
     private DiaryStatus diaryStatus;
     private List<String> diaryImgList;
-    private String userEmail;
+    private Long userId;
 }

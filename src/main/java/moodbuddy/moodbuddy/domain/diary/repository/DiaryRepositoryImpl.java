@@ -27,16 +27,16 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         this.queryFactory = new JPAQueryFactory(em);
     }
     @Override
-    public DiaryResDraftFindAllDTO draftFindAll(String userEmail) {
+    public DiaryResDraftFindAllDTO draftFindAll(Long userId) {
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
                 .select(Projections.constructor(DiaryResDraftFindOneDTO.class,
                         diary.id,
                         diary.diaryDate,
                         diary.diaryStatus,
-                        diary.userEmail
+                        diary.userId
                 ))
                 .from(diary)
-                .where(diary.userEmail.eq(userEmail)
+                .where(diary.userId.eq(userId)
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
@@ -56,7 +56,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryWeather,
                         diary.diaryEmotion,
                         diary.diaryStatus,
-                        diary.userEmail
+                        diary.userId
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -73,9 +73,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllPageable(String userEmail, Pageable pageable) {
+    public Page<DiaryResFindOneDTO> findAllPageable(Long userId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diary.userEmail.eq(userEmail)
+                .where(diary.userId.eq(userId)
                         .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
                 .orderBy(pageable.getSort().stream()
                         .map(order -> new OrderSpecifier(
@@ -101,13 +101,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryWeather(d.getDiaryWeather())
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
-                    .userEmail(d.getUserEmail())
+                    .userId(d.getUserId())
                     .diaryImgList(diaryImgList)
                     .build();
         }).collect(Collectors.toList());
 
         long total = queryFactory.selectFrom(diary)
-                .where(diary.userEmail.eq(userEmail))
+                .where(diary.userId.eq(userId))
                 .fetchCount();
 
         return new PageImpl<>(diaryList, pageable, total);

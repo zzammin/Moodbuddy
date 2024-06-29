@@ -9,6 +9,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class DiaryResCalendarSummaryDTO {
+    @Schema(description = "그 날의 일기 제목")
     private String diaryTitle;
+    @Schema(description = "그 날의 일기 요약 내용")
     private String diarySummary;
 }

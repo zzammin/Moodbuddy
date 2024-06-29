@@ -27,13 +27,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryServiceImpl implements DiaryService {
-    private final ModelMapper modelMapper;
+
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
@@ -43,11 +44,12 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
-        Long userId = JwtUtil.getMemberId();
-        String userEmail = JwtUtil.getEmail();
+        Long userId = JwtUtil.getUserId();
+
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
 
-        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, userEmail, summary);
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
+
         diary = diaryRepository.save(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
@@ -113,9 +115,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
-        String userEmail = JwtUtil.getEmail();
+        Long userId = JwtUtil.getUserId();
 
-        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userEmail);
+        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userId);
         diary = diaryRepository.save(diary);
 
         if (diaryReqDraftSaveDTO.getDiaryImgList() != null) {
@@ -128,18 +130,18 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
         log.info("[DiaryServiceImpl] draftFindAll");
-        String userEmail = JwtUtil.getEmail();
-        return diaryRepository.draftFindAll(userEmail);
+        Long userId = JwtUtil.getUserId();
+        return diaryRepository.draftFindAll(userId);
     }
 
     @Override
     @Transactional
     public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryServiceImpl] draftSelectDelete");
-        String userEmail = JwtUtil.getEmail();
+        Long userId = JwtUtil.getUserId();
 
         List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
-                .filter(diary -> diary.getUserEmail().equals(userEmail))
+                .filter(diary -> diary.getUserId().equals(userId))
                 .collect(Collectors.toList());
 
         diaryRepository.deleteAll(diariesToDelete);
@@ -149,7 +151,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
         log.info("[DiaryServiceImpl] findOne");
-        String userEmail = JwtUtil.getEmail();
+        Long userId = JwtUtil.getUserId();
 
         // [추가해야 할 내]
         // diaryId가 존재하는 Id 값인지 확인하는 예외처리
@@ -161,9 +163,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllPageable");
-        String userEmail = JwtUtil.getEmail();
+        Long userId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllPageable(userEmail, pageable);
+        return diaryRepository.findAllPageable(userId, pageable);
     }
 
     @Override
@@ -178,19 +180,19 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResCalendarMonthListDTO monthlyCalendar(DiaryReqCalendarMonthDTO calendarMonthDTO){
         log.info("[DiaryService] monthlyCalendar");
         try{
-            // -> userEmail 가져오기
-            String userEmail = JwtUtil.getEmail();
+            // -> userID 가져오기
+            Long userId = JwtUtil.getUserId();
 
             // calendarMonthDTO에서 month 가져오기
             // user_id에 맞는 List<Diary> 중에서, month에서 DateTimeFormatter의 ofPattern을 이용한 LocalDateTime 파싱을 통해 년, 월을 얻어오고,
             // repository 에서는 LIKE 연산자를 이용해서 그 년, 월에 맞는 List<Diary>를 얻어온다
             // (여기서 user_id에 맞는 리스트 전체 조회를 하지 말고, user_id와 년 월에 맞는 리스트만 조회하자)
             // -> 그 Diary 리스트를 그대로 DTO에 넣어서 반환해주면 될 것 같다.
-            List<Diary> monthlyDiaryList = diaryRepository.findByUserEmailAndMonth(userEmail, calendarMonthDTO.getCalendarMonth());
+            List<Diary> monthlyDiaryList = diaryRepository.findByUserIdAndMonth(userId, calendarMonthDTO.getCalendarMonth());
 
             List<DiaryResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> DiaryResCalendarMonthDTO.builder()
-                            .diaryCreatedTime(diary.getCreatedTime())
+                            .diaryDate(diary.getDiaryDate())
                             .diaryEmotion(diary.getDiaryEmotion())
                             .build())
                     .collect(Collectors.toList());
@@ -210,10 +212,10 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryService] summary");
         try {
             // userEmail 가져오기
-            String userEmail = JwtUtil.getEmail();
+            Long userEmail = JwtUtil.getUserId();
 
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByUserEmailAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
+            Optional<Diary> summaryDiary = diaryRepository.findByUserIdAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
 
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()

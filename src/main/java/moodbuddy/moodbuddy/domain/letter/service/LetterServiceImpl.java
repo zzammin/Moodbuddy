@@ -21,9 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +40,7 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] letterPage");
         try{
             // userId를 통해 userRepository에서 유저 조회 (Optional 사용)
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
             // user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
             Optional<Profile> optionalProfile = profileRepository.findByUserId(userId);
@@ -64,7 +62,7 @@ public class LetterServiceImpl implements LetterService {
 
                 return LetterResPageDTO.builder()
                         .profileNickname(optionalProfile.get().getProfileNickName())
-                        .userBirth(optionalUser.get().getUserBirth())
+                        .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)
                         .userLetterNums(optionalUser.get().getUserLetterNums())
@@ -85,13 +83,23 @@ public class LetterServiceImpl implements LetterService {
     public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
         log.info("[LetterService] writeLetter");
         try{
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
+            Timer timer = new Timer();
             // user_id : userId를 Letter의 user_id로 저장
             // format, worry_content : letterRequestDTO에서 worry_content와 format 가져와서 저장
             if(optionalUser.isPresent()){
                 Letter letter = LetterMapper.toLetterEntity(letterReqDTO, optionalUser.get());
                 letter = letterRepository.save(letter);
+                TimerTask timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        answerSave(letterReqDTO.getLetterWorryContent()); // 답장 저장
+                    }
+                };
+
+                long delay = 12*60*60*1000;
+                timer.schedule(timerTask, delay);
                 return LetterMapper.toLetterSaveDTO(letter);
             } else {
                 throw new NoSuchElementException("userId를 가지는 사용자가 없습니다. userId : "+userId);
@@ -102,12 +110,25 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
+    // 메소드 2 : 12시간 뒤에 카카오톡 알림톡 보내기 (또는 알림)
+    @Override
+    @Transactional
+    // 메소드 1 : gpt api 연동 후 답장 내용 letterRepository에 저장
+    public void answerSave(String worryContent){
+
+    }
+
+    @Override
+    public void alarmTalk(){
+
+    }
+
     @Override
     @Transactional
     public LetterResDetailsDTO details(Long letterId){
         log.info("[LetterService] details");
         try{
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             // letterId와 userId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
             // -> 이 Letter의 worry_content, answer_content를 DTO에 매핑
             Optional<Letter> optionalLetter = letterRepository.findByIdAndUserId(letterId, userId);
