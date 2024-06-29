@@ -5,6 +5,8 @@ import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResDetailsDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
 
+import java.time.LocalDateTime;
+
 public interface LetterService {
     // 고민상담소 첫 페이지
     LetterResPageDTO letterPage();
@@ -16,7 +18,7 @@ public interface LetterService {
     LetterResDetailsDTO details(Long letterId);
 
     // 고민 답장 내용 저장
-    void answerSave(String worryContent);
+    void answerSave(String worryContent, Integer format, LocalDateTime letterDate);
 
     // 알림톡 보내기 (또는 알림)
     void alarmTalk();

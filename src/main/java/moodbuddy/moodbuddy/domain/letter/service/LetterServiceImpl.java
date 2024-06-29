@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -106,7 +107,7 @@ public class LetterServiceImpl implements LetterService {
                 TimerTask timerTask = new TimerTask() {
                     @Override
                     public void run() {
-                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterDate()); // 답장 저장
+                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // 답장 저장
                     }
                 };
 
@@ -122,13 +123,13 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    // 메소드 2 : 12시간 뒤에 카카오톡 알림톡 보내기 (또는 알림)
     @Override
-    @Transactional
-    // 메소드 1 : gpt api 연동 후 답장 내용 letterRepository에 저장
-    public void answerSave(String worryContent, LocalDateTime letterDate){
-        Long userId = JwtUtil.getMemberId();
-        GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model,prompt);
+    public void answerSave(String worryContent, Integer format, LocalDateTime letterDate) {
+        Long userId = JwtUtil.getUserId();
+        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해줘" : " 이 내용에 대해 따끔한 해결의 말을 해줘");
+
+        GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
+
         GPTResponseDTO response = gptWebClient.post()
                 .uri(apiUrl)
                 .bodyValue(gptrequestDTO)
@@ -136,15 +137,13 @@ public class LetterServiceImpl implements LetterService {
                 .bodyToMono(GPTResponseDTO.class)
                 .block();
 
-        // 응답 내용 추출
         if (response != null && response.getChoiceList() != null) {
             for (GPTResponseDTO.Choice choice : response.getChoiceList()) {
                 GPTMessageDTO message = choice.getMessage();
                 if (message != null) {
                     String answer = message.getContent();
-                    // gptContent를 필요한 곳에 저장하거나 처리
                     Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
-                    if(optionalLetter.isPresent()){
+                    if (optionalLetter.isPresent()) {
                         letterRepository.updateAnswerById(userId, answer);
                     }
                 }
@@ -154,6 +153,7 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
+    // 메소드 2 : 12시간 뒤에 카카오톡 알림톡 보내기 (또는 알림)
     @Override
     public void alarmTalk(){
 

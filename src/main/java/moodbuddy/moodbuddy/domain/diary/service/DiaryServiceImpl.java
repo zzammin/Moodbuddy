@@ -212,10 +212,10 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryService] summary");
         try {
             // userEmail 가져오기
-            Long userEmail = JwtUtil.getUserId();
+            Long userId = JwtUtil.getUserId();
 
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByUserIdAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
+            Optional<Diary> summaryDiary = diaryRepository.findByUserIdAndDay(userId, calendarSummaryDTO.getCalendarDay());
 
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()

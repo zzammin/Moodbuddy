@@ -12,27 +12,10 @@ import java.util.List;
 public class GPTRequestDTO {
     private String model;
     private List<GPTMessageDTO> messages;
-    private int temperature;
-    private int maxTokens;
-    private int topP;
-    private int frequencyPenalty;
-    private int presencePenalty;
 
-    public GPTRequestDTO(String model
-            , String prompt
-            , int temperature
-            , int maxTokens
-            , int topP
-            , int frequencyPenalty
-            , int presencePenalty) {
+    public GPTRequestDTO(String model, String prompt) {
         this.model = model;
         this.messages = new ArrayList<>();
-        this.messages.add(new GPTMessageDTO("user",prompt));
-        this.temperature = temperature;
-        this.maxTokens = maxTokens;
-        this.topP=topP;
-        this.frequencyPenalty=frequencyPenalty;
-        this.presencePenalty = presencePenalty;
-
+        this.messages.add(new GPTMessageDTO("user", prompt));
     }
 }
