@@ -124,9 +124,6 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
         }
 
-        // 일기 작성하면 편지지 개수 늘려주기
-        letterNumPlus(userId);
-
         return DiaryMapper.toDraftSaveDTO(diary);
     }
 
