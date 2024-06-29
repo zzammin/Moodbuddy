@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**",
                                 "/user/sign-up",
-                                "/user/login"
+                                "/user/login",
+                                "/*"
                         ).permitAll() // 위 경로들은 모두 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 );
