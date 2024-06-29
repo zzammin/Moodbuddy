@@ -23,11 +23,9 @@ public interface DiaryService {
     // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();
 
-    // 일기 임시 저장 삭제
-    DiaryResDraftDeleteDTO draftDelete(Long diaryId);
 
-    // 일기 임시 저장 전체 삭제
-    DiaryResDraftDeleteAllDTO draftDeleteAll();
+    // 일기 임시 저장 선택 삭제
+    DiaryResDraftSelectDeleteDTO draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
 
     // 일기 하나 조회
     DiaryResFindOneDTO findOne(Long diaryId);

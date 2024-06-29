@@ -123,14 +123,10 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public DiaryResDraftDeleteDTO draftDelete(Long diaryId) {
+    public DiaryResDraftSelectDeleteDTO draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         return null;
     }
 
-    @Override
-    public DiaryResDraftDeleteAllDTO draftDeleteAll() {
-        return null;
-    }
 
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
