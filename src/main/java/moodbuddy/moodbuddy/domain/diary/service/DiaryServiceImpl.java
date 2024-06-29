@@ -132,7 +132,9 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
-        return new DiaryResDraftFindAllDTO();
+        log.info("[DiaryService] draftFindAll");
+        String userEmail = JwtUtil.getEmail();
+        return diaryRepository.draftFindAll(userEmail);
     }
 
     @Override
