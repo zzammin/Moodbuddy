@@ -120,7 +120,7 @@ public class LetterServiceImpl implements LetterService {
                     @Override
                     public void run() {
                         answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // gpt api 연동 후 답장 저장
-                        alarmTalk(); // 알람톡 전송
+                        alarmTalk(letterReqDTO.getFcmRegistration()); // 알람톡 전송
                     }
                 };
                 long delay = 12*60*60*1000; // 12시간 타이머 시간 설정
@@ -173,8 +173,14 @@ public class LetterServiceImpl implements LetterService {
 
     // 메소드 2 : 12시간 뒤에 카카오톡 알림톡 보내기 (또는 알림)
     @Override
-    public void alarmTalk(){
-
+    public void alarmTalk(String fcmRegistration){
+        log.info("[LetterService] alarmTalk");
+        try{
+            Long userId = JwtUtil.getUserId();
+//            String clientId = fcmRegistration;
+        } catch (Exception e){
+            log.error("[LetterService] alarmTalk error",e);
+        }
     }
 
     @Override

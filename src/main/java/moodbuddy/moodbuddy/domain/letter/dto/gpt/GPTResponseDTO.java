@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+// swagger 작성 필요 x
 public class GPTResponseDTO {
     private List<Choice> choices;
 

@@ -21,5 +21,5 @@ public interface LetterService {
     void answerSave(String worryContent, Integer format, LocalDateTime letterDate);
 
     // 알림톡 보내기 (또는 알림)
-    void alarmTalk();
+    void alarmTalk(String fcmRegistration);
 }

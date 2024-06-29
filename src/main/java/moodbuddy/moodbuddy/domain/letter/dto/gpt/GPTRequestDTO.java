@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+// swagger 작성 필요 x
 public class GPTRequestDTO {
     private String model;
     private List<GPTMessageDTO> messages;
