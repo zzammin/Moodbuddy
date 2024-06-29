@@ -35,7 +35,7 @@ public class OAuthController {
 
     @Value("${kakao.api_key}") String kakaoApiKey;
 
-    @Value("${REDIRECT_URL}") String kakaoRedirectUrl;
+    @Value("${kakao.redirect_url}") String kakaoRedirectUrl;
 
     @GetMapping("/login")
     public RedirectView loginRedirect() {
