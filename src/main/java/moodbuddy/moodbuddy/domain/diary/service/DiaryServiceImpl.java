@@ -188,6 +188,14 @@ public class DiaryServiceImpl implements DiaryService {
         return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), userId, pageable);
     }
 
+    @Override
+    public Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllByFilter");
+        Long userId = JwtUtil.getUserId();
+
+        return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, userId, pageable);
+    }
+
     /** 추가 메서드 **/
 //    private void saveDocument(Diary diary) {
 //        DiaryDocument diaryDocument = convertToDocument(diary);

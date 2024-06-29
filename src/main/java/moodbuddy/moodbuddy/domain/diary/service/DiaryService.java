@@ -41,6 +41,7 @@ public interface DiaryService {
 //    Page<DiaryDocument> searchDiariesByKeyword(String keyword, Pageable pageable);
 
     // 상세검색 조회
+    Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
