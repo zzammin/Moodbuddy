@@ -94,7 +94,7 @@ public class LetterServiceImpl implements LetterService {
     @Override
     @Transactional
     public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
-        log.info("[LetterService] writeLetter");
+        log.info("[LetterService] save");
         try{
             Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
@@ -118,13 +118,15 @@ public class LetterServiceImpl implements LetterService {
                 throw new NoSuchElementException("userId를 가지는 사용자가 없습니다. userId : "+userId);
             }
         } catch (Exception e){
-            log.error("[LetterService] writeLetter", e);
-            throw new RuntimeException("[LetterService] writeLetter error", e);
+            log.error("[LetterService] save error", e);
+            throw new RuntimeException("[LetterService] save error", e);
         }
     }
 
     @Override
+    @Transactional
     public void answerSave(String worryContent, Integer format, LocalDateTime letterDate) {
+        log.info("[LetterService] answerSave");
         Long userId = JwtUtil.getUserId();
         String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해줘" : " 이 내용에 대해 따끔한 해결의 말을 해줘");
 
