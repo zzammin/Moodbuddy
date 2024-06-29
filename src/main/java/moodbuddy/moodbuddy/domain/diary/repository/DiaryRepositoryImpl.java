@@ -8,7 +8,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
