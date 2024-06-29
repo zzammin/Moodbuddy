@@ -14,4 +14,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
 
     @Query("select d from Diary d where d.userEmail = :userEmail and function('DATE_FORMAT', d.createdTime, '%Y-%m-%d') like :day")
     Optional<Diary> findByUserEmailAndDay(@Param("userEmail") String userEmail, @Param("day") String day);
+
+    // diaryId 기반으로 삭제하기
+    List<Diary> findAllById(Iterable<Long> ids);
 }

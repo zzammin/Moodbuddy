@@ -25,7 +25,7 @@ public interface DiaryService {
 
 
     // 일기 임시 저장 선택 삭제
-    DiaryResDraftSelectDeleteDTO draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
+    void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
 
     // 일기 하나 조회
     DiaryResFindOneDTO findOne(Long diaryId);

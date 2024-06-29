@@ -85,7 +85,6 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
         }
 
-        diary = diaryRepository.save(diary);
         return DiaryMapper.toUpdateDTO(diary);
     }
 
@@ -135,8 +134,16 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public DiaryResDraftSelectDeleteDTO draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
-        return null;
+    @Transactional
+    public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
+        log.info("[DiaryService] draftSelectDelete");
+        String userEmail = JwtUtil.getEmail();
+
+        List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
+                .filter(diary -> diary.getUserEmail().equals(userEmail))
+                .collect(Collectors.toList());
+
+        diaryRepository.deleteAll(diariesToDelete);
     }
 
 
