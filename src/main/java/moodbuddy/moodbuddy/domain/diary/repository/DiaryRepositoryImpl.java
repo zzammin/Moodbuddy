@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 
 import java.util.List;
@@ -35,5 +36,22 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                 .collect(Collectors.toList());
 
         return new DiaryResDraftFindAllDTO(draftList);
+    }
+
+    @Override
+    public DiaryResFindOneDTO findOne(Long diaryId) {
+        return queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
+                diary.id,
+                diary.diaryTitle,
+                diary.diaryDate,
+                diary.diaryContent,
+                diary.diaryWeather,
+                diary.diaryEmotion,
+                diary.diaryStatus,
+                diary.userEmail
+                ))
+                .from(diary)
+                .where(diary.id.eq(diaryId))
+                .fetchOne();
     }
 }

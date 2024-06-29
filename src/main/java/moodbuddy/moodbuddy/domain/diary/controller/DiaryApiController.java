@@ -90,6 +90,18 @@ public class DiaryApiController {
         }
     }
 
+    @GetMapping("/findOne/{diaryId}")
+    public ResponseEntity<?> findOne(@PathVariable("diaryId") Long diaryId) {
+        log.info("[DiaryApiController] findOne");
+        try {
+            DiaryResFindOneDTO result = diaryService.findOne(diaryId);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] findOne", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
     @PostMapping("/main/month")
     @Operation(summary = "캘린더 달 이동", description = "캘린더의 달을 이동시킵니다.")
     public ResponseEntity<?> monthlyCalendar(

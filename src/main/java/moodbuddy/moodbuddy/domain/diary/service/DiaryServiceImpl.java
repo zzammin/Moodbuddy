@@ -149,7 +149,15 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
-        return new DiaryResFindOneDTO();
+        log.info("[DiaryService] findOne");
+        String userEmail = JwtUtil.getEmail();
+
+        DiaryResFindOneDTO diaryResFindOne = diaryRepository.findOne(diaryId);
+
+        if(!diaryResFindOne.getUserEmail().equals(userEmail)) {
+            // 에러 반환
+        }
+        return diaryResFindOne;
     }
 
     @Override
