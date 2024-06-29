@@ -1,12 +1,20 @@
 package moodbuddy.moodbuddy.domain.diary.repository;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindOneDTO;
+import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,5 +71,45 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         diaryResFindOne.setDiaryImgList(diaryImgList);
 
         return diaryResFindOne;
+    }
+
+    @Override
+    public Page<DiaryResFindOneDTO> findAllPageable(String userEmail, Pageable pageable) {
+        List<Diary> diaries = queryFactory.selectFrom(diary)
+                .where(diary.userEmail.eq(userEmail))
+                .orderBy(pageable.getSort().stream()
+                        .map(order -> new OrderSpecifier(
+                                order.isAscending() ? Order.ASC : Order.DESC,
+                                new PathBuilder<>(diary.getType(), diary.getMetadata())
+                                        .get(order.getProperty())))
+                        .toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<DiaryResFindOneDTO> diaryList = diaries.stream().map(d -> {
+            List<String> diaryImgList = queryFactory.select(diaryImage.diaryImgURL)
+                    .from(diaryImage)
+                    .where(diaryImage.diary.id.eq(d.getId()))
+                    .fetch();
+
+            return DiaryResFindOneDTO.builder()
+                    .diaryId(d.getId())
+                    .diaryTitle(d.getDiaryTitle())
+                    .diaryDate(d.getDiaryDate())
+                    .diaryContent(d.getDiaryContent())
+                    .diaryWeather(d.getDiaryWeather())
+                    .diaryEmotion(d.getDiaryEmotion())
+                    .diaryStatus(d.getDiaryStatus())
+                    .userEmail(d.getUserEmail())
+                    .diaryImgList(diaryImgList)
+                    .build();
+        }).collect(Collectors.toList());
+
+        long total = queryFactory.selectFrom(diary)
+                .where(diary.userEmail.eq(userEmail))
+                .fetchCount();
+
+        return new PageImpl<>(diaryList, pageable, total);
     }
 }

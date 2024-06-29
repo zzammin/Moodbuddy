@@ -16,6 +16,8 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -149,24 +151,19 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] findOne");
         String userEmail = JwtUtil.getEmail();
 
-        Optional<Diary> optionalDiary = diaryRepository.findById(diaryId);
+        // [추가해야 할 내]
+        // diaryId가 존재하는 Id 값인지 확인하는 예외처리
+        // userEmail하고 Diary의 userEmail하고 같은 지 확인하는 예외처리
 
-        if(!optionalDiary.isPresent()) {
-            // 에러 반화
-        }
-
-        if(!optionalDiary.get().getUserEmail().equals(userEmail)) {
-            // 에러 반환
-        }
-        return DiaryMapper.toFindOneDTO(optionalDiary.get());
+        return diaryRepository.findOne(diaryId);
     }
 
     @Override
-    public DiaryResFindAllDTO findAll() {
-        log.info("[DiaryServiceImpl] findAll");
+    public Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllPageable");
         String userEmail = JwtUtil.getEmail();
 
-        return new DiaryResFindAllDTO();
+        return diaryRepository.findAllPageable(userEmail, pageable);
     }
 
     @Override

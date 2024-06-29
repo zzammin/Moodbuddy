@@ -3,6 +3,8 @@ package moodbuddy.moodbuddy.domain.diary.service;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,8 +32,8 @@ public interface DiaryService {
     // 일기 하나 조회
     DiaryResFindOneDTO findOne(Long diaryId);
 
-    // 일기 전체 조회
-    DiaryResFindAllDTO findAll();
+    // 일기 전체 조회 (페이징)
+    Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
     DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion);
