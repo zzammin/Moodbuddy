@@ -2,12 +2,10 @@ package moodbuddy.moodbuddy.domain.diary.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
@@ -15,7 +13,6 @@ import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -28,8 +25,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
 @Service
 @Transactional(readOnly = true)
@@ -142,7 +137,7 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDraftFindAllDTO draftFindAll() {
         log.info("[DiaryServiceImpl] draftFindAll");
         Long userId = JwtUtil.getUserId();
-        return diaryRepository.draftFindAll(userId);
+        return diaryRepository.draftFindAllByUserId(userId);
     }
 
     @Override
@@ -168,7 +163,7 @@ public class DiaryServiceImpl implements DiaryService {
         // diaryId가 존재하는 Id 값인지 확인하는 예외처리
         // userEmail하고 Diary의 userEmail하고 같은 지 확인하는 예외처리
 
-        return diaryRepository.findOne(diaryId);
+        return diaryRepository.findOneByDiaryId(diaryId);
     }
 
     @Override
@@ -176,7 +171,7 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] findAllPageable");
         Long userId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllPageable(userId, pageable);
+        return diaryRepository.findAllByUserIdWithPageable(userId, pageable);
     }
 
     @Override

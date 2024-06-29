@@ -27,7 +27,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         this.queryFactory = new JPAQueryFactory(em);
     }
     @Override
-    public DiaryResDraftFindAllDTO draftFindAll(Long userId) {
+    public DiaryResDraftFindAllDTO draftFindAllByUserId(Long userId) {
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
                 .select(Projections.constructor(DiaryResDraftFindOneDTO.class,
                         diary.id,
@@ -47,7 +47,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public DiaryResFindOneDTO findOne(Long diaryId) {
+    public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
         DiaryResFindOneDTO diaryResFindOne = queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
                         diary.id,
                         diary.diaryTitle,
@@ -73,7 +73,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllPageable(Long userId, Pageable pageable) {
+    public Page<DiaryResFindOneDTO> findAllByUserIdWithPageable(Long userId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
                 .where(diary.userId.eq(userId)
                         .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
