@@ -25,4 +25,15 @@ public class DiaryResFindOneDTO {
     private DiaryEmotion diaryEmotion;
     private DiaryStatus diaryStatus;
     private List<String> diaryImgList;
+
+    public DiaryResFindOneDTO(Long diaryId, Long userId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus) {
+        this.diaryId = diaryId;
+        this.userId = userId;
+        this.diaryTitle = diaryTitle;
+        this.diaryDate = diaryDate;
+        this.diaryContent = diaryContent;
+        this.diaryWeather = diaryWeather;
+        this.diaryEmotion = diaryEmotion;
+        this.diaryStatus = diaryStatus;
+    }
 }

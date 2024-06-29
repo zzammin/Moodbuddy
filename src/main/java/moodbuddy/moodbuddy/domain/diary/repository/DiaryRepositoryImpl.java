@@ -56,13 +56,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
         DiaryResFindOneDTO diaryResFindOne = queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
                         diary.id,
+                        diary.userId,
                         diary.diaryTitle,
                         diary.diaryDate,
                         diary.diaryContent,
                         diary.diaryWeather,
                         diary.diaryEmotion,
-                        diary.diaryStatus,
-                        diary.userId
+                        diary.diaryStatus
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
