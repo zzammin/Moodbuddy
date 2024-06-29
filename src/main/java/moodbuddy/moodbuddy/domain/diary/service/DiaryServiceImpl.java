@@ -167,11 +167,11 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion) {
-        return new DiaryResSimilarFindAllDTO();
+    public Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable) {
+        return null;
     }
 
-    /** 추가 메서드 **/
+    /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
     @Override
     @Transactional

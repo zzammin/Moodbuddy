@@ -75,7 +75,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     @Override
     public Page<DiaryResFindOneDTO> findAllPageable(String userEmail, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diary.userEmail.eq(userEmail))
+                .where(diary.userEmail.eq(userEmail)
+                        .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
                 .orderBy(pageable.getSort().stream()
                         .map(order -> new OrderSpecifier(
                                 order.isAscending() ? Order.ASC : Order.DESC,

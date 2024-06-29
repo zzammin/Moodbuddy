@@ -36,11 +36,13 @@ public interface DiaryService {
     Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion);
+    Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable);
 
     // 검색어 조회 -> 일라스틱서치 사용할 예정
 
     // 상세검색 조회
+
+    /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
     // 편지지 개수 증가 (일기 작성 시 편지지 개수 증가)
     void letterNumPlus(Long userEmail);
