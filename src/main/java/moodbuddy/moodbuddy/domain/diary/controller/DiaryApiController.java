@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
     @PostMapping("/save")
+    @Operation(summary = "일기 작성")
     public ResponseEntity<?> save(@RequestBody DiaryReqSaveDTO diaryReqSaveDTO) {
         log.info("[DiaryApiController] save");
         try {
@@ -33,6 +34,7 @@ public class DiaryApiController {
     }
 
     @PatchMapping("/update")
+    @Operation(summary = "일기 수정")
     public ResponseEntity<?> update(@RequestBody DiaryReqUpdateDTO diaryReqUpdateDTO) {
         log.info("[DiaryApiController] update");
         try {
@@ -45,6 +47,7 @@ public class DiaryApiController {
     }
 
     @DeleteMapping("/delete/{diaryId}")
+    @Operation(summary = "일기 삭제")
     public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] delete");
         try {
@@ -57,6 +60,7 @@ public class DiaryApiController {
     }
 
     @PostMapping("/draftSave")
+    @Operation(summary = "일기 임시 저장")
     public ResponseEntity<?> draftSave(@RequestBody DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) {
         log.info("[DiaryApiController] draftSave");
         try {
@@ -69,6 +73,7 @@ public class DiaryApiController {
     }
 
     @GetMapping("/draftFindAll")
+    @Operation(summary = "임시 저장 일기 목록 조회")
     public ResponseEntity<?> draftFindAll() {
         log.info("[DiaryApiController] draftFindAll");
         try {
@@ -81,6 +86,7 @@ public class DiaryApiController {
     }
 
     @DeleteMapping("/draftSelectDelete")
+    @Operation(summary = "임시 저장 일기 선택 삭제")
     public ResponseEntity<?> draftSelectDelete(@RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryApiController] draftSelectDelete");
         try {
@@ -93,6 +99,7 @@ public class DiaryApiController {
     }
 
     @GetMapping("/findOne/{diaryId}")
+    @Operation(summary = "일기 하나 조회")
     public ResponseEntity<?> findOne(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] findOne");
         try {
@@ -105,6 +112,7 @@ public class DiaryApiController {
     }
 
     @GetMapping("/findAllPageable")
+    @Operation(summary = "일기 전체 조회")
     public ResponseEntity<?> findAllPageable(Pageable pageable) {
         log.info("[DiaryApiController] findAllPageable");
         try {
