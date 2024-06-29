@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class DiaryResDraftSaveDTO {
-    private Long id;
+    private Long productId;
+    private Long userId;
     private LocalDateTime diaryDate;
     private DiaryStatus diaryStatus;
-    private String userEmail;
 }

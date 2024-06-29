@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 public class DiaryResFindOneDTO {
     private Long diaryId;
+    private Long userId;
     private String diaryTitle;
     private LocalDateTime diaryDate;
     private String diaryContent;
@@ -24,5 +25,4 @@ public class DiaryResFindOneDTO {
     private DiaryEmotion diaryEmotion;
     private DiaryStatus diaryStatus;
     private List<String> diaryImgList;
-    private Long userId;
 }

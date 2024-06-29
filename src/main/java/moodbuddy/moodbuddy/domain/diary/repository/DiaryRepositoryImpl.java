@@ -46,7 +46,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
-                .map(d -> new DiaryResDraftFindOneDTO(d.getId(), d.getDiaryDate(), d.getDiaryStatus(), d.getUserEmail()))
+                .map(d -> new DiaryResDraftFindOneDTO(d.getProductId(), d.getUserId(), d.getDiaryDate(), d.getDiaryStatus()))
                 .collect(Collectors.toList());
 
         return new DiaryResDraftFindAllDTO(draftList);
@@ -139,14 +139,14 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResFindOneDTO> dtoList = diaries.stream()
                 .map(d -> new DiaryResFindOneDTO(
                         d.getId(),
+                        d.getUserId(),
                         d.getDiaryTitle(),
                         d.getDiaryDate(),
                         d.getDiaryContent(),
                         d.getDiaryWeather(),
                         d.getDiaryEmotion(),
                         d.getDiaryStatus(),
-                        diaryImages.getOrDefault(d.getId(), List.of()),
-                        d.getUserId()
+                        diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());
 

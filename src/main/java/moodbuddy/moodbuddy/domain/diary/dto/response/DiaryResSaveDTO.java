@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class DiaryResSaveDTO {
     private Long diaryId;
-    private String userEmail;
+    private Long userId;
     private LocalDateTime diaryDate;
     private DiaryEmotion diaryEmotion;
 }
