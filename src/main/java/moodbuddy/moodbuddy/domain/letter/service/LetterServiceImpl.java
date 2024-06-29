@@ -107,10 +107,10 @@ public class LetterServiceImpl implements LetterService {
                 TimerTask timerTask = new TimerTask() {
                     @Override
                     public void run() {
-                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // 답장 저장
+                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // gpt api 연동 후 답장 저장
+                        alarmTalk();
                     }
                 };
-
                 long delay = 12*60*60*1000;
                 timer.schedule(timerTask, delay);
                 return LetterMapper.toLetterSaveDTO(letter);
@@ -127,31 +127,35 @@ public class LetterServiceImpl implements LetterService {
     @Transactional
     public void answerSave(String worryContent, Integer format, LocalDateTime letterDate) {
         log.info("[LetterService] answerSave");
-        Long userId = JwtUtil.getUserId();
-        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해줘" : " 이 내용에 대해 따끔한 해결의 말을 해줘");
+        try{
+            Long userId = JwtUtil.getUserId();
+            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해줘" : " 이 내용에 대해 따끔한 해결의 말을 해줘");
 
-        GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
+            GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
 
-        GPTResponseDTO response = gptWebClient.post()
-                .uri(apiUrl)
-                .bodyValue(gptrequestDTO)
-                .retrieve()
-                .bodyToMono(GPTResponseDTO.class)
-                .block();
+            GPTResponseDTO response = gptWebClient.post()
+                    .uri(apiUrl)
+                    .bodyValue(gptrequestDTO)
+                    .retrieve()
+                    .bodyToMono(GPTResponseDTO.class)
+                    .block();
 
-        if (response != null && response.getChoiceList() != null) {
-            for (GPTResponseDTO.Choice choice : response.getChoiceList()) {
-                GPTMessageDTO message = choice.getMessage();
-                if (message != null) {
-                    String answer = message.getContent();
-                    Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
-                    if (optionalLetter.isPresent()) {
-                        letterRepository.updateAnswerById(userId, answer);
+            if (response != null && response.getChoiceList() != null) {
+                for (GPTResponseDTO.Choice choice : response.getChoiceList()) {
+                    GPTMessageDTO message = choice.getMessage();
+                    if (message != null) {
+                        String answer = message.getContent();
+                        Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
+                        if (optionalLetter.isPresent()) {
+                            letterRepository.updateAnswerById(userId, answer);
+                        }
                     }
                 }
+            } else {
+                log.error("GPT 응답 오류");
             }
-        } else {
-            System.out.println("No response from GPT API.");
+        } catch (Exception e){
+            log.error("[LetterService] answerSave error",e);
         }
     }
 
