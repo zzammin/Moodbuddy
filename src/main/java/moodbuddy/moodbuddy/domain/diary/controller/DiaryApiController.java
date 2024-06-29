@@ -66,6 +66,18 @@ public class DiaryApiController {
         }
     }
 
+    @GetMapping("/draftFindAll")
+    public ResponseEntity<?> draftFindAll() {
+        log.info("[DiaryApiController] draftFindAll");
+        try {
+            DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] draftFindAll", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/draftSelectDelete")
     public ResponseEntity<?> draftSelectDelete(@RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryApiController] draftSelectDelete");

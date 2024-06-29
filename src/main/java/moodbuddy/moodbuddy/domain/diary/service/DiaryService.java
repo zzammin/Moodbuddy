@@ -36,7 +36,7 @@ public interface DiaryService {
     // 일기 비슷한 감정 조회
     DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion);
 
-    // 검색어 조회
+    // 검색어 조회 -> 일라스틱서치 사용할 예정
 
     // 상세검색 조회
 
