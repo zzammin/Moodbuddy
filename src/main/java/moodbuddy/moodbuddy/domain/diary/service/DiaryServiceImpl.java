@@ -16,6 +16,8 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,14 +33,23 @@ import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 @Slf4j
 public class DiaryServiceImpl implements DiaryService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
-    private final WebClient naverWebClient; // 인스턴스 이름을 NaverCloudConfig의 WebClient의 빈 이름(naverWebClient)과 맞추고 DI 진행
+    private final WebClient naverWebClient;
+
+    @Autowired
+    public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
+                            DiaryImageServiceImpl diaryImageService,
+                            @Qualifier("naverWebClient") WebClient naverWebClient) {
+        this.userRepository = userRepository;
+        this.diaryRepository = diaryRepository;
+        this.diaryImageService = diaryImageService;
+        this.naverWebClient = naverWebClient;
+    }
 
     @Override
     @Transactional

@@ -14,10 +14,10 @@ public class GPTConfig {
     @Value("${gpt.api.key}")
     private String apiKey;
 
-    @Bean
+    @Bean(name = "gptWebClient")
     public WebClient gptWebClient() {
         return WebClient.builder()
-                .baseUrl("https://api.openai.com/v1/chat/completions") // 기본 URL 설정
+                .baseUrl("https://api.openai.com/v1/chat/completions")
                 .filter(authorizationFilter())
                 .build();
     }

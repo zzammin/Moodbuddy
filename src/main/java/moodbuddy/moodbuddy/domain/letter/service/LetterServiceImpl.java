@@ -21,6 +21,8 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,19 +35,30 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 @Slf4j
 public class LetterServiceImpl implements LetterService {
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
+    @Qualifier("gptWebClient")
     private final WebClient gptWebClient;
 
     @Value("${gpt.model}")
     private String model;
     @Value("${gpt.api.url}")
     private String apiUrl;
+
+    @Autowired
+    public LetterServiceImpl(UserRepository userRepository, ProfileRepository profileRepository,
+                             ProfileImageRepository profileImageRepository, LetterRepository letterRepository,
+                             @Qualifier("gptWebClient") WebClient gptWebClient) {
+        this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
+        this.profileImageRepository = profileImageRepository;
+        this.letterRepository = letterRepository;
+        this.gptWebClient = gptWebClient;
+    }
 
     @Override
     @Transactional

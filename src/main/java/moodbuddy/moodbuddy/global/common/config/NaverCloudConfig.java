@@ -1,6 +1,5 @@
 package moodbuddy.moodbuddy.global.common.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +12,12 @@ public class NaverCloudConfig {
     @Value("${naver.cloud.client-secret}")
     private String clientSecret;
 
-    @Bean
+    @Bean(name = "naverWebClient")
     public WebClient naverWebClient(){
         return WebClient.builder()
                 .baseUrl("https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize")
-                .defaultHeader("X-NCP-APIGW-API-KEY-ID",clientId)
-                .defaultHeader("X-NCP-APIGW-API-KEY",clientSecret)
+                .defaultHeader("X-NCP-APIGW-API-KEY-ID", clientId)
+                .defaultHeader("X-NCP-APIGW-API-KEY", clientSecret)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
     }
