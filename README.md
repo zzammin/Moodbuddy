@@ -15,10 +15,16 @@
 - **Database** : MySQL
 - **ORM** : Hibernate (Spring Data JPA 사용)
 
-## 🧑‍🤝‍🧑 맴버구성
+## 🧑‍🤝‍🧑 멤버 구성
 <p>
     <a href="https://github.com/M-ung">
       <img src="https://avatars.githubusercontent.com/u/126846468?v=4" width="100">
+    </a>
+    <a href="https://github.com/dylee00">
+      <img src="https://avatars.githubusercontent.com/u/135154209?v=4" width="100">
+    </a>
+    <a href="https://github.com/zzammin">
+      <img src="https://avatars.githubusercontent.com/u/105933726?v=4" width="100"> 
     </a>
 </p>
 
@@ -51,16 +57,15 @@
 - `branch 규칙`
     - 각자의 깃 닉네임을 딴 branch 명을 사용한다.
     - 예시
-        - git checkout -b feature/이슈번호-기능
-        - git checkout -b feature/12-UserAPI
+        - git checkout -b mung
 
 <br>
 
 - `commit message 규칙`
     - 종류: 메시지
     - 예시
-        - feat: 커밋 내용 - #이슈번호
-        - feat: 로그인 구현 - #2 
+        - feat: 커밋 내용 - #브랜치명
+        - feat: 로그인 구현 - #mung
 <br>
 
 - `PR 규칙`
