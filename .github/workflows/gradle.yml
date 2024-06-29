@@ -35,36 +35,6 @@ jobs:
           echo "${{ secrets.APPLICATION }}" >> ./application.yml
         shell: bash
 
-#        ## create application-database.yml
-#      - name: make application-database.yml
-#        run: |
-#
-#          mkdir -p ./src/main/resources
-#          cd ./src/main/resources
-#
-#          # application-database.yml 파일 생성
-#          touch ./application-database.yml
-#
-#          # GitHub-Actions 에서 설정한 값을 application-database.yml 파일에 쓰기
-#          echo "${{ secrets.DATABASE }}" >> ./application-database.yml
-#        shell: bash
-#
-#      - name: make application-redis.yml
-#        run: |
-#          cd ./src/main/resources
-#
-#          # application-redis.yml 파일 생성
-#          touch ./application-redis.yml
-#
-#          # GitHub-Actions 에서 설정한 값을 application-redis.yml 파일에 쓰기
-#          echo "${{ secrets.REDIS }}" >> ./application-redis.yml
-#        shell: bash
-#
-#      - name: Build with Gradle
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        with:
-#          arguments: clean bootJar
-
       - name: Build with Gradle
         run: |
           chmod +x gradlew 
@@ -87,7 +57,5 @@ jobs:
             sudo docker stop ${{ secrets.DOCKER_REPO }}
             sudo docker rm ${{ secrets.DOCKER_REPO }}
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            sudo docker run -p 8080:8080 -d --net mybridge --name=${{ secrets.DOCKER_REPO }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-#            cd ~
-#            docker-compose up -d
-#            sudo docker image prune -f
+            sudo docker run -p 8080:8080 -d --net my-network --name=${{ secrets.DOCKER_REPO }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+ 
