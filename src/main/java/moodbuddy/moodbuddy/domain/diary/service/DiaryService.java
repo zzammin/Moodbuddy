@@ -1,12 +1,11 @@
 package moodbuddy.moodbuddy.domain.diary.service;
 
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqDraftSaveDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface DiaryService {
     // 일기 저장
@@ -42,4 +41,19 @@ public interface DiaryService {
     // 검색어 조회
 
     // 상세검색 조회
+
+    // 편지지 개수 증가 (일기 작성 시 편지지 개수 증가)
+    void letterNumPlus(Long userEmail);
+
+    // 캘린더 달 이동 (캘린더의 < , > 버튼)
+    DiaryResCalendarMonthListDTO monthlyCalendar(DiaryReqCalendarMonthDTO calendarMonthDTO);
+
+    // 일기 한 줄 요약 보여주기
+    DiaryResCalendarSummaryDTO summary(DiaryReqCalendarSummaryDTO calendarSummaryDTO);
+
+    // 네이버 클라우드 API 연동을 위한 Request Body 생성
+    Map<String,Object> getRequestBody(String content);
+
+    // 일기 한 줄 요약
+    String summarize(String content);
 }

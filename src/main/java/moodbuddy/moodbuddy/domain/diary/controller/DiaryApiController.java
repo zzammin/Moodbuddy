@@ -1,12 +1,14 @@
 package moodbuddy.moodbuddy.domain.diary.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarMonthDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDeleteDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResSaveDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResUpdateDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -53,5 +55,23 @@ public class DiaryApiController {
             log.error("[DiaryApiController] delete", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
+    }
+
+    @PostMapping("/main/month")
+    @Operation(summary = "캘린더 달 이동", description = "캘린더의 달을 이동시킵니다.")
+    public ResponseEntity<?> monthlyCalendar(
+            @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
+            @RequestBody DiaryReqCalendarMonthDTO calendarMonthDTO
+    ){
+        return ResponseEntity.ok(diaryService.monthlyCalendar(calendarMonthDTO));
+    }
+
+    @PostMapping("/main/summary")
+    @Operation(summary = "일기 한 줄 요약", description = "사용자가 선택한 날짜의 일기를 한 줄로 요약합니다.")
+    public ResponseEntity<?> summary(
+            @Parameter(description = "사용자가 선택한 날짜를 담고 있는 DTO")
+            @RequestBody DiaryReqCalendarSummaryDTO calendarSummaryDTO
+    ){
+        return ResponseEntity.ok(diaryService.summary(calendarSummaryDTO));
     }
 }
