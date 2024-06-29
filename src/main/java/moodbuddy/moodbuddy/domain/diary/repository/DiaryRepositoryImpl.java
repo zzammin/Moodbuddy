@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
+import static moodbuddy.moodbuddy.domain.diaryImage.entity.QDiaryImage.diaryImage;
 
 public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     private final JPAQueryFactory queryFactory;
@@ -40,18 +41,27 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
-        return queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
-                diary.id,
-                diary.diaryTitle,
-                diary.diaryDate,
-                diary.diaryContent,
-                diary.diaryWeather,
-                diary.diaryEmotion,
-                diary.diaryStatus,
-                diary.userEmail
+        DiaryResFindOneDTO diaryResFindOne = queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
+                        diary.id,
+                        diary.diaryTitle,
+                        diary.diaryDate,
+                        diary.diaryContent,
+                        diary.diaryWeather,
+                        diary.diaryEmotion,
+                        diary.diaryStatus,
+                        diary.userEmail
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
                 .fetchOne();
+
+        List<String> diaryImgList = queryFactory.select(diaryImage.diaryImgURL)
+                .from(diaryImage)
+                .where(diaryImage.diary.id.eq(diaryId))
+                .fetch();
+
+        diaryResFindOne.setDiaryImgList(diaryImgList);
+
+        return diaryResFindOne;
     }
 }

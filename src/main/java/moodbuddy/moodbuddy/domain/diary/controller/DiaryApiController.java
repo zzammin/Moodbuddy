@@ -46,8 +46,8 @@ public class DiaryApiController {
     public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] delete");
         try {
-            DiaryResDeleteDTO result = diaryService.delete(diaryId);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete", result));
+            diaryService.delete(diaryId);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
         } catch (Exception e) {
             log.error("[DiaryApiController] delete", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));

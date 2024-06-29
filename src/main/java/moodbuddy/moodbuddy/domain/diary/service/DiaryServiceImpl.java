@@ -40,7 +40,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
-        log.info("[DiaryService] save");
+        log.info("[DiaryServiceImpl] save");
         Long userId = JwtUtil.getMemberId();
         String userEmail = JwtUtil.getEmail();
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
@@ -71,7 +71,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
-        log.info("[DiaryService] update");
+        log.info("[DiaryServiceImpl] update");
 
         Diary diary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()).get(); // 예외 처리 로직 추가
 
@@ -90,8 +90,8 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResDeleteDTO delete(Long diaryId) {
-        log.info("[DiaryService] delete");
+    public void delete(Long diaryId) {
+        log.info("[DiaryServiceImpl] delete");
 
         Diary diary = diaryRepository.findById(diaryId).get(); // 예외 처리 로직 추가
 
@@ -105,15 +105,12 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         diaryRepository.delete(diary);
-
-        return DiaryMapper.toDeleteDTO(diary);
     }
 
     @Override
     @Transactional
     public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
-        log.info("[DiaryService] draftSave");
-        Long userId = JwtUtil.getMemberId();
+        log.info("[DiaryServiceImpl] draftSave");
         String userEmail = JwtUtil.getEmail();
 
         Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userEmail);
@@ -128,7 +125,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
-        log.info("[DiaryService] draftFindAll");
+        log.info("[DiaryServiceImpl] draftFindAll");
         String userEmail = JwtUtil.getEmail();
         return diaryRepository.draftFindAll(userEmail);
     }
@@ -136,7 +133,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
-        log.info("[DiaryService] draftSelectDelete");
+        log.info("[DiaryServiceImpl] draftSelectDelete");
         String userEmail = JwtUtil.getEmail();
 
         List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
@@ -149,19 +146,26 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
-        log.info("[DiaryService] findOne");
+        log.info("[DiaryServiceImpl] findOne");
         String userEmail = JwtUtil.getEmail();
 
-        DiaryResFindOneDTO diaryResFindOne = diaryRepository.findOne(diaryId);
+        Optional<Diary> optionalDiary = diaryRepository.findById(diaryId);
 
-        if(!diaryResFindOne.getUserEmail().equals(userEmail)) {
+        if(!optionalDiary.isPresent()) {
+            // 에러 반화
+        }
+
+        if(!optionalDiary.get().getUserEmail().equals(userEmail)) {
             // 에러 반환
         }
-        return diaryResFindOne;
+        return DiaryMapper.toFindOneDTO(optionalDiary.get());
     }
 
     @Override
     public DiaryResFindAllDTO findAll() {
+        log.info("[DiaryServiceImpl] findAll");
+        String userEmail = JwtUtil.getEmail();
+
         return new DiaryResFindAllDTO();
     }
 

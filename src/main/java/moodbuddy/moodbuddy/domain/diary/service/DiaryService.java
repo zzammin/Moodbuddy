@@ -15,7 +15,7 @@ public interface DiaryService {
     DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
 
     // 일기 삭제
-    DiaryResDeleteDTO delete(Long diaryId);
+    void delete(Long diaryId);
 
     // 일기 임시 저장
     DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;

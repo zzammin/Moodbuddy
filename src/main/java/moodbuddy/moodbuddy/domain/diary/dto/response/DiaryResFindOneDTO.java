@@ -9,6 +9,7 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -22,5 +23,6 @@ public class DiaryResFindOneDTO {
     private DiaryWeather diaryWeather;
     private DiaryEmotion diaryEmotion;
     private DiaryStatus diaryStatus;
+    private List<String> diaryImgList;
     private String userEmail;
 }
