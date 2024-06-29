@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryServiceImpl implements DiaryService {
-    private final ModelMapper modelMapper;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
 
