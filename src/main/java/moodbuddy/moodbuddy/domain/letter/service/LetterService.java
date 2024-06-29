@@ -14,4 +14,10 @@ public interface LetterService {
 
     // 고민 편지 내용
     LetterResDetailsDTO details(Long letterId);
+
+    // 고민 답장 내용 저장
+    void answerSave(String worryContent);
+
+    // 알림톡 보내기 (또는 알림)
+    void alarmTalk();
 }
