@@ -19,31 +19,37 @@ public class QUser extends EntityPathBase<User> {
 
     public static final QUser user = new QUser("user");
 
-    public final moodbuddy.moodbuddy.global.common.base.QBaseEntity _super = new moodbuddy.moodbuddy.global.common.base.QBaseEntity(this);
+    public final StringPath accessToken = createString("accessToken");
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
+    public final DatePath<java.time.LocalDate> accessTokenExpiredAt = createDate("accessTokenExpiredAt", java.time.LocalDate.class);
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
+    public final BooleanPath alarm = createBoolean("alarm");
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
+    public final DateTimePath<java.time.LocalDateTime> alarmTime = createDateTime("alarmTime", java.time.LocalDateTime.class);
 
-    public final StringPath userBirth = createString("userBirth");
+    public final DateTimePath<java.time.LocalDateTime> birthday = createDateTime("birthday", java.time.LocalDateTime.class);
+
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+
+    public final BooleanPath deleted = createBoolean("deleted");
+
+    public final BooleanPath gender = createBoolean("gender");
+
+    public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
+
+    public final StringPath nickname = createString("nickname");
+
+    public final StringPath refreshToken = createString("refreshToken");
+
+    public final DatePath<java.time.LocalDate> refreshTokenExpiredAt = createDate("refreshTokenExpiredAt", java.time.LocalDate.class);
 
     public final NumberPath<Integer> userCurDiaryNums = createNumber("userCurDiaryNums", Integer.class);
 
-    public final StringPath userEmail = createString("userEmail");
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public final NumberPath<Integer> userLastDiaryNums = createNumber("userLastDiaryNums", Integer.class);
 
     public final NumberPath<Integer> userLetterNums = createNumber("userLetterNums", Integer.class);
-
-    public final StringPath userName = createString("userName");
-
-    public final StringPath userNickName = createString("userNickName");
-
-    public final DateTimePath<java.time.LocalDateTime> userNoticeTime = createDateTime("userNoticeTime", java.time.LocalDateTime.class);
 
     public final StringPath userRole = createString("userRole");
 
