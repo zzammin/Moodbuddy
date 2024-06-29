@@ -103,7 +103,7 @@ public class DiaryApiController {
     public ResponseEntity<?> findOne(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] findOne");
         try {
-            DiaryResFindOneDTO result = diaryService.findOne(diaryId);
+            DiaryResFindOneDTO result = diaryService.findOneByDiaryId(diaryId);
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
         } catch (Exception e) {
             log.error("[DiaryApiController] findOne", e);
