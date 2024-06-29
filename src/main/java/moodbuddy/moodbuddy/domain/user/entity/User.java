@@ -20,17 +20,17 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class User{
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", columnDefinition = "bigint")
     private Long userId;
 
-    @Column(name = "user_role", columnDefinition = "varchar", length = 50)
+    @Column(name = "user_role", columnDefinition = "varchar(50)")
     private String userRole;
 
-    @Column(name = "nickname", columnDefinition = "varchar", length = 50)
+    @Column(name = "nickname", columnDefinition = "varchar(50)")
     private String nickname;
 
     @Column(name = "kakao_id", columnDefinition = "bigint")
@@ -39,7 +39,7 @@ public class User{
     @Column(name = "alarm", columnDefinition = "tinyint")
     private Boolean alarm;
 
-    @Column(name = "alarm_time", columnDefinition = "date")
+    @Column(name = "alarm_time", columnDefinition = "datetime")
     private LocalDateTime alarmTime;
 
     @Column(name = "birthday", columnDefinition = "datetime(6)")
@@ -52,7 +52,7 @@ public class User{
     @Column(name = "created_at", columnDefinition = "datetime")
     private LocalDateTime createdAt;
 
-    @Column(name="deleted", columnDefinition = "tinyint")
+    @Column(name = "deleted", columnDefinition = "tinyint")
     private Boolean deleted;
 
     @Column(name = "access_token", columnDefinition = "text")
@@ -75,7 +75,4 @@ public class User{
 
     @Column(name = "user_letter_nums", columnDefinition = "int")
     private Integer userLetterNums;
-
-
 }
-

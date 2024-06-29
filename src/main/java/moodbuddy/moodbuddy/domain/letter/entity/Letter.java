@@ -22,21 +22,21 @@ public class Letter extends BaseEntity {
     @Column(name = "letter_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "letter_format", nullable = false)
+    @Column(name = "letter_format", nullable = false, columnDefinition = "int")
     private Integer letterFormat;
 
     @Lob
-    @Column(name = "worry_content")
+    @Column(name = "worry_content", columnDefinition = "TEXT")
     private String letterWorryContent;
 
     @Lob
-    @Column(name = "answer_content")
+    @Column(name = "answer_content", columnDefinition = "TEXT")
     private String letterAnswerContent;
 
-    @Column(name = "letter_date", nullable = false)
+    @Column(name = "letter_date", nullable = false, columnDefinition = "datetime")
     private LocalDateTime letterDate;
 }

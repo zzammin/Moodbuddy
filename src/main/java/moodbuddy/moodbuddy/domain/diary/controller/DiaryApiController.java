@@ -22,7 +22,7 @@ public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
     @PostMapping("/save")
     @Operation(summary = "일기 작성")
-    public ResponseEntity<?> save(@RequestBody DiaryReqSaveDTO diaryReqSaveDTO) {
+    public ResponseEntity<?> save(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) {
         log.info("[DiaryApiController] save");
         try {
             DiaryResSaveDTO result = diaryService.save(diaryReqSaveDTO);

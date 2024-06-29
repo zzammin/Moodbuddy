@@ -53,8 +53,8 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] save");
         Long userId = JwtUtil.getUserId();
 
-        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-
+//        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
+        String summary = "dasdasd"; // 일기 내용 요약 결과
         Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
 
         diary = diaryRepository.save(diary);
