@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DiaryResDraftSaveDTO {
+public class DiaryResDraftFindOneDTO {
     private Long id;
     private LocalDateTime diaryDate;
     private DiaryStatus diaryStatus;

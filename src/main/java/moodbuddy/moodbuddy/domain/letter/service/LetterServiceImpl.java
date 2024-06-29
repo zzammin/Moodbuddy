@@ -52,7 +52,7 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] letterPage");
         try{
             // userId를 통해 userRepository에서 유저 조회 (Optional 사용)
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
             // user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
             Optional<Profile> optionalProfile = profileRepository.findByUserId(userId);
@@ -74,7 +74,7 @@ public class LetterServiceImpl implements LetterService {
 
                 return LetterResPageDTO.builder()
                         .profileNickname(optionalProfile.get().getProfileNickName())
-                        .userBirth(optionalUser.get().getUserBirth())
+                        .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)
                         .userLetterNums(optionalUser.get().getUserLetterNums())
@@ -95,7 +95,7 @@ public class LetterServiceImpl implements LetterService {
     public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
         log.info("[LetterService] writeLetter");
         try{
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
             Timer timer = new Timer();
             // user_id : userId를 Letter의 user_id로 저장
@@ -164,7 +164,7 @@ public class LetterServiceImpl implements LetterService {
     public LetterResDetailsDTO details(Long letterId){
         log.info("[LetterService] details");
         try{
-            Long userId = JwtUtil.getMemberId();
+            Long userId = JwtUtil.getUserId();
             // letterId와 userId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
             // -> 이 Letter의 worry_content, answer_content를 DTO에 매핑
             Optional<Letter> optionalLetter = letterRepository.findByIdAndUserId(letterId, userId);

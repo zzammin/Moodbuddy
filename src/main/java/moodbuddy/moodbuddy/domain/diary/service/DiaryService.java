@@ -3,6 +3,8 @@ package moodbuddy.moodbuddy.domain.diary.service;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -15,32 +17,32 @@ public interface DiaryService {
     DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
 
     // 일기 삭제
-    DiaryResDeleteDTO delete(Long diaryId);
+    void delete(Long diaryId);
 
     // 일기 임시 저장
-    DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO);
+    DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;
 
     // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();
 
-    // 일기 임시 저장 삭제
-    DiaryResDraftDeleteDTO draftDelete(Long diaryId);
 
-    // 일기 임시 저장 전체 삭제
-    DiaryResDraftDeleteAllDTO draftDeleteAll();
+    // 일기 임시 저장 선택 삭제
+    void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
 
     // 일기 하나 조회
     DiaryResFindOneDTO findOne(Long diaryId);
 
-    // 일기 전체 조회
-    DiaryResFindAllDTO findAll();
+    // 일기 전체 조회 (페이징)
+    Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion);
+    Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable);
 
-    // 검색어 조회
+    // 검색어 조회 -> 일라스틱서치 사용할 예정
 
     // 상세검색 조회
+
+    /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
     // 편지지 개수 증가 (일기 작성 시 편지지 개수 증가)
     void letterNumPlus(Long userEmail);

@@ -16,23 +16,25 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryServiceImpl implements DiaryService {
-    private final ModelMapper modelMapper;
+
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
@@ -41,12 +43,13 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
-        log.info("[DiaryService] save");
-        Long userId = JwtUtil.getMemberId();
-        String userEmail = JwtUtil.getEmail();
+        log.info("[DiaryServiceImpl] save");
+        Long userId = JwtUtil.getUserId();
+
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
 
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userEmail, summary);
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
+
         diary = diaryRepository.save(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
@@ -72,7 +75,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
-        log.info("[DiaryService] update");
+        log.info("[DiaryServiceImpl] update");
 
         Diary diary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()).get(); // 예외 처리 로직 추가
 
@@ -86,14 +89,13 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
         }
 
-        diary = diaryRepository.save(diary);
         return DiaryMapper.toUpdateDTO(diary);
     }
 
     @Override
     @Transactional
-    public DiaryResDeleteDTO delete(Long diaryId) {
-        log.info("[DiaryService] delete");
+    public void delete(Long diaryId) {
+        log.info("[DiaryServiceImpl] delete");
 
         Diary diary = diaryRepository.findById(diaryId).get(); // 예외 처리 로직 추가
 
@@ -107,62 +109,86 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         diaryRepository.delete(diary);
-
-        return DiaryMapper.toDeleteDTO(diary);
     }
 
     @Override
     @Transactional
-    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftDTO) {
-        return new DiaryResDraftSaveDTO();
+    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
+        log.info("[DiaryServiceImpl] draftSave");
+        Long userId = JwtUtil.getUserId();
+
+        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userId);
+        diary = diaryRepository.save(diary);
+
+        if (diaryReqDraftSaveDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
+        }
+
+        return DiaryMapper.toDraftSaveDTO(diary);
     }
 
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
-        return new DiaryResDraftFindAllDTO();
+        log.info("[DiaryServiceImpl] draftFindAll");
+        Long userId = JwtUtil.getUserId();
+        return diaryRepository.draftFindAll(userId);
     }
 
     @Override
-    public DiaryResDraftDeleteDTO draftDelete(Long diaryId) {
-        return null;
+    @Transactional
+    public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
+        log.info("[DiaryServiceImpl] draftSelectDelete");
+        Long userId = JwtUtil.getUserId();
+
+        List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
+                .filter(diary -> diary.getUserId().equals(userId))
+                .collect(Collectors.toList());
+
+        diaryRepository.deleteAll(diariesToDelete);
     }
 
-    @Override
-    public DiaryResDraftDeleteAllDTO draftDeleteAll() {
-        return null;
-    }
 
     @Override
     public DiaryResFindOneDTO findOne(Long diaryId) {
-        return new DiaryResFindOneDTO();
+        log.info("[DiaryServiceImpl] findOne");
+        Long userId = JwtUtil.getUserId();
+
+        // [추가해야 할 내]
+        // diaryId가 존재하는 Id 값인지 확인하는 예외처리
+        // userEmail하고 Diary의 userEmail하고 같은 지 확인하는 예외처리
+
+        return diaryRepository.findOne(diaryId);
     }
 
     @Override
-    public DiaryResFindAllDTO findAll() {
-        return new DiaryResFindAllDTO();
+    public Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllPageable");
+        Long userId = JwtUtil.getUserId();
+
+        return diaryRepository.findAllPageable(userId, pageable);
     }
 
     @Override
-    public DiaryResSimilarFindAllDTO similarFindAll(DiaryEmotion diaryEmotion) {
-        return new DiaryResSimilarFindAllDTO();
+    public Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable) {
+        return null;
     }
 
-    /** 추가 메서드 **/
+    /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
     @Override
     @Transactional
     public DiaryResCalendarMonthListDTO monthlyCalendar(DiaryReqCalendarMonthDTO calendarMonthDTO){
         log.info("[DiaryService] monthlyCalendar");
         try{
-            // -> userEmail 가져오기
-            String userEmail = JwtUtil.getEmail();
+            // -> userID 가져오기
+            Long userId = JwtUtil.getUserId();
 
             // calendarMonthDTO에서 month 가져오기
             // user_id에 맞는 List<Diary> 중에서, month에서 DateTimeFormatter의 ofPattern을 이용한 LocalDateTime 파싱을 통해 년, 월을 얻어오고,
             // repository 에서는 LIKE 연산자를 이용해서 그 년, 월에 맞는 List<Diary>를 얻어온다
             // (여기서 user_id에 맞는 리스트 전체 조회를 하지 말고, user_id와 년 월에 맞는 리스트만 조회하자)
             // -> 그 Diary 리스트를 그대로 DTO에 넣어서 반환해주면 될 것 같다.
-            List<Diary> monthlyDiaryList = diaryRepository.findByUserEmailAndMonth(userEmail, calendarMonthDTO.getCalendarMonth());
+            List<Diary> monthlyDiaryList = diaryRepository.findByUserIdAndMonth(userId, calendarMonthDTO.getCalendarMonth());
 
             List<DiaryResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> DiaryResCalendarMonthDTO.builder()
@@ -186,10 +212,10 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryService] summary");
         try {
             // userEmail 가져오기
-            String userEmail = JwtUtil.getEmail();
+            Long userEmail = JwtUtil.getUserId();
 
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByUserEmailAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
+            Optional<Diary> summaryDiary = diaryRepository.findByUserIdAndDay(userEmail, calendarSummaryDTO.getCalendarDay());
 
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()

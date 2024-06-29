@@ -38,8 +38,7 @@ public class UserServiceImpl implements UserService{
         log.info("[UserService] mainPage");
         try {
             // userId를 통해 userRepository에서 유저 조회 (Optional 사용)
-            Long userId = JwtUtil.getMemberId();
-            String userEmail = JwtUtil.getEmail();
+            Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
 
             // 조회한 유저의 user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService{
                 String currentYearMonth = yearMonth.toString();
 
                 // 현재 달의 일기 리스트
-                List<Diary> diaryList = diaryRepository.findByUserEmailAndMonth(userEmail, currentYearMonth);
+                List<Diary> diaryList = diaryRepository.findByUserIdAndMonth(userId, currentYearMonth);
 
                 // 횟수가 최댓값인 emotion과 그 값을 저장하기 위한 Map
                 Map<DiaryEmotion, Integer> emotionMap = emotionNum(diaryList);
@@ -66,7 +65,7 @@ public class UserServiceImpl implements UserService{
 
                 return UserResMainPageDTO.builder()
                         .profileNickName(optionalProfile.get().getProfileNickName())
-                        .userBirth(optionalUser.get().getUserBirth())
+                        .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImgURL(profileImgURL)
                         .userCurDiaryNums(optionalUser.get().getUserCurDiaryNums())

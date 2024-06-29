@@ -25,7 +25,7 @@ public class LetterMapper {
         });
     }
 
-    private static final Converter<User, String> userToUserEmailConverter = context -> context.getSource().getUserEmail();
+    private static final Converter<User, Long> userToUserEmailConverter = context -> context.getSource().getUserId();
 
     public static Letter toLetterEntity(LetterReqDTO letterReqDTO, User user) {
         return Letter.builder()

@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @Builder
 public class UserResMainPageDTO {
     private String profileNickName;
-    private String userBirth;
+    private LocalDateTime userBirth;
     private String profileComment;
     private String profileImgURL;
     private Integer userCurDiaryNums;

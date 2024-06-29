@@ -33,14 +33,13 @@ public class JwtUtil {
         JWT_SECRET_KEY = key;
     }
 
-    public static String createJwt(Long memberId, String email) {
+    public static String createJwt(Long kakaoId) {
         Date now = new Date();
 
         Date expiredDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", memberId);
-        claims.put("email", email);
+        claims.put("id", kakaoId);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -55,7 +54,7 @@ public class JwtUtil {
         Date expiredDate = new Date(now.getTime() - EXPIRATION_TIME);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", JwtUtil.getMemberId());
+        claims.put("id", JwtUtil.getUserId());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -114,7 +113,7 @@ public class JwtUtil {
         }
     }
 
-    public static Long getMemberId() {
+    public static Long getUserId() {
         String token = JwtUtil.getAccessToken();
 
         Claims body = Jwts.parserBuilder()
@@ -126,17 +125,17 @@ public class JwtUtil {
         return body.get("id", Long.class);
     }
 
-    public static String getEmail() {
-        String token = JwtUtil.getAccessToken();
-
-        Claims body = Jwts.parserBuilder()
-                .setSigningKey(JWT_SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return body.get("email", String.class);
-    }
+//    public static String getNickName() {
+//        String token = JwtUtil.getAccessToken();
+//
+//        Claims body = Jwts.parserBuilder()
+//                .setSigningKey(JWT_SECRET_KEY)
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody();
+//
+//        return body.get("nickname", String.class);
+//    }
 
     public static String getAccessToken() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -153,9 +152,9 @@ public class JwtUtil {
         return token;
     }
 
-    public static Long getMemberIdFromHeader() {
+    public static Long getUserIdFromHeader() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String memberIdHeader = request.getHeader("Member-Id");
+        String memberIdHeader = request.getHeader("User-Id");
         String memberIdString = null;
 
         if (memberIdHeader != null && memberIdHeader.startsWith("DHI ")) {

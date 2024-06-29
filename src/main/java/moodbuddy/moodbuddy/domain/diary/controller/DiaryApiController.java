@@ -4,13 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarMonthDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqCalendarSummaryDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqSaveDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class DiaryApiController {
             DiaryResSaveDTO result = diaryService.save(diaryReqSaveDTO);
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
         } catch (Exception e) {
-            log.error("[DiaryApiController] error", e);
+            log.error("[DiaryApiController] save", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }
@@ -49,14 +48,76 @@ public class DiaryApiController {
     public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] delete");
         try {
-            DiaryResDeleteDTO result = diaryService.delete(diaryId);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete", result));
+            diaryService.delete(diaryId);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
         } catch (Exception e) {
             log.error("[DiaryApiController] delete", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
         }
     }
 
+    @PostMapping("/draftSave")
+    public ResponseEntity<?> draftSave(@RequestBody DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) {
+        log.info("[DiaryApiController] draftSave");
+        try {
+            DiaryResDraftSaveDTO result = diaryService.draftSave(diaryReqDraftSaveDTO);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] draftSave", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @GetMapping("/draftFindAll")
+    public ResponseEntity<?> draftFindAll() {
+        log.info("[DiaryApiController] draftFindAll");
+        try {
+            DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] draftFindAll", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/draftSelectDelete")
+    public ResponseEntity<?> draftSelectDelete(@RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
+        log.info("[DiaryApiController] draftSelectDelete");
+        try {
+            diaryService.draftSelectDelete(diaryReqDraftSelectDeleteDTO);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSelectDelete"));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] draftSelectDelete", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @GetMapping("/findOne/{diaryId}")
+    public ResponseEntity<?> findOne(@PathVariable("diaryId") Long diaryId) {
+        log.info("[DiaryApiController] findOne");
+        try {
+            DiaryResFindOneDTO result = diaryService.findOne(diaryId);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] findOne", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+    @GetMapping("/findAllPageable")
+    public ResponseEntity<?> findAllPageable(Pageable pageable) {
+        log.info("[DiaryApiController] findAllPageable");
+        try {
+            Page<DiaryResFindOneDTO> result = diaryService.findAllPageable(pageable);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] findAllPageable", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
+
+    /** =========================================================  위 정목 아래 재민  ========================================================= **/
     @PostMapping("/main/month")
     @Operation(summary = "캘린더 달 이동", description = "캘린더의 달을 이동시킵니다.")
     public ResponseEntity<?> monthlyCalendar(
