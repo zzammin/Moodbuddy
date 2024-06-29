@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GPTResponseDTO {
-    private List<Choice> choiceList;
+    private List<Choice> choices;
 
     @Data
     @AllArgsConstructor

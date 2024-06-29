@@ -89,7 +89,6 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    // writeLetter가 호출되면, 12시간 타이머를 설정해둬야 하는데, 이걸 어떻게 할 수 있을까?
     // 이후에 12시간 타이머가 끝나면, 카카오톡 알림톡 전송 (쏘다 API 이용)
     @Override
     @Transactional
@@ -98,21 +97,21 @@ public class LetterServiceImpl implements LetterService {
         try{
             Long userId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(userId);
-            Timer timer = new Timer();
             // user_id : userId를 Letter의 user_id로 저장
             // format, worry_content : letterRequestDTO에서 worry_content와 format 가져와서 저장
             if(optionalUser.isPresent()){
                 Letter letter = LetterMapper.toLetterEntity(letterReqDTO, optionalUser.get());
                 letter = letterRepository.save(letter);
-                TimerTask timerTask = new TimerTask() {
+                Timer timer = new Timer(); // 타이머를 설정하기 위한 Timer 객체
+                TimerTask timerTask = new TimerTask() { // 타이머가 끝난 뒤 실행할 내용
                     @Override
                     public void run() {
                         answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // gpt api 연동 후 답장 저장
-                        alarmTalk();
+                        alarmTalk(); // 알람톡 전송
                     }
                 };
-                long delay = 12*60*60*1000;
-                timer.schedule(timerTask, delay);
+                long delay = 12*60*60*1000; // 12시간 타이머 시간 설정
+                timer.schedule(timerTask, delay); // 설정한 delay(12시간) 뒤에 timerTask(gpt api 답장 저장, 알람톡) 실행
                 return LetterMapper.toLetterSaveDTO(letter);
             } else {
                 throw new NoSuchElementException("userId를 가지는 사용자가 없습니다. userId : "+userId);
@@ -129,7 +128,7 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] answerSave");
         try{
             Long userId = JwtUtil.getUserId();
-            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해줘" : " 이 내용에 대해 따끔한 해결의 말을 해줘");
+            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 따끔한 해결의 말을 해주세요");
 
             GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
 
@@ -140,8 +139,8 @@ public class LetterServiceImpl implements LetterService {
                     .bodyToMono(GPTResponseDTO.class)
                     .block();
 
-            if (response != null && response.getChoiceList() != null) {
-                for (GPTResponseDTO.Choice choice : response.getChoiceList()) {
+            if (response != null && response.getChoices() != null) {
+                for (GPTResponseDTO.Choice choice : response.getChoices()) {
                     GPTMessageDTO message = choice.getMessage();
                     if (message != null) {
                         String answer = message.getContent();
