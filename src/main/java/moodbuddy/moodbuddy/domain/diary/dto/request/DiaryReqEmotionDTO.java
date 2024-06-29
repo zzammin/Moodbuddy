@@ -10,6 +10,6 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DiaryReqSimilarFindAllDTO {
+public class DiaryReqEmotionDTO {
     private DiaryEmotion diaryEmotion;
 }

@@ -3,6 +3,7 @@ package moodbuddy.moodbuddy.domain.diary.repository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -10,12 +11,15 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
@@ -111,5 +115,48 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                 .fetchCount();
 
         return new PageImpl<>(diaryList, pageable, total);
+    }
+
+    @Override
+    public Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long userId, Pageable pageable) {
+        List<Diary> diaries = queryFactory.selectFrom(diary)
+                .where(diaryEmotionEq(emotion).and(diary.userId.eq(userId)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Map<Long, List<String>> diaryImages = queryFactory.selectFrom(diaryImage)
+                .where(diaryImage.diary.id.in(diaries.stream().map(Diary::getId).collect(Collectors.toList())))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        diaryImage -> diaryImage.getDiary().getId(),
+                        Collectors.mapping(DiaryImage::getDiaryImgURL, Collectors.toList())
+                ));
+
+        List<DiaryResFindOneDTO> dtoList = diaries.stream()
+                .map(d -> new DiaryResFindOneDTO(
+                        d.getId(),
+                        d.getDiaryTitle(),
+                        d.getDiaryDate(),
+                        d.getDiaryContent(),
+                        d.getDiaryWeather(),
+                        d.getDiaryEmotion(),
+                        d.getDiaryStatus(),
+                        diaryImages.getOrDefault(d.getId(), List.of()),
+                        d.getUserId()
+                ))
+                .collect(Collectors.toList());
+
+        // Count total records
+        long total = queryFactory.selectFrom(diary)
+                .where(diaryEmotionEq(emotion).and(diary.userId.eq(userId)))
+                .fetchCount();
+
+        return new PageImpl<>(dtoList, pageable, total);
+    }
+
+    private BooleanExpression diaryEmotionEq(DiaryEmotion emotion) {
+        return emotion != null ? diary.diaryEmotion.eq(emotion) : null;
     }
 }

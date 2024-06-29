@@ -167,16 +167,19 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable) {
-        log.info("[DiaryServiceImpl] findAllPageable");
+    public Page<DiaryResFindOneDTO> findAllWithPageable(Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllWithPageable");
         Long userId = JwtUtil.getUserId();
 
         return diaryRepository.findAllByUserIdWithPageable(userId, pageable);
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable) {
-        return null;
+    public Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
+        Long userId = JwtUtil.getUserId();
+
+        return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), userId, pageable);
     }
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/

@@ -111,12 +111,25 @@ public class DiaryApiController {
         }
     }
 
+    @GetMapping("/findAllByEmotionWithPageable")
+    @Operation(summary = "일기 비슷한 감정으로 전체 조회")
+    public ResponseEntity<?> findAllByEmotionWithPageable(@RequestBody DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+        log.info("[DiaryApiController] findAllByEmotionWithPageable");
+        try {
+            Page<DiaryResFindOneDTO> result = diaryService.findAllByEmotionWithPageable(diaryReqEmotionDTO, pageable);
+            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
+        } catch (Exception e) {
+            log.error("[DiaryApiController] findAllByEmotionWithPageable", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+        }
+    }
+
     @GetMapping("/findAllPageable")
     @Operation(summary = "일기 전체 조회")
     public ResponseEntity<?> findAllPageable(Pageable pageable) {
         log.info("[DiaryApiController] findAllPageable");
         try {
-            Page<DiaryResFindOneDTO> result = diaryService.findAllPageable(pageable);
+            Page<DiaryResFindOneDTO> result = diaryService.findAllWithPageable(pageable);
             return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
         } catch (Exception e) {
             log.error("[DiaryApiController] findAllPageable", e);

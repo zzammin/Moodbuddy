@@ -2,7 +2,6 @@ package moodbuddy.moodbuddy.domain.diary.service;
 
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -33,10 +32,10 @@ public interface DiaryService {
     DiaryResFindOneDTO findOne(Long diaryId);
 
     // 일기 전체 조회 (페이징)
-    Page<DiaryResFindOneDTO> findAllPageable(Pageable pageable);
+    Page<DiaryResFindOneDTO> findAllWithPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    Page<DiaryResFindOneDTO> similarFindAllPageable(DiaryReqSimilarFindAllDTO diaryReqSimilarFindAllDTO, Pageable pageable);
+    Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable);
 
     // 검색어 조회 -> 일라스틱서치 사용할 예정
 
