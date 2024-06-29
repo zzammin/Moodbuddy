@@ -2,6 +2,9 @@ package moodbuddy.moodbuddy.domain.letter.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTMessageDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTRequestDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTResponseDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResDetailsDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageAnswerDTO;
@@ -18,9 +21,12 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +39,12 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
+    private final WebClient gptWebClient;
+
+    @Value("${gpt.model}")
+    private String model;
+    @Value("${gpt.api.url}")
+    private String apiUrl;
 
     @Override
     @Transactional
@@ -94,7 +106,7 @@ public class LetterServiceImpl implements LetterService {
                 TimerTask timerTask = new TimerTask() {
                     @Override
                     public void run() {
-                        answerSave(letterReqDTO.getLetterWorryContent()); // 답장 저장
+                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterDate()); // 답장 저장
                     }
                 };
 
@@ -114,8 +126,32 @@ public class LetterServiceImpl implements LetterService {
     @Override
     @Transactional
     // 메소드 1 : gpt api 연동 후 답장 내용 letterRepository에 저장
-    public void answerSave(String worryContent){
+    public void answerSave(String worryContent, LocalDateTime letterDate){
+        Long userId = JwtUtil.getMemberId();
+        GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model,prompt);
+        GPTResponseDTO response = gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptrequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class)
+                .block();
 
+        // 응답 내용 추출
+        if (response != null && response.getChoiceList() != null) {
+            for (GPTResponseDTO.Choice choice : response.getChoiceList()) {
+                GPTMessageDTO message = choice.getMessage();
+                if (message != null) {
+                    String answer = message.getContent();
+                    // gptContent를 필요한 곳에 저장하거나 처리
+                    Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
+                    if(optionalLetter.isPresent()){
+                        letterRepository.updateAnswerById(userId, answer);
+                    }
+                }
+            }
+        } else {
+            System.out.println("No response from GPT API.");
+        }
     }
 
     @Override
