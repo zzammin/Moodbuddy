@@ -41,8 +41,6 @@ public class DiaryMapper {
         return modelMapper.map(diary, DiaryResSaveDTO.class);
     }
     public static DiaryResUpdateDTO toUpdateDTO(Diary diary) { return modelMapper.map(diary, DiaryResUpdateDTO.class); }
-    public static DiaryResDeleteDTO toDeleteDTO(Diary diary) { return modelMapper.map(diary, DiaryResDeleteDTO.class); }
     public static DiaryResDraftSaveDTO toDraftSaveDTO(Diary diary) {return modelMapper.map(diary, DiaryResDraftSaveDTO.class);}
-    public static DiaryResFindOneDTO toFindOneDTO(Diary diary) {return modelMapper.map(diary, DiaryResFindOneDTO.class);}
 
 }
