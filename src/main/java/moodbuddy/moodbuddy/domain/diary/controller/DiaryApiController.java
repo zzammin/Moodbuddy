@@ -34,7 +34,7 @@ public class DiaryApiController {
     @Operation(summary = "일기 수정")
     public ResponseEntity<?> update(@ModelAttribute DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryApiController] update");
-        DiaryResUpdateDTO result = diaryService.update(diaryReqUpdateDTO);
+        DiaryResDetailDTO result = diaryService.update(diaryReqUpdateDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
     }
 
@@ -50,7 +50,7 @@ public class DiaryApiController {
     @Operation(summary = "일기 임시 저장")
     public ResponseEntity<?> draftSave(@RequestBody DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
         log.info("[DiaryApiController] draftSave");
-        DiaryResDraftSaveDTO result = diaryService.draftSave(diaryReqDraftSaveDTO);
+        DiaryResDetailDTO result = diaryService.draftSave(diaryReqDraftSaveDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
     }
 
