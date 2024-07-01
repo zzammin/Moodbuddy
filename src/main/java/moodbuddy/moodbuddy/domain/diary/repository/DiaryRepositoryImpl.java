@@ -62,7 +62,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryContent,
                         diary.diaryWeather,
                         diary.diaryEmotion,
-                        diary.diaryStatus
+                        diary.diaryStatus,
+                        diary.diarySummary
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))

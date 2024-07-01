@@ -62,7 +62,7 @@ public class DiaryApiController {
         DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
     }
-
+    /** 구현 완료 **/
     @DeleteMapping("/draftSelectDelete")
     @Operation(summary = "임시 저장 일기 선택 삭제")
     public ResponseEntity<?> draftSelectDelete(@RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
