@@ -86,7 +86,7 @@ public class DiaryApiController {
         Page<DiaryResDetailDTO> result = diaryService.findAllWithPageable(pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
     }
-
+    /** 구현 완료 **/
     @GetMapping("/findAllByEmotionWithPageable")
     @Operation(summary = "일기 비슷한 감정으로 전체 조회")
     public ResponseEntity<?> findAllByEmotionWithPageable(@RequestBody DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
@@ -94,7 +94,7 @@ public class DiaryApiController {
         Page<DiaryResDetailDTO> result = diaryService.findAllByEmotionWithPageable(diaryReqEmotionDTO, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
     }
-
+    /** 구현 완료(키워드 제외) **/
     @GetMapping("/findAllByFilter")
     @Operation(summary = "일기 필터링으로 전체 조회")
     public ResponseEntity<?> findAllByFilter(@RequestBody DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
@@ -102,4 +102,5 @@ public class DiaryApiController {
         Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
     }
+    /** 키워드 검색 기능 구현 **/
 }
