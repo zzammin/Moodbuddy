@@ -49,7 +49,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
+    public DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
         Long userId = JwtUtil.getUserId();
 
@@ -68,7 +68,7 @@ public class DiaryServiceImpl implements DiaryService {
         // 일기 작성하면 편지지 개수 늘려주기
         letterNumPlus(userId);
 
-        return DiaryMapper.toSaveDTO(diary);
+        return DiaryMapper.toDetailDTO(diary);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
+    public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
 
         Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId());// 예외 처리 로직 추가
@@ -104,7 +104,7 @@ public class DiaryServiceImpl implements DiaryService {
 
 //        saveDocument(diary);
 
-        return DiaryMapper.toUpdateDTO(findDiary);
+        return DiaryMapper.toDetailDTO(findDiary);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
+    public DiaryResDetailDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         Long userId = JwtUtil.getUserId();
 
@@ -140,7 +140,7 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
         }
 
-        return DiaryMapper.toDraftSaveDTO(diary);
+        return DiaryMapper.toDetailDTO(diary);
     }
 
     @Override

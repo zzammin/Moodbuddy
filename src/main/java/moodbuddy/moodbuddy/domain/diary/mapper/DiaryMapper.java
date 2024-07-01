@@ -36,10 +36,8 @@ public class DiaryMapper {
                 .build();
     }
 
-    public static DiaryResSaveDTO toSaveDTO(Diary diary) {
-        return modelMapper.map(diary, DiaryResSaveDTO.class);
+    public static DiaryResDetailDTO toDetailDTO(Diary diary) {
+        return modelMapper.map(diary, DiaryResDetailDTO.class);
     }
-    public static DiaryResUpdateDTO toUpdateDTO(Diary diary) { return modelMapper.map(diary, DiaryResUpdateDTO.class); }
-    public static DiaryResDraftSaveDTO toDraftSaveDTO(Diary diary) {return modelMapper.map(diary, DiaryResDraftSaveDTO.class);}
 
 }

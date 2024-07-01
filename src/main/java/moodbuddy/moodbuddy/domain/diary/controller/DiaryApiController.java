@@ -26,7 +26,7 @@ public class DiaryApiController {
     @Operation(summary = "일기 작성")
     public ResponseEntity<?> save(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] save");
-        DiaryResSaveDTO result = diaryService.save(diaryReqSaveDTO);
+        DiaryResDetailDTO result = diaryService.save(diaryReqSaveDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
     }
 

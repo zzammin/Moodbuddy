@@ -10,20 +10,19 @@ import java.util.Map;
 
 public interface DiaryService {
     // 일기 저장
-    DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
+    DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
 
     // 일기 수정
-    DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
+    DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
 
     // 일기 삭제
     void delete(Long diaryId);
 
     // 일기 임시 저장
-    DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;
+    DiaryResDetailDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;
 
     // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();
-
 
     // 일기 임시 저장 선택 삭제
     void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
