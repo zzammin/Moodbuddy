@@ -101,23 +101,4 @@ public class DiaryApiController {
         Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
     }
-
-    /** =========================================================  위 정목 아래 재민  ========================================================= **/
-    @PostMapping("/main/month")
-    @Operation(summary = "캘린더 달 이동", description = "캘린더의 달을 이동시킵니다.")
-    public ResponseEntity<?> monthlyCalendar(
-            @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
-            @RequestBody DiaryReqCalendarMonthDTO calendarMonthDTO
-    ){
-        return ResponseEntity.ok(diaryService.monthlyCalendar(calendarMonthDTO));
-    }
-
-    @PostMapping("/main/summary")
-    @Operation(summary = "일기 한 줄 요약", description = "사용자가 선택한 날짜의 일기를 한 줄로 요약합니다.")
-    public ResponseEntity<?> summary(
-            @Parameter(description = "사용자가 선택한 날짜를 담고 있는 DTO")
-            @RequestBody DiaryReqCalendarSummaryDTO calendarSummaryDTO
-    ){
-        return ResponseEntity.ok(diaryService.summary(calendarSummaryDTO));
-    }
 }
