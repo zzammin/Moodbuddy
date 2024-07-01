@@ -19,7 +19,7 @@ public interface DiaryService {
     void delete(Long diaryId);
 
     // 일기 임시 저장
-    DiaryResDetailDTO draftSave(DiaryReqDraftSaveDTO diaryResDraftSaveDTO) throws IOException;
+    DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
 
     // 일기 임시 저장 날짜 조회
     DiaryResDraftFindAllDTO draftFindAll();
@@ -28,19 +28,19 @@ public interface DiaryService {
     void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO);
 
     // 일기 하나 조회
-    DiaryResFindOneDTO findOneByDiaryId(Long diaryId);
+    DiaryResDetailDTO findOneByDiaryId(Long diaryId);
 
     // 일기 전체 조회 (페이징)
-    Page<DiaryResFindOneDTO> findAllWithPageable(Pageable pageable);
+    Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable);
+    Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable);
 
     // 검색어 조회 -> 일라스틱서치 사용할 예정
 //    Page<DiaryDocument> searchDiariesByKeyword(String keyword, Pageable pageable);
 
     // 상세검색 조회
-    Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
+    Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 

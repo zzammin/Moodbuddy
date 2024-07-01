@@ -8,9 +8,9 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqFilterDTO;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
-import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
@@ -53,8 +53,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
-        DiaryResFindOneDTO diaryResFindOne = queryFactory.select(Projections.constructor(DiaryResFindOneDTO.class,
+    public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
+        DiaryResDetailDTO diaryResDetailDTO = queryFactory.select(Projections.constructor(DiaryResDetailDTO.class,
                         diary.id,
                         diary.userId,
                         diary.diaryTitle,
@@ -73,13 +73,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                 .where(diaryImage.diary.id.eq(diaryId))
                 .fetch();
 
-        diaryResFindOne.setDiaryImgList(diaryImgList);
+        diaryResDetailDTO.setDiaryImgList(diaryImgList);
 
-        return diaryResFindOne;
+        return diaryResDetailDTO;
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByUserIdWithPageable(Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByUserIdWithPageable(Long userId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
                 .where(diary.userId.eq(userId)
                         .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
@@ -93,13 +93,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<DiaryResFindOneDTO> diaryList = diaries.stream().map(d -> {
+        List<DiaryResDetailDTO> diaryList = diaries.stream().map(d -> {
             List<String> diaryImgList = queryFactory.select(diaryImage.diaryImgURL)
                     .from(diaryImage)
                     .where(diaryImage.diary.id.eq(d.getId()))
                     .fetch();
 
-            return DiaryResFindOneDTO.builder()
+            return DiaryResDetailDTO.builder()
                     .diaryId(d.getId())
                     .diaryTitle(d.getDiaryTitle())
                     .diaryDate(d.getDiaryDate())
@@ -120,7 +120,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long userId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
                 .where(diaryEmotionEq(emotion).and(diary.userId.eq(userId)))
                 .offset(pageable.getOffset())
@@ -136,8 +136,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         Collectors.mapping(DiaryImage::getDiaryImgURL, Collectors.toList())
                 ));
 
-        List<DiaryResFindOneDTO> dtoList = diaries.stream()
-                .map(d -> new DiaryResFindOneDTO(
+        List<DiaryResDetailDTO> dtoList = diaries.stream()
+                .map(d -> new DiaryResDetailDTO(
                         d.getId(),
                         d.getUserId(),
                         d.getDiaryTitle(),
@@ -146,6 +146,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         d.getDiaryWeather(),
                         d.getDiaryEmotion(),
                         d.getDiaryStatus(),
+                        d.getDiarySummary(),
                         diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());
@@ -159,7 +160,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByFilterWithPageable(DiaryReqFilterDTO filterDTO, Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByFilterWithPageable(DiaryReqFilterDTO filterDTO, Long userId, Pageable pageable) {
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
@@ -209,8 +210,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         Collectors.mapping(DiaryImage::getDiaryImgURL, Collectors.toList())
                 ));
 
-        List<DiaryResFindOneDTO> dtoList = results.stream()
-                .map(d -> DiaryResFindOneDTO.builder()
+        List<DiaryResDetailDTO> dtoList = results.stream()
+                .map(d -> DiaryResDetailDTO.builder()
                         .diaryId(d.getId())
                         .diaryTitle(d.getDiaryTitle())
                         .diaryDate(d.getDiaryDate())

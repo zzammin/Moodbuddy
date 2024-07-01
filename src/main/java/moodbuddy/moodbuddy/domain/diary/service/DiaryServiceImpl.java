@@ -55,7 +55,7 @@ public class DiaryServiceImpl implements DiaryService {
 
 //        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
         String summary = "dasdasd"; // 일기 내용 요약 결과
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, userId, summary);
 
         diary = diaryRepository.save(diary);
 
@@ -129,15 +129,15 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResDetailDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
+    public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         Long userId = JwtUtil.getUserId();
 
-        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userId);
+        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, userId);
         diary = diaryRepository.save(diary);
 
-        if (diaryReqDraftSaveDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
+        if (diaryReqSaveDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
         }
 
         return DiaryMapper.toDetailDTO(diary);
@@ -165,7 +165,7 @@ public class DiaryServiceImpl implements DiaryService {
 
 
     @Override
-    public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
+    public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
         Long userId = JwtUtil.getUserId();
 
@@ -177,7 +177,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllWithPageable(Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllWithPageable");
         Long userId = JwtUtil.getUserId();
 
@@ -185,7 +185,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
         Long userId = JwtUtil.getUserId();
 
@@ -193,7 +193,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByFilter");
         Long userId = JwtUtil.getUserId();
 
