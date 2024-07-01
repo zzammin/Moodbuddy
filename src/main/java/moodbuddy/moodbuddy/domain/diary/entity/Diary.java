@@ -33,14 +33,14 @@ public class Diary extends BaseEntity {
     private DiaryWeather diaryWeather;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_emotion", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "diary_emotion", columnDefinition = "varchar(255)")
     private DiaryEmotion diaryEmotion;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "diary_status", nullable = false, columnDefinition = "varchar(255)")
     private DiaryStatus diaryStatus;
 
-    @Column(name = "diary_summary", nullable = false, columnDefinition = "mediumtext")
+    @Column(name = "diary_summary", columnDefinition = "mediumtext")
     private String diarySummary;
 
     @Column(name = "user_id", columnDefinition = "bigint")

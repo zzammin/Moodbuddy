@@ -30,7 +30,7 @@ public class DiaryMapper {
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
-                .diaryStatus(DiaryStatus.DRAFT )
+                .diaryStatus(DiaryStatus.DRAFT)
                 .userId(userId)
                 .build();
     }

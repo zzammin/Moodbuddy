@@ -48,7 +48,7 @@ public class DiaryApiController {
 
     @PostMapping("/draftSave")
     @Operation(summary = "일기 임시 저장")
-    public ResponseEntity<?> draftSave(@RequestBody DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
+    public ResponseEntity<?> draftSave(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] draftSave");
         DiaryResDetailDTO result = diaryService.draftSave(diaryReqSaveDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
