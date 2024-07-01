@@ -108,6 +108,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryWeather(d.getDiaryWeather())
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
+                    .diarySummary(d.getDiarySummary())
                     .userId(d.getUserId())
                     .diaryImgList(diaryImgList)
                     .build();

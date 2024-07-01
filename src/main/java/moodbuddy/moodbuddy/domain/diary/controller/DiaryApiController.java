@@ -70,7 +70,7 @@ public class DiaryApiController {
         diaryService.draftSelectDelete(diaryReqDraftSelectDeleteDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSelectDelete"));
     }
-
+    /** 구현 완료 **/
     @GetMapping("/findOne/{diaryId}")
     @Operation(summary = "일기 하나 조회")
     public ResponseEntity<?> findOneByDiaryId(@PathVariable("diaryId") Long diaryId) {
@@ -78,7 +78,7 @@ public class DiaryApiController {
         DiaryResDetailDTO result = diaryService.findOneByDiaryId(diaryId);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
     }
-
+    /** 구현 완료 **/
     @GetMapping("/findAllPageable")
     @Operation(summary = "일기 전체 조회")
     public ResponseEntity<?> findAllWithPageable(Pageable pageable) {
@@ -86,6 +86,7 @@ public class DiaryApiController {
         Page<DiaryResDetailDTO> result = diaryService.findAllWithPageable(pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
     }
+
     @GetMapping("/findAllByEmotionWithPageable")
     @Operation(summary = "일기 비슷한 감정으로 전체 조회")
     public ResponseEntity<?> findAllByEmotionWithPageable(@RequestBody DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
