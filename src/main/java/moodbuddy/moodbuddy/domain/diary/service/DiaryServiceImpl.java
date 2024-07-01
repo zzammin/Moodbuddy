@@ -160,6 +160,35 @@ public class DiaryServiceImpl implements DiaryService {
                 .filter(diary -> diary.getUserId().equals(userId))
                 .collect(Collectors.toList());
 
+        System.out.println("=========================== 1");
+        for(int i=0; i<diariesToDelete.size(); i++) {
+            System.out.println(diariesToDelete.get(i).getId());
+        }
+
+        // 관련된 이미지 삭제
+        for (Diary diary : diariesToDelete) {
+            List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+
+            System.out.println("=========================== 2");
+            for(int i=0; i<images.size(); i++) {
+                System.out.println(images.get(i).getId());
+            }
+
+            List<String> imageUrls = images.stream()
+                    .map(DiaryImage::getDiaryImgURL)
+                    .collect(Collectors.toList());
+
+            System.out.println("=========================== 3");
+            for(int i=0; i<imageUrls.size(); i++) {
+                System.out.println(imageUrls.get(i));
+            }
+
+            if (!imageUrls.isEmpty()) {
+                diaryImageService.deleteDiaryImages(imageUrls);
+            }
+        }
+
+        // 일기 삭제
         diaryRepository.deleteAll(diariesToDelete);
     }
 

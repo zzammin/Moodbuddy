@@ -37,9 +37,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
                 .select(Projections.constructor(DiaryResDraftFindOneDTO.class,
                         diary.id,
+                        diary.userId,
                         diary.diaryDate,
-                        diary.diaryStatus,
-                        diary.userId
+                        diary.diaryStatus
                 ))
                 .from(diary)
                 .where(diary.userId.eq(userId)

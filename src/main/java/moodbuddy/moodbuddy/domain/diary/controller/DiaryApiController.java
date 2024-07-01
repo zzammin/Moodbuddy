@@ -22,6 +22,7 @@ import java.io.IOException;
 @Slf4j
 public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
+    /** 구현 완료 **/
     @PostMapping("/save")
     @Operation(summary = "일기 작성")
     public ResponseEntity<?> save(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
@@ -29,7 +30,7 @@ public class DiaryApiController {
         DiaryResDetailDTO result = diaryService.save(diaryReqSaveDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
     }
-
+    /** 구현 완료 **/
     @PatchMapping("/update")
     @Operation(summary = "일기 수정")
     public ResponseEntity<?> update(@ModelAttribute DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
@@ -37,7 +38,7 @@ public class DiaryApiController {
         DiaryResDetailDTO result = diaryService.update(diaryReqUpdateDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
     }
-
+    /** 구현 완료 **/
     @DeleteMapping("/delete/{diaryId}")
     @Operation(summary = "일기 삭제")
     public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
@@ -45,7 +46,7 @@ public class DiaryApiController {
         diaryService.delete(diaryId);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
     }
-
+    /** 구현 완료 **/
     @PostMapping("/draftSave")
     @Operation(summary = "일기 임시 저장")
     public ResponseEntity<?> draftSave(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
@@ -53,7 +54,7 @@ public class DiaryApiController {
         DiaryResDetailDTO result = diaryService.draftSave(diaryReqSaveDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
     }
-
+    /** 구현 완료 **/
     @GetMapping("/draftFindAll")
     @Operation(summary = "임시 저장 일기 목록 조회")
     public ResponseEntity<?> draftFindAll() {
