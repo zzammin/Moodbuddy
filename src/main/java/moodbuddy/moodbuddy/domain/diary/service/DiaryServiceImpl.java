@@ -50,12 +50,12 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
+    public DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
-        Long kakaoId = JwtUtil.getUserId();
+        Long userId = JwtUtil.getUserId();
 
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, kakaoId, summary);
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, userId, summary);
 
         diary = diaryRepository.save(diary);
 
@@ -66,9 +66,9 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         // 일기 작성하면 편지지 개수 늘려주기
-        letterNumPlus(kakaoId);
+        letterNumPlus(userId);
 
-        return DiaryMapper.toSaveDTO(diary);
+        return DiaryMapper.toDetailDTO(diary);
     }
 
     @Override
@@ -86,24 +86,28 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResUpdateDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
+    public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
 
-        Diary diary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()).get(); // 예외 처리 로직 추가
+        Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId());// 예외 처리 로직 추가
+        if(!optionalDiary.isPresent()) {
+            // 에러 추가
+        }
 
-        diary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
+        Diary findDiary = optionalDiary.get();
+        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
 
         if (diaryReqUpdateDTO.getImagesToDelete() != null) {
             diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
         }
 
         if (diaryReqUpdateDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
+            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), findDiary);
         }
 
 //        saveDocument(diary);
 
-        return DiaryMapper.toUpdateDTO(diary);
+        return DiaryMapper.toDetailDTO(findDiary);
     }
 
     @Override
@@ -128,18 +132,18 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResDraftSaveDTO draftSave(DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) throws IOException {
+    public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         Long userId = JwtUtil.getUserId();
 
-        Diary diary = DiaryMapper.toDraftDiaryEntity(diaryReqDraftSaveDTO, userId);
+        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, userId);
         diary = diaryRepository.save(diary);
 
-        if (diaryReqDraftSaveDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqDraftSaveDTO.getDiaryImgList(), diary);
+        if (diaryReqSaveDTO.getDiaryImgList() != null) {
+            diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
         }
 
-        return DiaryMapper.toDraftSaveDTO(diary);
+        return DiaryMapper.toDetailDTO(diary);
     }
 
     @Override
@@ -159,12 +163,41 @@ public class DiaryServiceImpl implements DiaryService {
                 .filter(diary -> diary.getUserId().equals(userId))
                 .collect(Collectors.toList());
 
+        System.out.println("=========================== 1");
+        for(int i=0; i<diariesToDelete.size(); i++) {
+            System.out.println(diariesToDelete.get(i).getId());
+        }
+
+        // 관련된 이미지 삭제
+        for (Diary diary : diariesToDelete) {
+            List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+
+            System.out.println("=========================== 2");
+            for(int i=0; i<images.size(); i++) {
+                System.out.println(images.get(i).getId());
+            }
+
+            List<String> imageUrls = images.stream()
+                    .map(DiaryImage::getDiaryImgURL)
+                    .collect(Collectors.toList());
+
+            System.out.println("=========================== 3");
+            for(int i=0; i<imageUrls.size(); i++) {
+                System.out.println(imageUrls.get(i));
+            }
+
+            if (!imageUrls.isEmpty()) {
+                diaryImageService.deleteDiaryImages(imageUrls);
+            }
+        }
+
+        // 일기 삭제
         diaryRepository.deleteAll(diariesToDelete);
     }
 
 
     @Override
-    public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
+    public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
         Long userId = JwtUtil.getUserId();
 
@@ -176,7 +209,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllWithPageable(Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllWithPageable");
         Long userId = JwtUtil.getUserId();
 
@@ -184,7 +217,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
         Long userId = JwtUtil.getUserId();
 
@@ -192,7 +225,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByFilter");
         Long userId = JwtUtil.getUserId();
 

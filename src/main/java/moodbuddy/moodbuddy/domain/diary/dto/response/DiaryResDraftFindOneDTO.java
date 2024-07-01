@@ -8,12 +8,18 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 
 import java.time.LocalDateTime;
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class DiaryResDraftFindOneDTO {
-    private Long id;
+    private Long productId;
+    private Long userId;
     private LocalDateTime diaryDate;
     private DiaryStatus diaryStatus;
-    private String userEmail;
+
+    public DiaryResDraftFindOneDTO(Long productId, Long userId, LocalDateTime diaryDate, DiaryStatus diaryStatus) {
+        this.productId = productId;
+        this.userId = userId;
+        this.diaryDate = diaryDate;
+        this.diaryStatus = diaryStatus;
+    }
 }

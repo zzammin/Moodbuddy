@@ -14,139 +14,92 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/member/diary")
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
+    /** 구현 완료 **/
     @PostMapping("/save")
     @Operation(summary = "일기 작성")
-    public ResponseEntity<?> save(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) {
+    public ResponseEntity<?> save(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] save");
-        try {
-            DiaryResSaveDTO result = diaryService.save(diaryReqSaveDTO);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] save", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        DiaryResDetailDTO result = diaryService.save(diaryReqSaveDTO);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
     }
-
+    /** 구현 완료 **/
     @PatchMapping("/update")
     @Operation(summary = "일기 수정")
-    public ResponseEntity<?> update(@RequestBody DiaryReqUpdateDTO diaryReqUpdateDTO) {
+    public ResponseEntity<?> update(@ModelAttribute DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryApiController] update");
-        try {
-            DiaryResUpdateDTO result = diaryService.update(diaryReqUpdateDTO);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] update", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        DiaryResDetailDTO result = diaryService.update(diaryReqUpdateDTO);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
     }
-
+    /** 구현 완료 **/
     @DeleteMapping("/delete/{diaryId}")
     @Operation(summary = "일기 삭제")
     public ResponseEntity<?> delete(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] delete");
-        try {
-            diaryService.delete(diaryId);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] delete", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        diaryService.delete(diaryId);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
     }
-
+    /** 구현 완료 **/
     @PostMapping("/draftSave")
     @Operation(summary = "일기 임시 저장")
-    public ResponseEntity<?> draftSave(@RequestBody DiaryReqDraftSaveDTO diaryReqDraftSaveDTO) {
+    public ResponseEntity<?> draftSave(@ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] draftSave");
-        try {
-            DiaryResDraftSaveDTO result = diaryService.draftSave(diaryReqDraftSaveDTO);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] draftSave", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        DiaryResDetailDTO result = diaryService.draftSave(diaryReqSaveDTO);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
     }
-
+    /** 구현 완료 **/
     @GetMapping("/draftFindAll")
     @Operation(summary = "임시 저장 일기 목록 조회")
     public ResponseEntity<?> draftFindAll() {
         log.info("[DiaryApiController] draftFindAll");
-        try {
-            DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] draftFindAll", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
     }
 
     @DeleteMapping("/draftSelectDelete")
     @Operation(summary = "임시 저장 일기 선택 삭제")
     public ResponseEntity<?> draftSelectDelete(@RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryApiController] draftSelectDelete");
-        try {
-            diaryService.draftSelectDelete(diaryReqDraftSelectDeleteDTO);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSelectDelete"));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] draftSelectDelete", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        diaryService.draftSelectDelete(diaryReqDraftSelectDeleteDTO);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSelectDelete"));
     }
 
     @GetMapping("/findOne/{diaryId}")
     @Operation(summary = "일기 하나 조회")
     public ResponseEntity<?> findOneByDiaryId(@PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] findOne");
-        try {
-            DiaryResFindOneDTO result = diaryService.findOneByDiaryId(diaryId);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] findOne", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        DiaryResDetailDTO result = diaryService.findOneByDiaryId(diaryId);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
     }
 
     @GetMapping("/findAllPageable")
     @Operation(summary = "일기 전체 조회")
     public ResponseEntity<?> findAllWithPageable(Pageable pageable) {
         log.info("[DiaryApiController] findAllPageable");
-        try {
-            Page<DiaryResFindOneDTO> result = diaryService.findAllWithPageable(pageable);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] findAllPageable", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        Page<DiaryResDetailDTO> result = diaryService.findAllWithPageable(pageable);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
     }
     @GetMapping("/findAllByEmotionWithPageable")
     @Operation(summary = "일기 비슷한 감정으로 전체 조회")
     public ResponseEntity<?> findAllByEmotionWithPageable(@RequestBody DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
         log.info("[DiaryApiController] findAllByEmotionWithPageable");
-        try {
-            Page<DiaryResFindOneDTO> result = diaryService.findAllByEmotionWithPageable(diaryReqEmotionDTO, pageable);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] findAllByEmotionWithPageable", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotionWithPageable(diaryReqEmotionDTO, pageable);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
     }
 
     @GetMapping("/findAllByFilter")
     @Operation(summary = "일기 필터링으로 전체 조회")
     public ResponseEntity<?> findAllByFilter(@RequestBody DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
         log.info("[DiaryApiController] findAllByFilter");
-        try {
-            Page<DiaryResFindOneDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
-            return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
-        } catch (Exception e) {
-            log.error("[DiaryApiController] findAllByFilter", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-        }
+        Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
     }
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/

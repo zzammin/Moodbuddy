@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class DiaryImageServiceImpl implements DiaryImageService {
     private final DiaryImageRepository diaryImageRepository;
     private final AmazonS3 amazonS3;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -84,15 +86,15 @@ public class DiaryImageServiceImpl implements DiaryImageService {
     }
 
     private void deleteImageFromDatabase(String imageUrl) {
-        Optional<DiaryImage> optionalDiaryImage = diaryImageRepository.findByDiaryImgURL(imageUrl); // 예외 로직 추가
-        if (optionalDiaryImage.get() != null) {
-            diaryImageRepository.delete(optionalDiaryImage.get());
+        List<DiaryImage> diaryImages = diaryImageRepository.findByDiaryImgURL(imageUrl);
+        for (DiaryImage diaryImage : diaryImages) {
+            diaryImageRepository.delete(diaryImage);
         }
     }
 
     @Override
     public List<DiaryImage> findImagesByDiary(Diary diary) {
-        Optional<List<DiaryImage>> optionalDiaryList = diaryImageRepository.findByDiary(diary); // 예외 로직 추가
-        return optionalDiaryList.get();
+        Optional<List<DiaryImage>> optionalDiaryList = diaryImageRepository.findByDiary(diary);
+        return optionalDiaryList.orElseGet(Collections::emptyList);
     }
 }

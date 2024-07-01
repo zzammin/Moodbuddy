@@ -89,6 +89,9 @@ public class KakaoServiceImpl implements KakaoService{
     @Transactional
     //KakaoAccessToken으로 user 정보 불러오기
     public KakaoProfile getUserInfo(String kakaoAccessToken) {
+
+        log.info("kakao Access Token 받아오기 성공 " + kakaoAccessToken);
+
         RestTemplate rt = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -105,6 +108,8 @@ public class KakaoServiceImpl implements KakaoService{
                 String.class
         );
 
+        log.info("kakao 서버에 요청 성공");
+
         // JSON Parsing (-> kakaoAccountDto)
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -117,12 +122,16 @@ public class KakaoServiceImpl implements KakaoService{
             e.printStackTrace();
         }
 
+        log.info("json parsing 성공");
+
         return profile;
     }
 
     @Override
     @Transactional
     public LoginResponseDto login(String kakaoAccessToken) {
+
+        log.info("kakao Access Token 받아오기 성공 " + kakaoAccessToken);
 
         KakaoProfile profile = getUserInfo(kakaoAccessToken);
         final Optional<User> byKakaoId = userRepository.findByKakaoId(profile.getId());
@@ -143,10 +152,15 @@ public class KakaoServiceImpl implements KakaoService{
                             .refreshTokenExpiredAt(LocalDate.now().plusYears(1L))
                             .build()
             );
+
+            log.info("sign up is success" + profile.getProperties().getNickname());
+
             return modelMapper.map(save, LoginResponseDto.class);
 
         }else{
             User loginUser = byKakaoId.get();
+
+            log.info("login is success" + profile.getProperties().getNickname());
 
             return  modelMapper.map(loginUser, LoginResponseDto.class);
         }
