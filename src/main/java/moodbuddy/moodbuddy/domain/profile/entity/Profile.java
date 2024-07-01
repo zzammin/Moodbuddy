@@ -9,14 +9,19 @@ import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 @Getter
 public class Profile extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")
     private Long id;
+
+    @Column(name = "profile_nick_name", columnDefinition = "varchar(255)")
     private String profileNickName;
+
+    @Column(name = "profile_comment", columnDefinition = "varchar(255)")
     private String profileComment = "";
-    @OneToOne
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    /** 생성자 **/
+
     protected Profile() {}
 }

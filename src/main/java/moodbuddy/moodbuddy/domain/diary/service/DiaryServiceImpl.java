@@ -37,7 +37,8 @@ public class DiaryServiceImpl implements DiaryService {
     private final WebClient naverWebClient;
 
     @Autowired
-    public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
+    public DiaryServiceImpl(UserRepository userRepository,
+                            DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
                             @Qualifier("naverWebClient") WebClient naverWebClient) {
         this.userRepository = userRepository;
@@ -52,11 +53,13 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] save");
         Long userId = JwtUtil.getUserId();
 
-        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-
+//        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
+        String summary = "dasdasd"; // 일기 내용 요약 결과
         Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
 
         diary = diaryRepository.save(diary);
+
+//        saveDocument(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
             diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
@@ -95,6 +98,8 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), diary);
         }
 
+//        saveDocument(diary);
+
         return DiaryMapper.toUpdateDTO(diary);
     }
 
@@ -115,6 +120,7 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         diaryRepository.delete(diary);
+//        diaryElasticsearchRepository.deleteById(diaryId);
     }
 
     @Override
@@ -155,8 +161,8 @@ public class DiaryServiceImpl implements DiaryService {
 
 
     @Override
-    public DiaryResFindOneDTO findOne(Long diaryId) {
-        log.info("[DiaryServiceImpl] findOne");
+    public DiaryResFindOneDTO findOneByDiaryId(Long diaryId) {
+        log.info("[DiaryServiceImpl] findOneByDiaryId");
         Long userId = JwtUtil.getUserId();
 
         // [추가해야 할 내]
@@ -181,6 +187,34 @@ public class DiaryServiceImpl implements DiaryService {
 
         return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), userId, pageable);
     }
+
+    @Override
+    public Page<DiaryResFindOneDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+        log.info("[DiaryServiceImpl] findAllByFilter");
+        Long userId = JwtUtil.getUserId();
+
+        return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, userId, pageable);
+    }
+
+    /** 추가 메서드 **/
+//    private void saveDocument(Diary diary) {
+//        DiaryDocument diaryDocument = convertToDocument(diary);
+//        diaryElasticsearchRepository.save(diaryDocument);
+//    }
+//
+//    private DiaryDocument convertToDocument(Diary diary) {
+//        return DiaryDocument.builder()
+//                .id(diary.getId())
+//                .diaryTitle(diary.getDiaryTitle())
+//                .diaryDate(diary.getDiaryDate())
+//                .diaryContent(diary.getDiaryContent())
+//                .diaryWeather(diary.getDiaryWeather())
+//                .diaryEmotion(diary.getDiaryEmotion())
+//                .diaryStatus(diary.getDiaryStatus())
+//                .userId(diary.getUserId())
+//                .build();
+//    }
+
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 

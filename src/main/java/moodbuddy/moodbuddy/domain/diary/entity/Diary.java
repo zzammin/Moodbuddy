@@ -18,37 +18,33 @@ public class Diary extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "diary_title", nullable = false, columnDefinition = "varchar" ,length = 255)
+    @Column(name = "diary_title", nullable = false, columnDefinition = "varchar(255)")
     private String diaryTitle;
 
     @Column(name = "diary_date", nullable = false, columnDefinition = "datetime")
     private LocalDateTime diaryDate;
 
     @Lob
-    @Column(name = "diary_content")
+    @Column(name = "diary_content", nullable = false, columnDefinition = "TEXT")
     private String diaryContent;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_weather", nullable = false ,columnDefinition = "tinyint")
+    @Column(name = "diary_weather", nullable = false, columnDefinition = "varchar(255)")
     private DiaryWeather diaryWeather;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_emotion", nullable = false, columnDefinition = "tinyint")
+    @Column(name = "diary_emotion", nullable = false, columnDefinition = "varchar(255)")
     private DiaryEmotion diaryEmotion;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_status", nullable = false)
+    @Column(name = "diary_status", nullable = false, columnDefinition = "varchar(255)")
     private DiaryStatus diaryStatus;
 
     @Column(name = "diary_summary", nullable = false, columnDefinition = "mediumtext")
     private String diarySummary;
 
-    @Column(name = "user_id",columnDefinition = "bigint")
+    @Column(name = "user_id", columnDefinition = "bigint")
     private Long userId;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User user;
 
     public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather) {
         this.diaryTitle = title;
