@@ -65,18 +65,18 @@ public class LetterServiceImpl implements LetterService {
     public LetterResPageDTO letterPage(){
         log.info("[LetterService] letterPage");
         try{
-            // userId를 통해 userRepository에서 유저 조회 (Optional 사용)
-            Long userId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findById(userId);
+            // kakaoId를 통해 userRepository에서 유저 조회 (Optional 사용)
+            Long kakaoId = JwtUtil.getUserId();
+            Optional<User> optionalUser = userRepository.findById(kakaoId);
             // user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
-            Optional<Profile> optionalProfile = profileRepository.findByUserId(userId);
+            Optional<Profile> optionalProfile = profileRepository.findBykakaoId(kakaoId);
             if(optionalUser.isPresent() && optionalProfile.isPresent()){
                 // 조회한 유저 프로필의 profile_id를 통해 profileImageRepository에서 유저 프로필 이미지 조회 (Optional 사용)
                 Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByProfileId(optionalProfile.get().getId());
                 String profileImageURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");
 
                 // user_id를 통해 letterRepository에서 편지 리스트 조회 (List<Letter>)
-                List<Letter> letters = letterRepository.findByUserId(userId);
+                List<Letter> letters = letterRepository.findByKakaoId(kakaoId);
 
                 // 편지 리스트에서 답장이 있으면 answerCheck 를 1로, 없으면 0으로 설정하여 구성한 리스트
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
@@ -95,7 +95,7 @@ public class LetterServiceImpl implements LetterService {
                         .letterResPageAnswerDTOList(letterResPageAnswerDTOList)
                         .build();
             }
-            throw new NoSuchElementException("유저 또는 프로필을 찾을 수 없습니다. userId: " + userId);
+            throw new NoSuchElementException("유저 또는 프로필을 찾을 수 없습니다. kakaoId: " + kakaoId);
         } catch (Exception e){
             log.error("[LetterService] letterPage", e);
             throw new RuntimeException("[LetterService] letterPage error", e);
@@ -108,9 +108,9 @@ public class LetterServiceImpl implements LetterService {
     public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
         log.info("[LetterService] save");
         try{
-            Long userId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findById(userId);
-            // user_id : userId를 Letter의 user_id로 저장
+            Long kakaoId = JwtUtil.getUserId();
+            Optional<User> optionalUser = userRepository.findById(kakaoId);
+            // user_id : kakaoId를 Letter의 user_id로 저장
             // format, worry_content : letterRequestDTO에서 worry_content와 format 가져와서 저장
             if(optionalUser.isPresent()){
                 Letter letter = LetterMapper.toLetterEntity(letterReqDTO, optionalUser.get());
@@ -127,7 +127,7 @@ public class LetterServiceImpl implements LetterService {
                 timer.schedule(timerTask, delay); // 설정한 delay(12시간) 뒤에 timerTask(gpt api 답장 저장, 알람톡) 실행
                 return LetterMapper.toLetterSaveDTO(letter);
             } else {
-                throw new NoSuchElementException("userId를 가지는 사용자가 없습니다. userId : "+userId);
+                throw new NoSuchElementException("kakaoId를 가지는 사용자가 없습니다. kakaoId : "+kakaoId);
             }
         } catch (Exception e){
             log.error("[LetterService] save error", e);
@@ -140,7 +140,7 @@ public class LetterServiceImpl implements LetterService {
     public void answerSave(String worryContent, Integer format, LocalDateTime letterDate) {
         log.info("[LetterService] answerSave");
         try{
-            Long userId = JwtUtil.getUserId();
+            Long kakaoId = JwtUtil.getUserId();
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 따끔한 해결의 말을 해주세요");
 
             GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
@@ -157,9 +157,9 @@ public class LetterServiceImpl implements LetterService {
                     GPTMessageDTO message = choice.getMessage();
                     if (message != null) {
                         String answer = message.getContent();
-                        Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
+                        Optional<Letter> optionalLetter = letterRepository.findByKakaoIdAndDate(kakaoId, letterDate);
                         if (optionalLetter.isPresent()) {
-                            letterRepository.updateAnswerById(userId, answer);
+                            letterRepository.updateAnswerByKakaoId(kakaoId, answer);
                         }
                     }
                 }
@@ -176,7 +176,7 @@ public class LetterServiceImpl implements LetterService {
     public void alarmTalk(String fcmRegistration){
         log.info("[LetterService] alarmTalk");
         try{
-            Long userId = JwtUtil.getUserId();
+            Long kakaoId = JwtUtil.getUserId();
 //            String clientId = fcmRegistration;
         } catch (Exception e){
             log.error("[LetterService] alarmTalk error",e);
@@ -188,10 +188,10 @@ public class LetterServiceImpl implements LetterService {
     public LetterResDetailsDTO details(Long letterId){
         log.info("[LetterService] details");
         try{
-            Long userId = JwtUtil.getUserId();
-            // letterId와 userId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
+            Long kakaoId = JwtUtil.getUserId();
+            // letterId와 kakaoId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
             // -> 이 Letter의 worry_content, answer_content를 DTO에 매핑
-            Optional<Letter> optionalLetter = letterRepository.findByIdAndUserId(letterId, userId);
+            Optional<Letter> optionalLetter = letterRepository.findByIdAndKakaoId(letterId, kakaoId);
             return optionalLetter.map(LetterMapper::toLetterDetailsDTO)
                     .orElseThrow(() -> new NoSuchElementException("letterId에 매핑되는 편지가 없습니다."));
         } catch (Exception e){

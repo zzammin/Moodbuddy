@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LetterRepository extends JpaRepository<Letter, Long> {
-    @Query("select l from Letter l where l.user.id = :userId")
-    List<Letter> findByUserId(@Param("userId") Long userId);
+    @Query("select l from Letter l where l.user.kakaoId = :kakaoId")
+    List<Letter> findByKakaoId(@Param("kakaoId") Long kakaoId);
 
-    @Query("select l from Letter l where l.id = :letterId and l.user.id = :userId")
-    Optional<Letter> findByIdAndUserId(@Param("letterId") Long letterId, @Param("userId") Long userId);
-
-    @Query("select l from Letter l where l.user.id = :userId and l.letterDate = :letterDate")
-    Optional<Letter> findByUserIdAndDate(@Param("userId") Long userId, @Param("letterDate") LocalDateTime letterDate);
+    @Query("select l from Letter l where l.user.kakaoId = :kakaoId and l.letterDate = :letterDate")
+    Optional<Letter> findByKakaoIdAndDate(@Param("kakaoId") Long kakaoId, @Param("letterDate") LocalDateTime letterDate);
 
     @Modifying
-    @Query("update Letter l set l.letterAnswerContent = :answer where l.user.id = :userId")
-    void updateAnswerById(Long userId, String answer);
+    @Query("update Letter l set l.letterAnswerContent = :answer where l.user.kakaoId = :kakaoId")
+    void updateAnswerByKakaoId(Long kakaoId, String answer);
+
+    @Query("select l from Letter l where l.id = :letterId and l.user.kakaoId = :kakaoId")
+    Optional<Letter> findByIdAndKakaoId(@Param("letterId") Long letterId, @Param("kakaoId") Long kakaoId);
 }

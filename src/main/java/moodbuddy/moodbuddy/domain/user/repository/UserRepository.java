@@ -10,8 +10,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
-    @Query("update User u set u.userLetterNums = :letterNums where u.userId = :userId")
-    void updateLetterNumsById(@Param("userId") Long userId, @Param("letterNums") int letterNums);
-    public Optional<User> findByKakaoId(Long kakaoId);
+    @Query("update User u set u.userLetterNums = :letterNums where u.kakaoId = :kakaoId")
+    void updateLetterNumsByKakaoId(@Param("kakaoId") Long kakaoId, @Param("letterNums") int letterNums);
 
+    @Query("select u from User u where u.kakaoId = :kakaoId")
+    Optional<User> findByKakaoId(@Param("kakaoId") Long kakaoId);
 }

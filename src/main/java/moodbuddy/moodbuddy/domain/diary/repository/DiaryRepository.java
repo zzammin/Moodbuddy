@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryRepositoryCustom {
-    @Query(value = "SELECT d FROM Diary d WHERE d.user_id = :userId AND DATE_FORMAT(d.diary_date, '%Y-%m') = :month", nativeQuery = true)
-    List<Diary> findByUserIdAndMonth(@Param("userId") Long userId, @Param("month") String month);
+    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m') = :month", nativeQuery = true)
+    List<Diary> findByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("month") String month);
 
-    @Query(value = "select d from Diary d where d.user_id = :userId and function('DATE_FORMAT', d.diary_date, '%Y-%m-%d') like :day", nativeQuery = true)
-    Optional<Diary> findByUserIdAndDay(@Param("userId") Long userId, @Param("day") LocalDateTime day);
+    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m-%d') LIKE :day", nativeQuery = true)
+    Optional<Diary> findByKakaoIdAndDay(@Param("kakaoId") Long kakaoId, @Param("day") LocalDateTime day);
 
     // diaryId 기반으로 삭제하기
     List<Diary> findAllById(Iterable<Long> ids);

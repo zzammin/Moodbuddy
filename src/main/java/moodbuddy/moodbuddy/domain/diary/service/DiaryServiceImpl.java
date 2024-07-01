@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.*;
@@ -51,11 +52,10 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResSaveDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-//        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-        String summary = "dasdasd"; // 일기 내용 요약 결과
-        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, userId, summary);
+        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
+        Diary diary = DiaryMapper.toEntity(diaryReqSaveDTO, kakaoId, summary);
 
         diary = diaryRepository.save(diary);
 
@@ -66,19 +66,22 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         // 일기 작성하면 편지지 개수 늘려주기
-        letterNumPlus(userId);
+        letterNumPlus(kakaoId);
 
         return DiaryMapper.toSaveDTO(diary);
     }
 
     @Override
     @Transactional
-    public void letterNumPlus(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isPresent()){
-            int letterNums = optionalUser.get().getUserLetterNums() + 1;
-            userRepository.updateLetterNumsById(userId, letterNums);
-        }
+    public void letterNumPlus(Long kakaoId) {
+        log.info("kakaoId : "+kakaoId);
+        Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
+        optionalUser.ifPresent(user -> {
+            log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
+            int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
+            log.info("letterNums : "+letterNums);
+            userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
+        });
     }
 
     @Override
@@ -224,14 +227,14 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryService] monthlyCalendar");
         try{
             // -> userID 가져오기
-            Long userId = JwtUtil.getUserId();
+            Long kakaoId = JwtUtil.getUserId();
 
             // calendarMonthDTO에서 month 가져오기
             // user_id에 맞는 List<Diary> 중에서, month에서 DateTimeFormatter의 ofPattern을 이용한 LocalDateTime 파싱을 통해 년, 월을 얻어오고,
             // repository 에서는 LIKE 연산자를 이용해서 그 년, 월에 맞는 List<Diary>를 얻어온다
             // (여기서 user_id에 맞는 리스트 전체 조회를 하지 말고, user_id와 년 월에 맞는 리스트만 조회하자)
             // -> 그 Diary 리스트를 그대로 DTO에 넣어서 반환해주면 될 것 같다.
-            List<Diary> monthlyDiaryList = diaryRepository.findByUserIdAndMonth(userId, calendarMonthDTO.getCalendarMonth());
+            List<Diary> monthlyDiaryList = diaryRepository.findByKakaoIdAndMonth(kakaoId, calendarMonthDTO.getCalendarMonth());
 
             List<DiaryResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> DiaryResCalendarMonthDTO.builder()
@@ -254,11 +257,11 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResCalendarSummaryDTO summary(DiaryReqCalendarSummaryDTO calendarSummaryDTO) {
         log.info("[DiaryService] summary");
         try {
-            // userEmail 가져오기
-            Long userId = JwtUtil.getUserId();
+            Long kakaoId = JwtUtil.getUserId();
 
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByUserIdAndDay(userId, calendarSummaryDTO.getCalendarDay());
+            Optional<Diary> summaryDiary = diaryRepository.findByKakaoIdAndDay(kakaoId, calendarSummaryDTO.getCalendarDay());
+
 
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> DiaryResCalendarSummaryDTO.builder()
@@ -273,40 +276,57 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Map<String,Object> getRequestBody(String content){
-        Map<String, Object> documentObject = new HashMap<>(); // DocumentObject 를 위한 Map 생성
-        documentObject.put("content", content); // 요약할 내용 (일기 내용)
-
-        Map<String, Object> optionObject = new HashMap<>(); // OptionObject 를 위한 Map 생성
-        optionObject.put("language", "ko"); // 한국어
-        optionObject.put("summaryCount", 1); // 요약 줄 수 (1줄)
-
-        Map<String, Object> requestBody = new HashMap<>(); // Request Body 를 위한 Map 생성
-        requestBody.put("document", documentObject);
-        requestBody.put("option", optionObject);
-        return requestBody;
-    }
-
-    @Override
-    public String summarize(String content){
+    public String summarize(String content) {
         log.info("[DiaryService] summarize");
         try {
+            log.info("content : " + content);
+
             // getRequestBody 메소드에 일기 내용을 전달하여, Request Body 를 위한 Map 생성
-            Map<String,Object> requestBody = getRequestBody(content);
+            Map<String, Object> requestBody = getRequestBody(content);
+            log.info("requestBody : " + requestBody);
 
             // naverWebClient 를 사용하여 API 호출
             String response = naverWebClient.post()
-                    .body(BodyInserters.fromValue(requestBody)) // 1. BodyInserters 가 무엇인가?
+                    .body(BodyInserters.fromValue(requestBody))
                     .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), clientResponse -> {
+                        return clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
+                            log.error("API 요청 실패 - 상태 코드: " + clientResponse.statusCode());
+                            log.error("오류 본문: " + errorBody);
+                            return Mono.error(new RuntimeException("API 요청 실패 - 상태 코드: " + clientResponse.statusCode() + ", 오류 본문: " + errorBody));
+                        });
+                    })
                     .bodyToMono(String.class)
                     .block();
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response);
             return jsonNode.path("summary").asText(); // summary 결과
-        } catch (Exception e){
-            log.error("[DiaryService] summarize error",e);
-            throw new RuntimeException("[DiaryService] monthlyCalendar error", e);
+        } catch (Exception e) {
+            log.error("[DiaryService] summarize error", e);
+            throw new RuntimeException("[DiaryService] summarize error", e);
         }
     }
+
+    @Override
+    public Map<String, Object> getRequestBody(String content) {
+        log.info("[DiaryService] getRequestBody");
+        try {
+            Map<String, Object> documentObject = new HashMap<>(); // DocumentObject 를 위한 Map 생성
+            documentObject.put("content", content); // 요약할 내용 (일기 내용)
+
+            Map<String, Object> optionObject = new HashMap<>(); // OptionObject 를 위한 Map 생성
+            optionObject.put("language", "ko"); // 한국어
+            optionObject.put("summaryCount", 1); // 요약 줄 수 (1줄)
+
+            Map<String, Object> requestBody = new HashMap<>(); // Request Body 를 위한 Map 생성
+            requestBody.put("document", documentObject);
+            requestBody.put("option", optionObject);
+            return requestBody;
+        } catch (Exception e) {
+            log.error("[DiaryService] getRequestBody error", e);
+            throw new RuntimeException("[DiaryService] getRequestBody error", e);
+        }
+    }
+
 }
