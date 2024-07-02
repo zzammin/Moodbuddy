@@ -10,9 +10,11 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 @OpenAPIDefinition(
-        info=@io.swagger.v3.oas.annotations.info.Info(title = "MoodBuddy",
+        info = @io.swagger.v3.oas.annotations.info.Info(
+                title = "MoodBuddy",
                 description = "MoodBuddy API 명세서",
-                version ="1.0.0"))
+                version = "1.0.0")
+)
 @Configuration
 public class SpringDocOpenApiConfig {
 
