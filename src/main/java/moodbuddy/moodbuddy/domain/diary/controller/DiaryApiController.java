@@ -28,6 +28,7 @@ import java.io.IOException;
 @Slf4j
 public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
+
     /** 구현 완료 **/
     @PostMapping("/save")
     @Operation(summary = "일기 작성", description = "새로운 일기를 작성합니다.")
