@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class DiaryResDraftFindOneDTO {
-    @Schema(description = "일기 고유 식별자(diaryId)")
+    @Schema(description = "일기 고유 식별자(diaryId)", example = "1")
     private Long productId;
-    @Schema(description = "사용자 고유 식별자(userId)")
+    @Schema(description = "사용자 고유 식별자(userId)", example = "2")
     private Long userId;
-    @Schema(description = "일기 날짜")
+    @Schema(description = "일기 날짜", example = "2023-07-02T15:30:00")
     private LocalDateTime diaryDate;
-    @Schema(description = "일기 상태")
+    @Schema(description = "일기 상태(DRAFT, PUBLISHED", example = "DRAFT")
     private DiaryStatus diaryStatus;
 
     public DiaryResDraftFindOneDTO(Long productId, Long userId, LocalDateTime diaryDate, DiaryStatus diaryStatus) {
