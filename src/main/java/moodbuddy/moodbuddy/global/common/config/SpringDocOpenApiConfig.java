@@ -29,23 +29,4 @@ public class SpringDocOpenApiConfig {
     }
 }
 
-//@OpenAPIDefinition
-//@Configuration
 // http://localhost:8080/swagger-ui/index.html#/
-//public class SpringDocOpenApiConfig {
-//    @Bean
-//    public OpenAPI getOpenApi() {
-//        return new
-//                OpenAPI().components(new Components())
-//                .info(getInfo());
-//
-//    }
-//
-//    private Info getInfo() {
-//        return new Info()
-//                .version("1.0.0")
-//                .description("MoodBuddy API 명세서")
-//                .title("MoodBuddy");
-//    }
-//}
-

@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.domain.diary.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,14 +17,23 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class DiaryResDetailDTO {
+    @Schema(description = "일기 고유 식별자(diaryId)")
     private Long diaryId;
+    @Schema(description = "사용자 고유 식별자(userId)")
     private Long userId;
+    @Schema(description = "일기 제목")
     private String diaryTitle;
+    @Schema(description = "일기 날짜")
     private LocalDateTime diaryDate;
+    @Schema(description = "일기 내용")
     private String diaryContent;
+    @Schema(description = "일기 날씨")
     private DiaryWeather diaryWeather;
+    @Schema(description = "일기 감정")
     private DiaryEmotion diaryEmotion;
+    @Schema(description = "일기 상태")
     private DiaryStatus diaryStatus;
+    @Schema(description = "일기 요약")
     private String diarySummary;
 
     @JsonInclude(JsonInclude.Include.NON_NULL) // 굳이 필요하지 않은 경우가 있음.
