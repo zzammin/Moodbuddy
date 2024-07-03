@@ -235,6 +235,11 @@ public class DiaryServiceImpl implements DiaryService {
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, userId, pageable);
     }
 
+    public Diary findDiaryById(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일기입니다."));
+    }
+
     /** 추가 메서드 **/
 //    private void saveDocument(Diary diary) {
 //        DiaryDocument diaryDocument = convertToDocument(diary);

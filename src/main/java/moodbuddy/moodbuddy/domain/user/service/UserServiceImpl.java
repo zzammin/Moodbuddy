@@ -182,4 +182,8 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("[DiaryService] summary error", e);
         }
     }
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    }
 }
