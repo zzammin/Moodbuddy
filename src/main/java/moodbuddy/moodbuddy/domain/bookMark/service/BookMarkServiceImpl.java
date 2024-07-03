@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.bookMark.dto.response.BookMarkResToggleDTO;
 import moodbuddy.moodbuddy.domain.bookMark.entity.BookMark;
 import moodbuddy.moodbuddy.domain.bookMark.repository.BookMarkRepository;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.service.UserServiceImpl;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,5 +52,14 @@ public class BookMarkServiceImpl implements BookMarkService{
             bookMarkRepository.save(newBookMark);
             return new BookMarkResToggleDTO(true);
         }
+    }
+
+    @Override
+    public Page<DiaryResDetailDTO> bookMarkFindAllByWithPageable(Pageable pageable) {
+        log.info("[BookMarkServiceImpl] bookMarkFindAllByWithPageable");
+        Long userId = JwtUtil.getUserId();
+        User findUser = userService.findUserById(userId);
+
+        return bookMarkRepository.bookMarkFindAllWithPageable(findUser, pageable);
     }
 }

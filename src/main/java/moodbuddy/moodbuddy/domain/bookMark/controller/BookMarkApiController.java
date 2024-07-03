@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.bookMark.dto.response.BookMarkResToggleDTO;
 import moodbuddy.moodbuddy.domain.bookMark.service.BookMarkServiceImpl;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +39,17 @@ public class BookMarkApiController {
         log.info("[BookMarkApiController] toggle");
         BookMarkResToggleDTO result = bookMarkService.toggle(diaryId);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController toggle", result));
+    }
+
+    @PostMapping("/findAll")
+    @Operation(summary = "북마크 전체 조회", description = "북마크 전체 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = DiaryResDetailDTO.class)))
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> findAll(Pageable pageable) throws IOException {
+        log.info("[BookMarkApiController] findAll");
+        Page<DiaryResDetailDTO> result = bookMarkService.bookMarkFindAllByWithPageable(pageable);
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController findAll", result));
     }
 }
