@@ -41,7 +41,7 @@ public class BookMarkApiController {
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController toggle", result));
     }
 
-    @PostMapping("/findAll")
+    @GetMapping("/findAll")
     @Operation(summary = "북마크 전체 조회", description = "북마크 전체 조회합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = DiaryResDetailDTO.class)))

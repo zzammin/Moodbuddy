@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService{
         }
     }
     public User findUserById(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findByKakaoId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 }
