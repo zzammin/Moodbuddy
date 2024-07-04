@@ -62,7 +62,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryContent,
                         diary.diaryWeather,
                         diary.diaryEmotion,
-                        diary.diaryStatus
+                        diary.diaryStatus,
+                        diary.diarySummary
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -107,6 +108,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryWeather(d.getDiaryWeather())
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
+                    .diarySummary(d.getDiarySummary())
                     .userId(d.getUserId())
                     .diaryImgList(diaryImgList)
                     .build();
@@ -175,12 +177,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<Diary> results = queryFactory.selectFrom(diary)
                 .where(
                         diary.userId.eq(userId),
-                        filterDTO.getKeyWord() != null ? diary.diaryTitle.containsIgnoreCase(filterDTO.getKeyWord())
-                                .or(diary.diaryContent.containsIgnoreCase(filterDTO.getKeyWord()))
-                                .or(diary.diarySummary.containsIgnoreCase(filterDTO.getKeyWord())) : null,
-                        startDate != null ? diary.diaryDate.goe(startDate) : null,
-                        endDate != null ? diary.diaryDate.loe(endDate) : null,
-                        filterDTO.getDiaryEmotion() != null ? diary.diaryEmotion.eq(filterDTO.getDiaryEmotion()) : null
+                        containsKeyword(filterDTO.getKeyWord()),
+                        betweenDates(startDate, endDate),
+                        diaryEmotionEq(filterDTO.getDiaryEmotion())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -189,12 +188,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         long total = queryFactory.selectFrom(diary)
                 .where(
                         diary.userId.eq(userId),
-                        filterDTO.getKeyWord() != null ? diary.diaryTitle.containsIgnoreCase(filterDTO.getKeyWord())
-                                .or(diary.diaryContent.containsIgnoreCase(filterDTO.getKeyWord()))
-                                .or(diary.diarySummary.containsIgnoreCase(filterDTO.getKeyWord())) : null,
-                        startDate != null ? diary.diaryDate.goe(startDate) : null,
-                        endDate != null ? diary.diaryDate.loe(endDate) : null,
-                        filterDTO.getDiaryEmotion() != null ? diary.diaryEmotion.eq(filterDTO.getDiaryEmotion()) : null
+                        containsKeyword(filterDTO.getKeyWord()),
+                        betweenDates(startDate, endDate),
+                        diaryEmotionEq(filterDTO.getDiaryEmotion())
                 )
                 .fetchCount();
 
@@ -213,21 +209,44 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResDetailDTO> dtoList = results.stream()
                 .map(d -> DiaryResDetailDTO.builder()
                         .diaryId(d.getId())
+                        .userId(d.getUserId())
                         .diaryTitle(d.getDiaryTitle())
                         .diaryDate(d.getDiaryDate())
                         .diaryContent(d.getDiaryContent())
                         .diaryWeather(d.getDiaryWeather())
                         .diaryEmotion(d.getDiaryEmotion())
                         .diaryStatus(d.getDiaryStatus())
+                        .diarySummary(d.getDiarySummary())
                         .diaryImgList(diaryImagesMap.getOrDefault(d.getId(), List.of()))
-                        .userId(d.getUserId())
                         .build())
                 .collect(Collectors.toList());
 
         return new PageImpl<>(dtoList, pageable, total);
     }
 
+    private BooleanExpression containsKeyword(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return null;
+        }
+        return diary.diaryTitle.containsIgnoreCase(keyword)
+                .or(diary.diaryContent.containsIgnoreCase(keyword))
+                .or(diary.diarySummary.containsIgnoreCase(keyword));
+    }
+
+    private BooleanExpression betweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null && endDate != null) {
+            return diary.diaryDate.between(startDate, endDate);
+        } else if (startDate != null) {
+            return diary.diaryDate.goe(startDate);
+        } else if (endDate != null) {
+            return diary.diaryDate.loe(endDate);
+        } else {
+            return null;
+        }
+    }
+
     private BooleanExpression diaryEmotionEq(DiaryEmotion emotion) {
         return emotion != null ? diary.diaryEmotion.eq(emotion) : null;
     }
+
 }

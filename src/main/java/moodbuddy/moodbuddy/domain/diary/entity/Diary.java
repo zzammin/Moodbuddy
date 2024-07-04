@@ -47,10 +47,12 @@ public class Diary extends BaseEntity {
     @Column(name = "user_id", columnDefinition = "bigint")
     private Long userId;
 
-    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather) {
+    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary) {
         this.diaryTitle = title;
         this.diaryDate = date;
         this.diaryContent = content;
         this.diaryWeather = weather;
+        this.diarySummary = diarySummary;
+        this.diaryStatus = DiaryStatus.PUBLISHED;
     }
 }

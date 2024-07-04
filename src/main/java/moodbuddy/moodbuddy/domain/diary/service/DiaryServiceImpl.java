@@ -97,7 +97,11 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         Diary findDiary = optionalDiary.get();
-        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather());
+        String summary = summarize(diaryReqUpdateDTO.getDiaryContent()); // 일기 내용 요약 결과
+
+        // 감정 분석 로직 추가 필요
+
+        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary);
 
         if (diaryReqUpdateDTO.getImagesToDelete() != null) {
             diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
@@ -165,7 +169,6 @@ public class DiaryServiceImpl implements DiaryService {
                 .filter(diary -> diary.getUserId().equals(userId))
                 .collect(Collectors.toList());
 
-        System.out.println("=========================== 1");
         for(int i=0; i<diariesToDelete.size(); i++) {
             System.out.println(diariesToDelete.get(i).getId());
         }
@@ -174,7 +177,6 @@ public class DiaryServiceImpl implements DiaryService {
         for (Diary diary : diariesToDelete) {
             List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
 
-            System.out.println("=========================== 2");
             for(int i=0; i<images.size(); i++) {
                 System.out.println(images.get(i).getId());
             }
@@ -183,7 +185,6 @@ public class DiaryServiceImpl implements DiaryService {
                     .map(DiaryImage::getDiaryImgURL)
                     .collect(Collectors.toList());
 
-            System.out.println("=========================== 3");
             for(int i=0; i<imageUrls.size(); i++) {
                 System.out.println(imageUrls.get(i));
             }
@@ -232,6 +233,11 @@ public class DiaryServiceImpl implements DiaryService {
         Long userId = JwtUtil.getUserId();
 
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, userId, pageable);
+    }
+
+    public Diary findDiaryById(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일기입니다."));
     }
 
     /** 추가 메서드 **/
