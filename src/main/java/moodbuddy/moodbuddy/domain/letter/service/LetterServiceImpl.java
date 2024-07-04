@@ -11,7 +11,6 @@ import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageAnswerDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
 import moodbuddy.moodbuddy.domain.letter.entity.Letter;
-import moodbuddy.moodbuddy.domain.letter.mapper.LetterMapper;
 import moodbuddy.moodbuddy.domain.letter.repository.LetterRepository;
 import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
@@ -20,70 +19,59 @@ import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class LetterServiceImpl implements LetterService {
+
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
-    @Qualifier("gptWebClient")
     private final WebClient gptWebClient;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
+
 
     @Value("${gpt.model}")
     private String model;
     @Value("${gpt.api.url}")
     private String apiUrl;
 
-    @Autowired
-    public LetterServiceImpl(UserRepository userRepository, ProfileRepository profileRepository,
-                             ProfileImageRepository profileImageRepository, LetterRepository letterRepository,
-                             @Qualifier("gptWebClient") WebClient gptWebClient) {
-        this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
-        this.profileImageRepository = profileImageRepository;
-        this.letterRepository = letterRepository;
-        this.gptWebClient = gptWebClient;
-    }
-
     @Override
-    @Transactional
-    public LetterResPageDTO letterPage(){
+    @Transactional(readOnly = true)
+    public LetterResPageDTO letterPage() {
         log.info("[LetterService] letterPage");
-        try{
-            // kakaoId를 통해 userRepository에서 유저 조회 (Optional 사용)
+        try {
             Long kakaoId = JwtUtil.getUserId();
             Optional<User> optionalUser = userRepository.findById(kakaoId);
-            // user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
             Optional<Profile> optionalProfile = profileRepository.findBykakaoId(kakaoId);
-            if(optionalUser.isPresent() && optionalProfile.isPresent()){
-                // 조회한 유저 프로필의 profile_id를 통해 profileImageRepository에서 유저 프로필 이미지 조회 (Optional 사용)
+            if (optionalUser.isPresent() && optionalProfile.isPresent()) {
                 Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByProfileId(optionalProfile.get().getId());
                 String profileImageURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");
 
-                // user_id를 통해 letterRepository에서 편지 리스트 조회 (List<Letter>)
                 List<Letter> letters = letterRepository.findByKakaoId(kakaoId);
-
-                // 편지 리스트에서 답장이 있으면 answerCheck 를 1로, 없으면 0으로 설정하여 구성한 리스트
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
                         .map(letter -> LetterResPageAnswerDTO.builder()
-                                        .letterCreatedTime(letter.getCreatedTime())
-                                        .answerCheck(letter.getLetterAnswerContent()!=null?1:0)
-                                        .build())
+                                .letterCreatedTime(letter.getCreatedTime())
+                                .answerCheck(letter.getLetterAnswerContent() != null ? 1 : 0)
+                                .build())
                         .collect(Collectors.toList());
 
                 return LetterResPageDTO.builder()
@@ -96,40 +84,42 @@ public class LetterServiceImpl implements LetterService {
                         .build();
             }
             throw new NoSuchElementException("유저 또는 프로필을 찾을 수 없습니다. kakaoId: " + kakaoId);
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("[LetterService] letterPage", e);
             throw new RuntimeException("[LetterService] letterPage error", e);
         }
     }
 
-    // 이후에 12시간 타이머가 끝나면, 카카오톡 알림톡 전송 (쏘다 API 이용)
     @Override
     @Transactional
-    public LetterResSaveDTO save(LetterReqDTO letterReqDTO){
+    public LetterResSaveDTO save(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
-        try{
+        try {
             Long kakaoId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findById(kakaoId);
-            // user_id : kakaoId를 Letter의 user_id로 저장
-            // format, worry_content : letterRequestDTO에서 worry_content와 format 가져와서 저장
-            if(optionalUser.isPresent()){
-                Letter letter = LetterMapper.toLetterEntity(letterReqDTO, optionalUser.get());
-                letter = letterRepository.save(letter);
-                Timer timer = new Timer(); // 타이머를 설정하기 위한 Timer 객체
-                TimerTask timerTask = new TimerTask() { // 타이머가 끝난 뒤 실행할 내용
-                    @Override
-                    public void run() {
-                        answerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate()); // gpt api 연동 후 답장 저장
-                        alarmTalk(letterReqDTO.getFcmRegistration()); // 알람톡 전송
-                    }
-                };
-                long delay = 12*60*60*1000; // 12시간 타이머 시간 설정
-                timer.schedule(timerTask, delay); // 설정한 delay(12시간) 뒤에 timerTask(gpt api 답장 저장, 알람톡) 실행
-                return LetterMapper.toLetterSaveDTO(letter);
+            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
+            if (optionalUser.isPresent()) {
+                Letter letter = Letter.builder()
+                        .user(optionalUser.get())
+                        .letterFormat(letterReqDTO.getLetterFormat())
+                        .letterWorryContent(letterReqDTO.getLetterWorryContent())
+                        .letterDate(letterReqDTO.getLetterDate())
+                        .build();
+                letterRepository.save(letter);
+
+                // ScheduledExecutorService를 사용하여 작업 예약
+                scheduler.schedule(new ContextAwareRunnable(() -> {
+                    answerSave(kakaoId, letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
+                }), 5, TimeUnit.SECONDS);
+
+                return LetterResSaveDTO.builder()
+                        .letterId(letter.getId())
+                        .userNickname(optionalUser.get().getNickname())
+                        .letterDate(letter.getLetterDate())
+                        .build();
             } else {
-                throw new NoSuchElementException("kakaoId를 가지는 사용자가 없습니다. kakaoId : "+kakaoId);
+                throw new NoSuchElementException("kakaoId를 가지는 사용자가 없습니다. kakaoId : " + kakaoId);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("[LetterService] save error", e);
             throw new RuntimeException("[LetterService] save error", e);
         }
@@ -137,12 +127,11 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public void answerSave(String worryContent, Integer format, LocalDateTime letterDate) {
+    public void answerSave(Long kakaoId, String worryContent, Integer format, LocalDateTime letterDate) {
         log.info("[LetterService] answerSave");
-        try{
-            Long kakaoId = JwtUtil.getUserId();
-            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 따끔한 해결의 말을 해주세요");
-
+        try {
+            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
+            log.info("prompt : "+prompt);
             GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
 
             GPTResponseDTO response = gptWebClient.post()
@@ -157,6 +146,7 @@ public class LetterServiceImpl implements LetterService {
                     GPTMessageDTO message = choice.getMessage();
                     if (message != null) {
                         String answer = message.getContent();
+                        log.info("answer : "+answer);
                         Optional<Letter> optionalLetter = letterRepository.findByKakaoIdAndDate(kakaoId, letterDate);
                         if (optionalLetter.isPresent()) {
                             letterRepository.updateAnswerByKakaoId(kakaoId, answer);
@@ -166,37 +156,65 @@ public class LetterServiceImpl implements LetterService {
             } else {
                 log.error("GPT 응답 오류");
             }
-        } catch (Exception e){
-            log.error("[LetterService] answerSave error",e);
+        } catch (Exception e) {
+            log.error("[LetterService] answerSave error", e);
         }
     }
 
-    // 메소드 2 : 12시간 뒤에 카카오톡 알림톡 보내기 (또는 알림)
     @Override
-    public void alarmTalk(String fcmRegistration){
+    public void alarmTalk(String fcmRegistration) {
         log.info("[LetterService] alarmTalk");
-        try{
+        try {
             Long kakaoId = JwtUtil.getUserId();
-//            String clientId = fcmRegistration;
-        } catch (Exception e){
-            log.error("[LetterService] alarmTalk error",e);
+        } catch (Exception e) {
+            log.error("[LetterService] alarmTalk error", e);
         }
     }
 
     @Override
-    @Transactional
-    public LetterResDetailsDTO details(Long letterId){
+    @Transactional(readOnly = true)
+    public LetterResDetailsDTO details(Long letterId) {
         log.info("[LetterService] details");
-        try{
+        try {
             Long kakaoId = JwtUtil.getUserId();
-            // letterId와 kakaoId가 동시에 매핑되는 Letter를 letterRepository에서 조회 (Optional 사용)
-            // -> 이 Letter의 worry_content, answer_content를 DTO에 매핑
+            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
             Optional<Letter> optionalLetter = letterRepository.findByIdAndKakaoId(letterId, kakaoId);
-            return optionalLetter.map(LetterMapper::toLetterDetailsDTO)
-                    .orElseThrow(() -> new NoSuchElementException("letterId에 매핑되는 편지가 없습니다."));
-        } catch (Exception e){
+            if(optionalUser.isPresent() && optionalLetter.isPresent()){
+                return LetterResDetailsDTO.builder()
+                        .letterId(optionalLetter.get().getId())
+                        .userNickname(optionalUser.get().getNickname())
+                        .letterWorryContent(optionalLetter.get().getLetterWorryContent())
+                        .letterAnswerContent(optionalLetter.get().getLetterAnswerContent())
+                        .letterDate(optionalLetter.get().getLetterDate())
+                        .build();
+            } else {
+                log.error("[LetterService] details error");
+                throw new NoSuchElementException("letterId에 매핑되는 편지가 없습니다.");
+            }
+        } catch (Exception e) {
             log.error("[LetterService] details", e);
             throw new RuntimeException("[LetterService] details error", e);
+        }
+    }
+
+    public static class ContextAwareRunnable implements Runnable {
+
+        private final Runnable task;
+        private final RequestAttributes context;
+
+        public ContextAwareRunnable(Runnable task) {
+            this.task = task;
+            this.context = RequestContextHolder.currentRequestAttributes();
+        }
+
+        @Override
+        public void run() {
+            try {
+                RequestContextHolder.setRequestAttributes(context);
+                task.run();
+            } finally {
+                RequestContextHolder.resetRequestAttributes();
+            }
         }
     }
 }

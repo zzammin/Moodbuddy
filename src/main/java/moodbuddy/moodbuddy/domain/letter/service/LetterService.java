@@ -18,7 +18,7 @@ public interface LetterService {
     LetterResDetailsDTO details(Long letterId);
 
     // 연동한 gpt api로 고민에 대한 답장을 받은 후 저장
-    void answerSave(String worryContent, Integer format, LocalDateTime letterDate);
+    void answerSave(Long kakaoId, String worryContent, Integer format, LocalDateTime letterDate);
 
     // 알림톡 보내기 (또는 알림)
     void alarmTalk(String fcmRegistration);
