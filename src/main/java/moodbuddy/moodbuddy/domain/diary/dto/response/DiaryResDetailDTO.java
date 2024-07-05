@@ -19,8 +19,8 @@ import java.util.List;
 public class DiaryResDetailDTO {
     @Schema(description = "일기 고유 식별자(diaryId)", example = "1")
     private Long diaryId;
-    @Schema(description = "사용자 고유 식별자(userId)", example = "2")
-    private Long userId;
+    @Schema(description = "사용자 고유 식별자(kakaoId)", example = "2")
+    private Long kakaoId;
     @Schema(description = "일기 제목", example = "쿼카의 하루")
     private String diaryTitle;
     @Schema(description = "일기 날짜", example = "2023-07-02T15:30:00")
@@ -41,9 +41,9 @@ public class DiaryResDetailDTO {
     private List<String> diaryImgList;
 
 
-    public DiaryResDetailDTO(Long diaryId, Long userId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary) {
         this.diaryId = diaryId;
-        this.userId = userId;
+        this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
         this.diaryDate = diaryDate;
         this.diaryContent = diaryContent;
@@ -52,9 +52,9 @@ public class DiaryResDetailDTO {
         this.diaryStatus = diaryStatus;
         this.diarySummary = diarySummary;
     }
-    public DiaryResDetailDTO(Long diaryId, Long userId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, List<String> diaryImgList) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, List<String> diaryImgList) {
         this.diaryId = diaryId;
-        this.userId = userId;
+        this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
         this.diaryDate = diaryDate;
         this.diaryContent = diaryContent;

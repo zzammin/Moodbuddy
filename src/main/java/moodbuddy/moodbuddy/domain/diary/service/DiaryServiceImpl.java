@@ -54,10 +54,10 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, userId, summary);
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary);
 
         diary = diaryRepository.save(diary);
 
@@ -68,7 +68,7 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         // 일기 작성하면 편지지 개수 늘려주기
-        letterNumPlus(userId);
+        letterNumPlus(kakaoId);
 
         return DiaryMapper.toDetailDTO(diary);
     }
@@ -76,12 +76,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     @Transactional
     public void letterNumPlus(Long kakaoId) {
-        log.info("kakaoId : "+kakaoId);
         Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
         optionalUser.ifPresent(user -> {
-            log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
             int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
-            log.info("letterNums : "+letterNums);
             userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
         });
     }
@@ -140,9 +137,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, userId);
+        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId);
         diary = diaryRepository.save(diary);
 
         if (diaryReqSaveDTO.getDiaryImgList() != null) {
@@ -155,18 +152,18 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
         log.info("[DiaryServiceImpl] draftFindAll");
-        Long userId = JwtUtil.getUserId();
-        return diaryRepository.draftFindAllByUserId(userId);
+        Long kakaoId = JwtUtil.getUserId();
+        return diaryRepository.draftFindAllByKakaoId(kakaoId);
     }
 
     @Override
     @Transactional
     public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryServiceImpl] draftSelectDelete");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
         List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
-                .filter(diary -> diary.getUserId().equals(userId))
+                .filter(diary -> diary.getKakaoId().equals(kakaoId))
                 .collect(Collectors.toList());
 
         for(int i=0; i<diariesToDelete.size(); i++) {
@@ -202,7 +199,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
         // [추가해야 할 내]
         // diaryId가 존재하는 Id 값인지 확인하는 예외처리
@@ -214,25 +211,25 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllWithPageable");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllByUserIdWithPageable(userId, pageable);
+        return diaryRepository.findAllByKakaoIdWithPageable(kakaoId, pageable);
     }
 
     @Override
     public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), userId, pageable);
+        return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), kakaoId, pageable);
     }
 
     @Override
     public Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByFilter");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, userId, pageable);
+        return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, kakaoId, pageable);
     }
 
     public Diary findDiaryById(Long diaryId) {

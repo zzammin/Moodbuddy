@@ -15,9 +15,8 @@ public class ProfileImage extends BaseEntity {
     @Column(name = "profile_image_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id")
-    private Profile profile;
+    @Column(name = "user_id", columnDefinition = "bigint")
+    private Long userId;
 
     @Column(name = "profile_img_url", columnDefinition = "varchar(255)")
     private String profileImgURL = "";

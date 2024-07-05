@@ -11,7 +11,7 @@ public class DiaryMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long userId, String summary) {
+    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, String summary) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
@@ -20,18 +20,18 @@ public class DiaryMapper {
                 .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
                 .diaryStatus(DiaryStatus.PUBLISHED)
                 .diarySummary(summary)
-                .userId(userId)
+                .kakaoId(kakaoId)
                 .build();
     }
 
-    public static Diary toDraftEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long userId) {
+    public static Diary toDraftEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
                 .diaryStatus(DiaryStatus.DRAFT)
-                .userId(userId)
+                .kakaoId(kakaoId)
                 .build();
     }
 

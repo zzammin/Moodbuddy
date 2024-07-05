@@ -57,7 +57,7 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
                     .diarySummary(d.getDiarySummary())
-                    .userId(d.getUserId())
+                    .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
                     .build();
         }).collect(Collectors.toList());

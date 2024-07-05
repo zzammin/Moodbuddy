@@ -32,9 +32,9 @@ public class BookMarkServiceImpl implements BookMarkService{
     @Transactional
     public BookMarkResToggleDTO toggle(Long diaryId) {
         log.info("[BookMarkServiceImpl] toggle");
-        Long userId = JwtUtil.getUserId();
+        Long kakaoId = JwtUtil.getUserId();
 
-        User findUser = userService.findUserById(userId);
+        User findUser = userService.findUserByKakaoId(kakaoId);
         Diary findDiary = diaryService.findDiaryById(diaryId);
 
         Optional<BookMark> optionalBookMark = bookMarkRepository.findByUserAndDiary(findUser, findDiary);
@@ -57,8 +57,8 @@ public class BookMarkServiceImpl implements BookMarkService{
     @Override
     public Page<DiaryResDetailDTO> bookMarkFindAllByWithPageable(Pageable pageable) {
         log.info("[BookMarkServiceImpl] bookMarkFindAllByWithPageable");
-        Long userId = JwtUtil.getUserId();
-        User findUser = userService.findUserById(userId);
+        Long kakaoId = JwtUtil.getUserId();
+        User findUser = userService.findUserByKakaoId(kakaoId);
 
         return bookMarkRepository.bookMarkFindAllWithPageable(findUser, pageable);
     }

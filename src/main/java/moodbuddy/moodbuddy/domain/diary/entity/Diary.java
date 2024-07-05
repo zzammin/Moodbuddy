@@ -44,8 +44,8 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_summary", columnDefinition = "mediumtext")
     private String diarySummary;
 
-    @Column(name = "user_id", columnDefinition = "bigint")
-    private Long userId;
+    @Column(name = "kakao_id", columnDefinition = "bigint")
+    private Long kakaoId;
 
     public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary) {
         this.diaryTitle = title;

@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query("select p from Profile p where p.user.kakaoId = :kakaoId")
-    Optional<Profile> findBykakaoId(@Param("kakaoId") Long kakaoId);
+    Optional<Profile> findByKakaoId(@Param("kakaoId") Long kakaoId);
 }

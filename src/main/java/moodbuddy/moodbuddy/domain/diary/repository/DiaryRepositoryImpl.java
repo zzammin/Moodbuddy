@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
 import static moodbuddy.moodbuddy.domain.diaryImage.entity.QDiaryImage.diaryImage;
+import static org.hibernate.query.results.Builders.fetch;
 
 public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     private final JPAQueryFactory queryFactory;
@@ -33,7 +34,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         this.queryFactory = new JPAQueryFactory(em);
     }
     @Override
-    public DiaryResDraftFindAllDTO draftFindAllByUserId(Long userId) {
+    public DiaryResDraftFindAllDTO draftFindAllByKakaoId(Long kakaoId) {
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
                 .select(Projections.constructor(DiaryResDraftFindOneDTO.class,
                         diary.id,
@@ -42,11 +43,11 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryStatus
                 ))
                 .from(diary)
-                .where(diary.userId.eq(userId)
+                .where(diary.userId.eq(kakaoId)
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
-                .map(d -> new DiaryResDraftFindOneDTO(d.getProductId(), d.getUserId(), d.getDiaryDate(), d.getDiaryStatus()))
+                .map(d -> new DiaryResDraftFindOneDTO(d.getProductId(), d.getKakaoId(), d.getDiaryDate(), d.getDiaryStatus()))
                 .collect(Collectors.toList());
 
         return new DiaryResDraftFindAllDTO(draftList);
@@ -80,9 +81,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllByUserIdWithPageable(Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByKakaoIdWithPageable(Long kakaoId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diary.userId.eq(userId)
+                .where(diary.userId.eq(kakaoId)
                         .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
                 .orderBy(pageable.getSort().stream()
                         .map(order -> new OrderSpecifier(
@@ -109,22 +110,22 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
                     .diarySummary(d.getDiarySummary())
-                    .userId(d.getUserId())
+                    .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
                     .build();
         }).collect(Collectors.toList());
 
         long total = queryFactory.selectFrom(diary)
-                .where(diary.userId.eq(userId))
+                .where(diary.userId.eq(kakaoId))
                 .fetchCount();
 
         return new PageImpl<>(diaryList, pageable, total);
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long kakaoId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diaryEmotionEq(emotion).and(diary.userId.eq(userId)))
+                .where(diaryEmotionEq(emotion).and(diary.userId.eq(kakaoId)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -141,7 +142,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResDetailDTO> dtoList = diaries.stream()
                 .map(d -> new DiaryResDetailDTO(
                         d.getId(),
-                        d.getUserId(),
+                        d.getKakaoId(),
                         d.getDiaryTitle(),
                         d.getDiaryDate(),
                         d.getDiaryContent(),
@@ -155,14 +156,14 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         // Count total records
         long total = queryFactory.selectFrom(diary)
-                .where(diaryEmotionEq(emotion).and(diary.userId.eq(userId)))
+                .where(diaryEmotionEq(emotion).and(diary.userId.eq(kakaoId)))
                 .fetchCount();
 
         return new PageImpl<>(dtoList, pageable, total);
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllByFilterWithPageable(DiaryReqFilterDTO filterDTO, Long userId, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByFilterWithPageable(DiaryReqFilterDTO filterDTO, Long kakaoId, Pageable pageable) {
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
@@ -176,7 +177,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         List<Diary> results = queryFactory.selectFrom(diary)
                 .where(
-                        diary.userId.eq(userId),
+                        diary.userId.eq(kakaoId),
                         containsKeyword(filterDTO.getKeyWord()),
                         betweenDates(startDate, endDate),
                         diaryEmotionEq(filterDTO.getDiaryEmotion())
@@ -187,7 +188,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         long total = queryFactory.selectFrom(diary)
                 .where(
-                        diary.userId.eq(userId),
+                        diary.userId.eq(kakaoId),
                         containsKeyword(filterDTO.getKeyWord()),
                         betweenDates(startDate, endDate),
                         diaryEmotionEq(filterDTO.getDiaryEmotion())
@@ -209,7 +210,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResDetailDTO> dtoList = results.stream()
                 .map(d -> DiaryResDetailDTO.builder()
                         .diaryId(d.getId())
-                        .userId(d.getUserId())
+                        .kakaoId(d.getKakaoId())
                         .diaryTitle(d.getDiaryTitle())
                         .diaryDate(d.getDiaryDate())
                         .diaryContent(d.getDiaryContent())

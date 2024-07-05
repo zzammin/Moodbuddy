@@ -43,14 +43,14 @@ public class UserServiceImpl implements UserService{
         try {
             // kakaoId를 통해 userRepository에서 유저 조회 (Optional 사용)
             Long kakaoId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findById(kakaoId);
+            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
 
             // 조회한 유저의 user_id를 통해 profileRepository에서 유저 프로필 조회 (Optional 사용)
-            Optional<Profile> optionalProfile = profileRepository.findBykakaoId(kakaoId);
+            Optional<Profile> optionalProfile = profileRepository.findByKakaoId(kakaoId);
 
             if (optionalUser.isPresent() && optionalProfile.isPresent()) {
                 // profile_id를 통해 profileImageRepository에서 유저 프로필 이미지 조회 (Optional 사용)
-                Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByProfileId(optionalProfile.get().getId());
+                Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByKakaoId(kakaoId);
                 String profileImgURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");
 
                 // 현재 달 계산
@@ -170,7 +170,6 @@ public class UserServiceImpl implements UserService{
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
             Optional<Diary> summaryDiary = diaryRepository.findByKakaoIdAndDay(kakaoId, calendarSummaryDTO.getCalendarDay());
 
-
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> UserResCalendarSummaryDTO.builder()
                             .diaryTitle(diary.getDiaryTitle())
@@ -182,8 +181,8 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("[DiaryService] summary error", e);
         }
     }
-    public User findUserById(Long userId) {
-        return userRepository.findByKakaoId(userId)
+    public User findUserByKakaoId(Long kakaoId) {
+        return userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 }

@@ -60,13 +60,13 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] letterPage");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findById(kakaoId);
-            Optional<Profile> optionalProfile = profileRepository.findBykakaoId(kakaoId);
+            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
+            Optional<Profile> optionalProfile = profileRepository.findByKakaoId(kakaoId);
             if (optionalUser.isPresent() && optionalProfile.isPresent()) {
-                Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByProfileId(optionalProfile.get().getId());
+                Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByKakaoId(kakaoId);
                 String profileImageURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");
 
-                List<Letter> letters = letterRepository.findByKakaoId(kakaoId);
+                List<Letter> letters = letterRepository.findByUserId(optionalUser.get().getUserId());
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
                         .map(letter -> LetterResPageAnswerDTO.builder()
                                 .letterCreatedTime(letter.getCreatedTime())
@@ -106,9 +106,10 @@ public class LetterServiceImpl implements LetterService {
                         .build();
                 letterRepository.save(letter);
 
-                // ScheduledExecutorService를 사용하여 작업 예약
+                // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
                 scheduler.schedule(new ContextAwareRunnable(() -> {
-                    answerSave(kakaoId, letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
+                    answerSave(optionalUser.get().getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
+                    // alarmTalk();
                 }), 5, TimeUnit.SECONDS);
 
                 return LetterResSaveDTO.builder()
@@ -127,7 +128,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public void answerSave(Long kakaoId, String worryContent, Integer format, LocalDateTime letterDate) {
+    public void answerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate) {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
@@ -147,9 +148,9 @@ public class LetterServiceImpl implements LetterService {
                     if (message != null) {
                         String answer = message.getContent();
                         log.info("answer : "+answer);
-                        Optional<Letter> optionalLetter = letterRepository.findByKakaoIdAndDate(kakaoId, letterDate);
+                        Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
                         if (optionalLetter.isPresent()) {
-                            letterRepository.updateAnswerByKakaoId(kakaoId, answer);
+                            letterRepository.updateAnswerByUserId(userId, answer);
                         }
                     }
                 }
@@ -177,26 +178,28 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] details");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
-            Optional<Letter> optionalLetter = letterRepository.findByIdAndKakaoId(letterId, kakaoId);
-            if(optionalUser.isPresent() && optionalLetter.isPresent()){
-                return LetterResDetailsDTO.builder()
-                        .letterId(optionalLetter.get().getId())
-                        .userNickname(optionalUser.get().getNickname())
-                        .letterWorryContent(optionalLetter.get().getLetterWorryContent())
-                        .letterAnswerContent(optionalLetter.get().getLetterAnswerContent())
-                        .letterDate(optionalLetter.get().getLetterDate())
-                        .build();
-            } else {
-                log.error("[LetterService] details error");
-                throw new NoSuchElementException("letterId에 매핑되는 편지가 없습니다.");
-            }
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new NoSuchElementException("kakaoId에 해당되는 User가 없습니다"));
+
+            Letter letter = letterRepository.findByIdAndUserId(letterId, user.getUserId())
+                    .orElseThrow(() -> new NoSuchElementException("letterId에 매핑되는 편지가 없습니다"));
+
+            return LetterResDetailsDTO.builder()
+                    .letterId(letter.getId())
+                    .userNickname(user.getNickname())
+                    .letterWorryContent(letter.getLetterWorryContent())
+                    .letterAnswerContent(letter.getLetterAnswerContent())
+                    .letterDate(letter.getLetterDate())
+                    .build();
+
         } catch (Exception e) {
             log.error("[LetterService] details", e);
             throw new RuntimeException("[LetterService] details error", e);
         }
     }
 
+
+    // 비동기적으로 실행되는 작업이 현재 요청의 데이터를 정확하게 액세스하고 처리하게 하는 클래스
     public static class ContextAwareRunnable implements Runnable {
 
         private final Runnable task;
