@@ -38,12 +38,12 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
                 .select(Projections.constructor(DiaryResDraftFindOneDTO.class,
                         diary.id,
-                        diary.userId,
+                        diary.kakaoId,
                         diary.diaryDate,
                         diary.diaryStatus
                 ))
                 .from(diary)
-                .where(diary.userId.eq(kakaoId)
+                .where(diary.kakaoId.eq(kakaoId)
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
@@ -57,7 +57,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         DiaryResDetailDTO diaryResDetailDTO = queryFactory.select(Projections.constructor(DiaryResDetailDTO.class,
                         diary.id,
-                        diary.userId,
+                        diary.kakaoId,
                         diary.diaryTitle,
                         diary.diaryDate,
                         diary.diaryContent,
@@ -83,7 +83,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     @Override
     public Page<DiaryResDetailDTO> findAllByKakaoIdWithPageable(Long kakaoId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diary.userId.eq(kakaoId)
+                .where(diary.kakaoId.eq(kakaoId)
                         .and(diary.diaryStatus.eq(DiaryStatus.PUBLISHED)))
                 .orderBy(pageable.getSort().stream()
                         .map(order -> new OrderSpecifier(
@@ -116,7 +116,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         }).collect(Collectors.toList());
 
         long total = queryFactory.selectFrom(diary)
-                .where(diary.userId.eq(kakaoId))
+                .where(diary.kakaoId.eq(kakaoId))
                 .fetchCount();
 
         return new PageImpl<>(diaryList, pageable, total);
@@ -125,7 +125,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
     @Override
     public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion emotion, Long kakaoId, Pageable pageable) {
         List<Diary> diaries = queryFactory.selectFrom(diary)
-                .where(diaryEmotionEq(emotion).and(diary.userId.eq(kakaoId)))
+                .where(diaryEmotionEq(emotion).and(diary.kakaoId.eq(kakaoId)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -156,7 +156,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         // Count total records
         long total = queryFactory.selectFrom(diary)
-                .where(diaryEmotionEq(emotion).and(diary.userId.eq(kakaoId)))
+                .where(diaryEmotionEq(emotion).and(diary.kakaoId.eq(kakaoId)))
                 .fetchCount();
 
         return new PageImpl<>(dtoList, pageable, total);
@@ -177,7 +177,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         List<Diary> results = queryFactory.selectFrom(diary)
                 .where(
-                        diary.userId.eq(kakaoId),
+                        diary.kakaoId.eq(kakaoId),
                         containsKeyword(filterDTO.getKeyWord()),
                         betweenDates(startDate, endDate),
                         diaryEmotionEq(filterDTO.getDiaryEmotion())
@@ -188,7 +188,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
         long total = queryFactory.selectFrom(diary)
                 .where(
-                        diary.userId.eq(kakaoId),
+                        diary.kakaoId.eq(kakaoId),
                         containsKeyword(filterDTO.getKeyWord()),
                         betweenDates(startDate, endDate),
                         diaryEmotionEq(filterDTO.getDiaryEmotion())
