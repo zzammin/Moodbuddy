@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
@@ -15,13 +17,18 @@ import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -39,14 +46,17 @@ public class DiaryServiceImpl implements DiaryService {
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
     private final WebClient naverWebClient;
+    private final ObjectMapper objectMapper;
 
     public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
-                           @Qualifier("naverWebClient") WebClient naverWebClient){
+                           @Qualifier("naverWebClient") WebClient naverWebClient,
+                            ObjectMapper objectMapper){
         this.userRepository = userRepository;
         this.diaryRepository = diaryRepository;
         this.diaryImageService = diaryImageService;
         this.naverWebClient = naverWebClient;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -310,5 +320,53 @@ public class DiaryServiceImpl implements DiaryService {
             log.error("[DiaryService] getRequestBody error", e);
             throw new RuntimeException("[DiaryService] getRequestBody error", e);
         }
+    }
+
+    /** =========================================================  위 재민 아래 다연  ========================================================= **/
+
+    @Override
+    @Transactional
+    public DiaryDesResponseDto description() throws JsonProcessingException {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        //헤더를 JSON으로 설정함
+        HttpHeaders headers = new HttpHeaders();
+
+        //파라미터로 들어온 dto를 JSON 객체로 변환
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // 쿼리 결과를 JSON 객체로 변환
+        Diary diary = diaryRepository.findDiarySummaryById(JwtUtil.getUserId())
+                .orElseThrow(() -> new DatabaseNullOrEmptyException("Diary Summary data not found for kakaoId: " + JwtUtil.getUserId()));
+        String param = objectMapper.writeValueAsString(diary.getDiarySummary());
+
+        HttpEntity<String> entity = new HttpEntity<String>(param , headers);
+
+        //실제 Flask 서버랑 연결하기 위한 URL
+        String url = "http://127.0.0.1:8099/model";
+
+        // Flask 서버로 데이터를 전송하고 받은 응답 값을 처리
+        String response = restTemplate.postForObject(url, entity, String.class);
+
+        // 받은 응답 값을 DiaryDesResponseDto로 변환
+        DiaryDesResponseDto responseDto = objectMapper.readValue(response, DiaryDesResponseDto.class);
+
+        String emotion = responseDto.getEmotion();
+
+        try {
+            // 문자열을 DiaryEmotion enum 값으로 변환
+            DiaryEmotion diaryEmotion = DiaryEmotion.valueOf(emotion.toUpperCase());
+
+            // diary 엔티티를 저장
+            diaryRepository.save(Diary.builder()
+                    .diaryEmotion(diaryEmotion)
+                    .build());
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 emotion 값이 들어왔을 때의 처리
+            System.err.println("Invalid emotion value: " + emotion);
+        }
+
+        return responseDto;
     }
 }
