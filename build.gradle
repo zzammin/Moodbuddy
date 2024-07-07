@@ -89,6 +89,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'
+}
+
 // === ⭐ QueryDsl 빌드 옵션 (선택) ===
 def querydslDir = "/generated/querydsl"
 

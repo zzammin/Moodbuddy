@@ -3,6 +3,7 @@ package moodbuddy.moodbuddy.domain.diary.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -35,7 +36,7 @@ public interface DiaryService {
     Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable);
+    Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion diaryEmotion, Pageable pageable);
 
     // 검색어 조회 -> 일라스틱서치 사용할 예정
 //    Page<DiaryDocument> searchDiariesByKeyword(String keyword, Pageable pageable);

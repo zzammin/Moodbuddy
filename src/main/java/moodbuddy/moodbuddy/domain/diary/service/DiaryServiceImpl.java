@@ -227,11 +227,11 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
         Long kakaoId = JwtUtil.getUserId();
 
-        return diaryRepository.findAllByEmotionWithPageable(diaryReqEmotionDTO.getDiaryEmotion(), kakaoId, pageable);
+        return diaryRepository.findAllByEmotionWithPageable(diaryEmotion, kakaoId, pageable);
     }
 
     @Override

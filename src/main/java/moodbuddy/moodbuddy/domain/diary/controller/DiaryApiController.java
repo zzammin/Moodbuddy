@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import moodbuddy.moodbuddy.global.common.response.ApiPageResponse;
@@ -148,9 +149,11 @@ public class DiaryApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = ApiPageResponse.class))),
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> findAllByEmotionWithPageable(@Parameter(description = "감정 데이터를 담고 있는 DTO") @RequestBody DiaryReqEmotionDTO diaryReqEmotionDTO, Pageable pageable) {
+    public ResponseEntity<?> findAllByEmotionWithPageable(
+            @Parameter(description = "검색하고 싶은 감정(HAPPY, ANGRY, AVERSION, SURPRISED, CALMNESS, DEPRESSION, FEAR)", example = "HAPPY")
+            @RequestParam("diaryEmotion") DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryApiController] findAllByEmotionWithPageable");
-        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotionWithPageable(diaryReqEmotionDTO, pageable);
+        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotionWithPageable(diaryEmotion, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", ApiPageResponse.from(result)));
     }
     /** 구현 완료(키워드 제외) **/
