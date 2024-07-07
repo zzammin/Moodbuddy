@@ -55,4 +55,5 @@ public class Diary extends BaseEntity {
         this.diarySummary = diarySummary;
         this.diaryStatus = DiaryStatus.PUBLISHED;
     }
+
 }
