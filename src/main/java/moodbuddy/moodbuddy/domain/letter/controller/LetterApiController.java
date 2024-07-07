@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
 import moodbuddy.moodbuddy.domain.letter.service.LetterService;
+import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +31,7 @@ public class LetterApiController {
             @Parameter(description = "사용자가 작성한 고민 편지와 답장 형식을 담고 있는 DTO")
             @RequestBody LetterReqDTO letterReqDTO
     ){
-        return ResponseEntity.ok(letterService.save(letterReqDTO));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] LetterApiController write", letterService.save(letterReqDTO)));
     }
 
     @GetMapping("/details/{letterId}")
@@ -38,6 +40,6 @@ public class LetterApiController {
             @Parameter(description = "편지의 letterId")
             @PathVariable("letterId") Long letterId
     ){
-        return ResponseEntity.ok(letterService.details(letterId));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] LetterApiController details", letterService.details(letterId)));
     }
 }

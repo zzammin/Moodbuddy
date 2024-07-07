@@ -19,6 +19,7 @@ import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
 public class LetterServiceImpl implements LetterService {
 
     private final UserRepository userRepository;
@@ -48,11 +48,23 @@ public class LetterServiceImpl implements LetterService {
     private final WebClient gptWebClient;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
-
     @Value("${gpt.model}")
     private String model;
     @Value("${gpt.api.url}")
     private String apiUrl;
+
+    // 생성자 주입을 통한 의존성 주입
+    public LetterServiceImpl(UserRepository userRepository,
+                             ProfileRepository profileRepository,
+                             ProfileImageRepository profileImageRepository,
+                             LetterRepository letterRepository,
+                             @Qualifier("gptWebClient") WebClient gptWebClient) {
+        this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
+        this.profileImageRepository = profileImageRepository;
+        this.letterRepository = letterRepository;
+        this.gptWebClient = gptWebClient;
+    }
 
     @Override
     @Transactional(readOnly = true)

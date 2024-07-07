@@ -40,10 +40,10 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
-
-    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QDiary(String variable) {
         super(Diary.class, forVariable(variable));

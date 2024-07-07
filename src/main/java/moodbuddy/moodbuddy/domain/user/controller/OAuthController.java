@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.user.service.KakaoService;
+import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,12 +54,11 @@ public class OAuthController {
     //kakao id가 있다면 -> login
     //kakao id가 없다면 -> signup
     @GetMapping("/login/oauth2/code/kakao")
-    public ResponseEntity<LoginResponseDto> kakaoLogin(HttpServletRequest request) {
+    public ResponseEntity<?> kakaoLogin(HttpServletRequest request) {
 
         String code = request.getParameter("code");
 
         String accessToken = kakaoService.getKakaoAccessToken(code).getAccess_token();
-
-        return ResponseEntity.ok(kakaoService.login(accessToken));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] OAuthController kakaoLogin", kakaoService.login(accessToken)));
     }
 }
