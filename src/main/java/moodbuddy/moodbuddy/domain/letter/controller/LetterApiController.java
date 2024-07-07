@@ -46,7 +46,7 @@ public class LetterApiController {
             @Parameter(description = "사용자가 작성한 고민 편지와 답장 형식을 담고 있는 DTO")
             @RequestBody LetterReqDTO letterReqDTO
     ){
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] LetterApiController write", letterService.letterSave(letterReqDTO)));
+        return ResponseEntity.ok(letterService.letterSave(letterReqDTO));
     }
 
     @GetMapping("/details/{letterId}")
@@ -59,6 +59,6 @@ public class LetterApiController {
             @Parameter(description = "편지의 letterId")
             @PathVariable("letterId") Long letterId
     ){
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] LetterApiController details", letterService.letterDetails(letterId)));
+        return ResponseEntity.ok(letterService.letterDetails(letterId));
     }
 }
