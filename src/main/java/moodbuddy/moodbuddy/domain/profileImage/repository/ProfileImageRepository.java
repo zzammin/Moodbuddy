@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProfileImageRepository extends JpaRepository<ProfileImage, Long> {
-    @Query("select pi from ProfileImage pi where pi.userId = :kakaoId")
+    @Query("select pi from ProfileImage pi where pi.kakaoId = :kakaoId")
     Optional<ProfileImage> findByKakaoId(@Param("kakaoId") Long kakaoId);
 }
