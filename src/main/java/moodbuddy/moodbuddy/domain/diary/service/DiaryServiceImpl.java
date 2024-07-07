@@ -339,7 +339,14 @@ public class DiaryServiceImpl implements DiaryService {
         // 쿼리 결과를 JSON 객체로 변환
         Diary diary = diaryRepository.findDiarySummaryById(JwtUtil.getUserId())
                 .orElseThrow(() -> new DatabaseNullOrEmptyException("Diary Summary data not found for kakaoId: " + JwtUtil.getUserId()));
-        String param = objectMapper.writeValueAsString(diary.getDiarySummary());
+
+        // 'diarySummary' key와 diary.getDiarySummary() 값을 포함하는 Map 생성
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("diarySummary", diary.getDiarySummary());
+
+        // Map을 JSON 문자열로 변환
+        String param = objectMapper.writeValueAsString(paramMap);
+        log.info(param+"서버로 전송");
 
         HttpEntity<String> entity = new HttpEntity<String>(param , headers);
 
@@ -358,10 +365,9 @@ public class DiaryServiceImpl implements DiaryService {
             // 문자열을 DiaryEmotion enum 값으로 변환
             DiaryEmotion diaryEmotion = DiaryEmotion.valueOf(emotion.toUpperCase());
 
+            diary.setDiaryEmotion(diaryEmotion);
             // diary 엔티티를 저장
-            diaryRepository.save(Diary.builder()
-                    .diaryEmotion(diaryEmotion)
-                    .build());
+            diaryRepository.save(diary);
         } catch (IllegalArgumentException e) {
             // 유효하지 않은 emotion 값이 들어왔을 때의 처리
             System.err.println("Invalid emotion value: " + emotion);

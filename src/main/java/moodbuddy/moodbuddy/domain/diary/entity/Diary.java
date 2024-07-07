@@ -56,4 +56,7 @@ public class Diary extends BaseEntity {
         this.diaryStatus = DiaryStatus.PUBLISHED;
     }
 
+    public void setDiaryEmotion(DiaryEmotion diaryEmotion) {
+        this.diaryEmotion = diaryEmotion;
+    }
 }
