@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import org.springframework.data.domain.Page;
@@ -52,4 +53,11 @@ public interface DiaryService {
 
     // 네이버 클라우드 API 연동을 위한 Request Body 생성
     Map<String,Object> getRequestBody(String content);
+
+    /**
+     * =========================================================  위 재민 아래 다연  =========================================================
+     **/
+
+    //일기 감정 분석
+    DiaryDesResponseDto description() throws JsonProcessingException;
 }

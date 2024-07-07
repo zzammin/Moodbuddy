@@ -13,6 +13,8 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
+import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +31,8 @@ public class UserApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResMainPageDTO.class)))
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<UserResMainPageDTO> mainPage(){
-        return ResponseEntity.ok(userService.mainPage());
+    public ResponseEntity<?> mainPage(){
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController mainPage", userService.mainPage()));
     }
 
     @PostMapping("/main/month")
@@ -43,7 +45,7 @@ public class UserApiController {
             @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
             @RequestBody UserReqCalendarMonthDTO calendarMonthDTO
     ){
-        return ResponseEntity.ok(userService.monthlyCalendar(calendarMonthDTO));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController monthlyCalendar", userService.monthlyCalendar(calendarMonthDTO)));
     }
 
     @PostMapping("/main/summary")
@@ -56,6 +58,6 @@ public class UserApiController {
             @Parameter(description = "사용자가 선택한 날짜를 담고 있는 DTO")
             @RequestBody UserReqCalendarSummaryDTO calendarSummaryDTO
     ){
-        return ResponseEntity.ok(userService.summary(calendarSummaryDTO));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController summary", userService.summary(calendarSummaryDTO)));
     }
 }

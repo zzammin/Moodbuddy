@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.repository;
 
+import moodbuddy.moodbuddy.domain.diary.dto.request.DiarySummaryVo;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
 
     // diaryId 기반으로 삭제하기
     List<Diary> findAllById(Iterable<Long> ids);
+
+    //사용자가 제일 최근에 쓴 일기 요약본 출력
+    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId ORDER BY diary_date DESC LIMIT 1", nativeQuery = true)
+    Optional<Diary> findDiarySummaryById(@Param("kakaoId") Long kakaoId);
+
 }

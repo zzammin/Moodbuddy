@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +29,15 @@ import java.io.IOException;
 @Slf4j
 public class DiaryApiController {
     private final DiaryServiceImpl diaryService;
+
+    //클라이언트가 일기 작성 -> 일기 요약본 flask서버로 전달 -> flask 서버에서는 모델을 통한 감정 분석 후 결과를 리턴
+    @PostMapping("/description")
+    @Operation(description = "일기 감정 분석")
+    public ResponseEntity<DiaryDesResponseDto> description() throws JsonProcessingException {
+        DiaryDesResponseDto result = diaryService.description();
+        return ResponseEntity.ok(result);
+    }
+
 
     /** 구현 완료 **/
     @PostMapping("/save")
