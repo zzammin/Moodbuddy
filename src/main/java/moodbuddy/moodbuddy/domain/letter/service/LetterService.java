@@ -12,14 +12,14 @@ public interface LetterService {
     LetterResPageDTO letterPage();
 
     // 고민 편지 작성
-    LetterResSaveDTO save(LetterReqDTO letterReqDTO);
+    LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO);
 
     // 고민 편지 내용
-    LetterResDetailsDTO details(Long letterId);
+    LetterResDetailsDTO letterDetails(Long letterId);
 
     // 연동한 gpt api로 고민에 대한 답장을 받은 후 저장
-    void answerSave(Long kakaoId, String worryContent, Integer format, LocalDateTime letterDate);
+    void letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate);
 
-    // 알림톡 보내기 (또는 알림)
-    void alarmTalk(String fcmRegistration);
+    // 알람 보내기
+    void letterAlarm(Long userId, String fcmToken);
 }

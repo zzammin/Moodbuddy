@@ -75,4 +75,7 @@ public class User {
 
     @Column(name = "user_letter_nums", columnDefinition = "int")
     private Integer userLetterNums;
+
+    @Column(name = "fcm_token", columnDefinition = "text")
+    private String fcmToken;
 }

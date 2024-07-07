@@ -1,5 +1,7 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTMessageDTO;
@@ -92,7 +94,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public LetterResSaveDTO save(LetterReqDTO letterReqDTO) {
+    public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
@@ -106,10 +108,16 @@ public class LetterServiceImpl implements LetterService {
                         .build();
                 letterRepository.save(letter);
 
+                // 1. user에 fcm 컬럼 추가하기
+                // save 메소드에서)
+                // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
+                // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
+                userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
+
                 // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
                 scheduler.schedule(new ContextAwareRunnable(() -> {
-                    answerSave(optionalUser.get().getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
-                    // alarmTalk();
+                    letterAnswerSave(optionalUser.get().getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
+//                    letterAlarm(optionalUser.get().getUserId(), optionalUser.get().getFcmToken());
                 }), 5, TimeUnit.SECONDS);
 
                 return LetterResSaveDTO.builder()
@@ -128,7 +136,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public void answerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate) {
+    public void letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate) {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
@@ -163,10 +171,27 @@ public class LetterServiceImpl implements LetterService {
     }
 
     @Override
-    public void alarmTalk(String fcmRegistration) {
+    public void letterAlarm(Long userId, String fcmToken) {
         log.info("[LetterService] alarmTalk");
         try {
-            Long kakaoId = JwtUtil.getUserId();
+            // alarmTalk 메소드에서)
+            // 4. com.google.firebase.messaging.Message 패키지의 Message를 이용해서 빌더 형식의 Message 생성
+            // ex.  Message message = Message.builder()
+            //        .setToken(token)
+            //        .putData("title", title)
+            //        .putData("body", body)
+            //        .build();
+            // 5. 이후에 예외 처리와 디버깅을 위해 FCM 응답값을 받아옴
+            // ex. String response = FirebaseMessaging.getInstance().send(message);
+            //     log.info("Successfully sent message: " + response);
+            Message message = Message.builder()
+                    .setToken(fcmToken)
+                    .putData("title", "moodbuddy : 고민 답장이 도착하였습니다.")
+                    .putData("body", "고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+                    .build();
+
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.info("Successfully sent message: " + response);
         } catch (Exception e) {
             log.error("[LetterService] alarmTalk error", e);
         }
@@ -174,7 +199,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional(readOnly = true)
-    public LetterResDetailsDTO details(Long letterId) {
+    public LetterResDetailsDTO letterDetails(Long letterId) {
         log.info("[LetterService] details");
         try {
             Long kakaoId = JwtUtil.getUserId();
@@ -187,6 +212,7 @@ public class LetterServiceImpl implements LetterService {
             return LetterResDetailsDTO.builder()
                     .letterId(letter.getId())
                     .userNickname(user.getNickname())
+                    .letterFormat(letter.getLetterFormat())
                     .letterWorryContent(letter.getLetterWorryContent())
                     .letterAnswerContent(letter.getLetterAnswerContent())
                     .letterDate(letter.getLetterDate())
@@ -199,7 +225,7 @@ public class LetterServiceImpl implements LetterService {
     }
 
 
-    // 비동기적으로 실행되는 작업이 현재 요청의 데이터를 정확하게 액세스하고 처리하게 하는 클래스
+    // 비동기적으로 실행되는 작업이 현재 요청의 데이터를 액세스하고 처리하게 하는 클래스
     public static class ContextAwareRunnable implements Runnable {
 
         private final Runnable task;

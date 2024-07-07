@@ -17,6 +17,8 @@ public class LetterResDetailsDTO {
     private Long letterId;
     @Schema(description = "사용자의 nickname")
     private String userNickname;
+    @Schema(description = "사용자의 고민 편지 답장 형식")
+    private Integer letterFormat;
     @Schema(description = "사용자가 작성한 고민 편지 내용")
     private String letterWorryContent;
     @Schema(description = "사용자가 작성한 고민 편지 내용에 대한 답장")
