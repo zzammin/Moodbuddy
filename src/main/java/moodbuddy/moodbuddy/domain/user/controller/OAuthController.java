@@ -59,6 +59,6 @@ public class OAuthController {
         String code = request.getParameter("code");
 
         String accessToken = kakaoService.getKakaoAccessToken(code).getAccess_token();
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] OAuthController kakaoLogin", kakaoService.login(accessToken)));
+        return ResponseEntity.ok(kakaoService.login(accessToken));
     }
 }
