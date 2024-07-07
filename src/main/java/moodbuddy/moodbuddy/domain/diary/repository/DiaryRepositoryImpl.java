@@ -154,7 +154,6 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                 ))
                 .collect(Collectors.toList());
 
-        // Count total records
         long total = queryFactory.selectFrom(diary)
                 .where(diaryEmotionEq(emotion).and(diary.kakaoId.eq(kakaoId)))
                 .fetchCount();
