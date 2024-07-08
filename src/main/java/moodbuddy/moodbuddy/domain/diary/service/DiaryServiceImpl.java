@@ -95,7 +95,7 @@ public class DiaryServiceImpl implements DiaryService {
             userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
             userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
         } catch (Exception e){
-            log.error("[DiaryServiceImpl] numPlus" + e);
+            log.error("[DiaryServiceImpl] numPlus error" + e);
             throw new RuntimeException(e);
         }
     }

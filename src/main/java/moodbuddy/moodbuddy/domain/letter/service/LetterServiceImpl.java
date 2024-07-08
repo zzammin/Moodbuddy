@@ -99,7 +99,7 @@ public class LetterServiceImpl implements LetterService {
             }
             throw new NoSuchElementException("유저 또는 프로필을 찾을 수 없습니다. kakaoId: " + kakaoId);
         } catch (Exception e) {
-            log.error("[LetterService] letterPage", e);
+            log.error("[LetterService] letterPage error", e);
             throw new RuntimeException("[LetterService] letterPage error", e);
         }
     }
@@ -110,36 +110,44 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
-            if (optionalUser.isPresent()) {
-                Letter letter = Letter.builder()
-                        .user(optionalUser.get())
-                        .letterFormat(letterReqDTO.getLetterFormat())
-                        .letterWorryContent(letterReqDTO.getLetterWorryContent())
-                        .letterDate(letterReqDTO.getLetterDate())
-                        .build();
-                letterRepository.save(letter);
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-                // 1. user에 fcm 컬럼 추가하기
-                // save 메소드에서)
-                // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
-                // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
-                userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
-
-                // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
-                scheduler.schedule(new ContextAwareRunnable(() -> {
-                    letterAnswerSave(optionalUser.get().getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
-//                    letterAlarm(optionalUser.get().getUserId(), optionalUser.get().getFcmToken());
-                }), 5, TimeUnit.SECONDS);
-
-                return LetterResSaveDTO.builder()
-                        .letterId(letter.getId())
-                        .userNickname(optionalUser.get().getNickname())
-                        .letterDate(letter.getLetterDate())
-                        .build();
-            } else {
-                throw new NoSuchElementException("kakaoId를 가지는 사용자가 없습니다. kakaoId : " + kakaoId);
+            // 편지지가 없을 경우 예외 처리
+            if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
+                throw new IllegalArgumentException("편지지가 없습니다.");
             }
+
+            // 편지지 개수 업데이트
+            userRepository.updateLetterNumsByKakaoId(kakaoId, user.getUserLetterNums() - 1);
+
+
+            Letter letter = Letter.builder()
+                    .user(user)
+                    .letterFormat(letterReqDTO.getLetterFormat())
+                    .letterWorryContent(letterReqDTO.getLetterWorryContent())
+                    .letterDate(letterReqDTO.getLetterDate())
+                    .build();
+            letterRepository.save(letter);
+
+            // 1. user에 fcm 컬럼 추가하기
+            // save 메소드에서)
+            // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
+            // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
+            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
+
+            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
+            scheduler.schedule(new ContextAwareRunnable(() -> {
+                letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
+//                    letterAlarm(optionalUser.get().getUserId(), optionalUser.get().getFcmToken());
+            }), 5, TimeUnit.SECONDS);
+
+            return LetterResSaveDTO.builder()
+                    .letterId(letter.getId())
+                    .userNickname(user.getNickname())
+                    .letterDate(letter.getLetterDate())
+                    .build();
+
         } catch (Exception e) {
             log.error("[LetterService] save error", e);
             throw new RuntimeException("[LetterService] save error", e);
@@ -152,7 +160,6 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
-            log.info("prompt : "+prompt);
             GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
 
             GPTResponseDTO response = gptWebClient.post()
@@ -167,7 +174,6 @@ public class LetterServiceImpl implements LetterService {
                     GPTMessageDTO message = choice.getMessage();
                     if (message != null) {
                         String answer = message.getContent();
-                        log.info("answer : "+answer);
                         Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
                         if (optionalLetter.isPresent()) {
                             letterRepository.updateAnswerByUserId(userId, answer);
@@ -231,7 +237,7 @@ public class LetterServiceImpl implements LetterService {
                     .build();
 
         } catch (Exception e) {
-            log.error("[LetterService] details", e);
+            log.error("[LetterService] details error", e);
             throw new RuntimeException("[LetterService] details error", e);
         }
     }

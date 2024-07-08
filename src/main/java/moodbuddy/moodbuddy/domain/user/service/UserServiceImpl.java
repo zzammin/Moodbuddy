@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService{
                     .diaryResCalendarMonthDTOList(diaryResCalendarMonthDTOList)
                     .build();
         } catch (Exception e) {
-            log.error("[UserService] monthlyCalendar", e);
+            log.error("[UserService] monthlyCalendar error", e);
             throw new RuntimeException("[UserService] monthlyCalendar error", e);
         }
     }
@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService{
                             .build())
                     .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
         } catch(Exception e){
-            log.error("[UserService] summary", e);
+            log.error("[UserService] summary error", e);
             throw new RuntimeException("[UserService] summary error", e);
         }
     }
@@ -191,11 +191,13 @@ public class UserServiceImpl implements UserService{
     public void changeDiaryNums(){
         log.info("[UserService] changeDiaryNums");
         try{
-            Long kakaoId = JwtUtil.getUserId();
-            User user = findUserByKakaoId(kakaoId);
-            userRepository.updateLastDiaryNumsByKakaoId(kakaoId, user.getUserCurDiaryNums());
+            List<User> users = userRepository.findAll();
+            for(User user : users){
+                userRepository.updateLastDiaryNumsByKakaoId(user.getKakaoId(), user.getUserCurDiaryNums()); // 한 달이 지났으니 userCurDiaryNums를 userlastDiaryNums로 변경
+                userRepository.updateCurDiaryNumsByKakaoId(user.getKakaoId(), 0); // 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
+            }
         } catch (Exception e) {
-            log.error("[UserService] changeDiaryNums"+ e);
+            log.error("[UserService] changeDiaryNums error"+ e);
             throw new RuntimeException(e);
         }
     }
