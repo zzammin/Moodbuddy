@@ -18,6 +18,8 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@EnableScheduling
 @Slf4j
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
@@ -132,7 +135,7 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional
     public UserResCalendarMonthListDTO monthlyCalendar(UserReqCalendarMonthDTO calendarMonthDTO){
-        log.info("[DiaryService] monthlyCalendar");
+        log.info("[UserService] monthlyCalendar");
         try{
             // -> userID 가져오기
             Long kakaoId = JwtUtil.getUserId();
@@ -155,15 +158,15 @@ public class UserServiceImpl implements UserService{
                     .diaryResCalendarMonthDTOList(diaryResCalendarMonthDTOList)
                     .build();
         } catch (Exception e) {
-            log.error("[DiaryService] monthlyCalendar", e);
-            throw new RuntimeException("[DiaryService] monthlyCalendar error", e);
+            log.error("[UserService] monthlyCalendar", e);
+            throw new RuntimeException("[UserService] monthlyCalendar error", e);
         }
     }
 
     @Override
     @Transactional
     public UserResCalendarSummaryDTO summary(UserReqCalendarSummaryDTO calendarSummaryDTO) {
-        log.info("[DiaryService] summary");
+        log.info("[UserService] summary");
         try {
             Long kakaoId = JwtUtil.getUserId();
 
@@ -177,10 +180,26 @@ public class UserServiceImpl implements UserService{
                             .build())
                     .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
         } catch(Exception e){
-            log.error("[DiaryService] summary", e);
-            throw new RuntimeException("[DiaryService] summary error", e);
+            log.error("[UserService] summary", e);
+            throw new RuntimeException("[UserService] summary error", e);
         }
     }
+
+    @Override
+    @Transactional
+    @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 자정에 자동으로 실행
+    public void changeDiaryNums(){
+        log.info("[UserService] changeDiaryNums");
+        try{
+            Long kakaoId = JwtUtil.getUserId();
+            User user = findUserByKakaoId(kakaoId);
+            userRepository.updateLastDiaryNumsByKakaoId(kakaoId, user.getUserCurDiaryNums());
+        } catch (Exception e) {
+            log.error("[UserService] changeDiaryNums"+ e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public User findUserByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));

@@ -78,19 +78,26 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         // 일기 작성하면 편지지 개수 늘려주기
-        letterNumPlus(kakaoId);
+        numPlus(kakaoId);
 
         return DiaryMapper.toDetailDTO(diary);
     }
 
     @Override
     @Transactional
-    public void letterNumPlus(Long kakaoId) {
-        Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);
-        optionalUser.ifPresent(user -> {
+    public void numPlus(Long kakaoId) {
+        log.info("[DiaryServiceImpl] numPlus");
+        try{
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
             int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
+            userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
             userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
-        });
+        } catch (Exception e){
+            log.error("[DiaryServiceImpl] numPlus" + e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

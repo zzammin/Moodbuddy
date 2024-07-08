@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Transactional
     @Query("update User u set u.userLetterNums = :letterNums where u.kakaoId = :kakaoId")
-    void updateLetterNumsByKakaoId(@Param("kakaoId") Long kakaoId, @Param("letterNums") int letterNums);
+    void updateLetterNumsByKakaoId(@Param("kakaoId") Long kakaoId, @Param("letterNums") Integer letterNums);
 
     @Query("select u from User u where u.kakaoId = :kakaoId")
     Optional<User> findByKakaoId(@Param("kakaoId") Long kakaoId);
@@ -22,4 +22,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("update User u set u.fcmToken = :fcmToken where u.kakaoId = :kakaoId")
     void updateFcmTokenByKakaoId(@Param("kakaoId") Long kakaoId, @Param("fcmToken") String fcmToken);
+
+    @Modifying
+    @Transactional
+    @Query("update User u set u.userCurDiaryNums = :curDiaryNums where u.kakaoId = :kakaoId")
+    void updateCurDiaryNumsByKakaoId(@Param("kakaoId") Long kakaoId, @Param("curDiaryNums") Integer curDiaryNums);
+
+    @Modifying
+    @Transactional
+    @Query("update User u set u.userLastDiaryNums = :curDiaryNums where u.kakaoId = :kakaoId")
+    void updateLastDiaryNumsByKakaoId(@Param("kakaoId") Long kakaoId, @Param("curDiaryNums") Integer curDiaryNums);
 }
