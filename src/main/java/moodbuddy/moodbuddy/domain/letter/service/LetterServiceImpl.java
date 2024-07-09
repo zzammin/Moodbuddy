@@ -47,7 +47,7 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
     private final WebClient gptWebClient;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
+//    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
     @Value("${gpt.model}")
     private String model;
@@ -137,10 +137,11 @@ public class LetterServiceImpl implements LetterService {
 //            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
 
             // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
-            scheduler.schedule(new ContextAwareRunnable(() -> {
-                letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
-//                letterAlarm(user.getUserId(), user.getFcmToken());
-            }), 5, TimeUnit.SECONDS);
+//            scheduler.schedule(new ContextAwareRunnable(() -> {
+////                letterAlarm(user.getUserId(), user.getFcmToken());
+//            }), 5, TimeUnit.SECONDS);
+
+            letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
 
             return LetterResSaveDTO.builder()
                     .letterId(letter.getId())
