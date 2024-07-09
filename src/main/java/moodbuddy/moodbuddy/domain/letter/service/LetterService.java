@@ -21,5 +21,5 @@ public interface LetterService {
     void letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate);
 
     // 알람 보내기
-    void letterAlarm(Long userId, String fcmToken);
+//    void letterAlarm(Long userId, String fcmToken);
 }

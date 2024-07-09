@@ -188,32 +188,32 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    @Override
-    public void letterAlarm(Long userId, String fcmToken) {
-        log.info("[LetterService] alarmTalk");
-        try {
-            // alarmTalk 메소드에서)
-            // 4. com.google.firebase.messaging.Message 패키지의 Message를 이용해서 빌더 형식의 Message 생성
-            // ex.  Message message = Message.builder()
-            //        .setToken(token)
-            //        .putData("title", title)
-            //        .putData("body", body)
-            //        .build();
-            // 5. 이후에 예외 처리와 디버깅을 위해 FCM 응답값을 받아옴
-            // ex. String response = FirebaseMessaging.getInstance().send(message);
-            //     log.info("Successfully sent message: " + response);
-            Message message = Message.builder()
-                    .setToken(fcmToken)
-                    .putData("title", "moodbuddy : 고민 답장이 도착하였습니다.")
-                    .putData("body", "고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-                    .build();
-
-            String response = FirebaseMessaging.getInstance().send(message);
-            log.info("Successfully sent message: " + response);
-        } catch (Exception e) {
-            log.error("[LetterService] alarmTalk error", e);
-        }
-    }
+//    @Override
+//    public void letterAlarm(Long userId, String fcmToken) {
+//        log.info("[LetterService] alarmTalk");
+//        try {
+//            // alarmTalk 메소드에서)
+//            // 4. com.google.firebase.messaging.Message 패키지의 Message를 이용해서 빌더 형식의 Message 생성
+//            // ex.  Message message = Message.builder()
+//            //        .setToken(token)
+//            //        .putData("title", title)
+//            //        .putData("body", body)
+//            //        .build();
+//            // 5. 이후에 예외 처리와 디버깅을 위해 FCM 응답값을 받아옴
+//            // ex. String response = FirebaseMessaging.getInstance().send(message);
+//            //     log.info("Successfully sent message: " + response);
+//            Message message = Message.builder()
+//                    .setToken(fcmToken)
+//                    .putData("title", "moodbuddy : 고민 답장이 도착하였습니다.")
+//                    .putData("body", "고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+//                    .build();
+//
+//            String response = FirebaseMessaging.getInstance().send(message);
+//            log.info("Successfully sent message: " + response);
+//        } catch (Exception e) {
+//            log.error("[LetterService] alarmTalk error", e);
+//        }
+//    }
 
     @Override
     @Transactional(readOnly = true)

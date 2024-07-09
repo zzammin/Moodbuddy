@@ -25,6 +25,8 @@ public class UserApiController {
 
     private final UserService userService;
 
+
+
     @GetMapping("/main")
     @Operation(summary = "메인 화면", description = "메인 화면으로 이동합니다.")
     @ApiResponses(value = {
