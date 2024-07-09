@@ -2,7 +2,6 @@ package moodbuddy.moodbuddy.domain.letter.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTMessageDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTRequestDTO;
@@ -83,6 +82,7 @@ public class LetterServiceImpl implements LetterService {
                 List<Letter> letters = letterRepository.findByUserId(optionalUser.get().getUserId());
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
                         .map(letter -> LetterResPageAnswerDTO.builder()
+                                .letterId(letter.getId())
                                 .letterCreatedTime(letter.getCreatedTime())
                                 .answerCheck(letter.getLetterAnswerContent() != null ? 1 : 0)
                                 .build())
@@ -134,12 +134,12 @@ public class LetterServiceImpl implements LetterService {
             // save 메소드에서)
             // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
             // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
-            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
+//            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
 
             // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
             scheduler.schedule(new ContextAwareRunnable(() -> {
                 letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
-//                    letterAlarm(optionalUser.get().getUserId(), optionalUser.get().getFcmToken());
+//                letterAlarm(user.getUserId(), user.getFcmToken());
             }), 5, TimeUnit.SECONDS);
 
             return LetterResSaveDTO.builder()
