@@ -63,6 +63,7 @@ public class DiaryServiceImpl implements DiaryService {
         this.objectMapper = objectMapper;
     }
 
+    /** =========================================================  정목  ========================================================= **/
 
     @Override
     @Transactional
@@ -87,9 +88,7 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
         }
 
-        // 일기 작성하면 편지지 개수 늘려주기
-        numPlus(kakaoId);
-
+        numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
         return DiaryMapper.toDetailDTO(diary);
     }
 
@@ -115,16 +114,13 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
         Long kakaoId = JwtUtil.getUserId();
-        Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()); // 예외 처리 로직 추가
-        if(!optionalDiary.isPresent()) {
-            throw new DiaryNotFoundException(NOT_FOUND_DIARY);
-        }
 
-        Diary findDiary = optionalDiary.get();
         Optional<Diary> existingDiary = diaryRepository.findByDiaryDateAndKakaoIdAndDiaryStatus(diaryReqUpdateDTO.getDiaryDate(), kakaoId, DiaryStatus.PUBLISHED); // 오늘 작성한 일기가 있는지 확인
         if(existingDiary.isPresent()) {
             throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
         }
+
+        Diary findDiary = findDiaryById(diaryReqUpdateDTO.getDiaryId());
 
         String summary = summarize(findDiary.getDiaryContent()); // 일기 내용 요약 결과
         findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary);
@@ -146,10 +142,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public void delete(Long diaryId) {
         log.info("[DiaryServiceImpl] delete");
+        Diary findDiary = findDiaryById(diaryId);
 
-        Diary diary = diaryRepository.findById(diaryId).get(); // 예외 처리 로직 추가
-
-        List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+        List<DiaryImage> images = diaryImageService.findImagesByDiary(findDiary);
         List<String> imageUrls = images.stream()
                 .map(DiaryImage::getDiaryImgURL)
                 .collect(Collectors.toList());
@@ -158,7 +153,7 @@ public class DiaryServiceImpl implements DiaryService {
             diaryImageService.deleteDiaryImages(imageUrls);
         }
 
-        diaryRepository.delete(diary);
+        diaryRepository.delete(findDiary);
 //        diaryElasticsearchRepository.deleteById(diaryId);
     }
 
@@ -196,25 +191,13 @@ public class DiaryServiceImpl implements DiaryService {
                 .filter(diary -> diary.getKakaoId().equals(kakaoId))
                 .collect(Collectors.toList());
 
-        for(int i=0; i<diariesToDelete.size(); i++) {
-            System.out.println(diariesToDelete.get(i).getId());
-        }
-
         // 관련된 이미지 삭제
         for (Diary diary : diariesToDelete) {
             List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
 
-            for(int i=0; i<images.size(); i++) {
-                System.out.println(images.get(i).getId());
-            }
-
             List<String> imageUrls = images.stream()
                     .map(DiaryImage::getDiaryImgURL)
                     .collect(Collectors.toList());
-
-            for(int i=0; i<imageUrls.size(); i++) {
-                System.out.println(imageUrls.get(i));
-            }
 
             if (!imageUrls.isEmpty()) {
                 diaryImageService.deleteDiaryImages(imageUrls);
@@ -230,11 +213,9 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
         Long kakaoId = JwtUtil.getUserId();
-        Optional<Diary> optionalDiary = diaryRepository.findById(diaryId);
-        if(!optionalDiary.isPresent()) {
-            throw new DiaryNotFoundException(NOT_FOUND_DIARY);
-        }
-        if(!optionalDiary.get().getKakaoId().equals(kakaoId)) {
+
+        Diary findDiary = findDiaryById(diaryId);
+        if(!findDiary.getKakaoId().equals(kakaoId)) {
             throw new DiaryNoAccessException(NO_ACCESS_DIARY);
         }
 
@@ -268,7 +249,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     public Diary findDiaryById(Long diaryId) {
         return diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일기입니다."));
+                .orElseThrow(() -> new DiaryNotFoundException(NOT_FOUND_DIARY));
     }
 
     /** 추가 메서드 **/
@@ -290,7 +271,7 @@ public class DiaryServiceImpl implements DiaryService {
 //                .build();
 //    }
 
-    /** =========================================================  위 정목 아래 재민  ========================================================= **/
+    /** =========================================================  재민  ========================================================= **/
 
     @Override
     public String summarize(String content) {
@@ -346,7 +327,7 @@ public class DiaryServiceImpl implements DiaryService {
         }
     }
 
-    /** =========================================================  위 재민 아래 다연  ========================================================= **/
+    /** =========================================================  다연  ========================================================= **/
 
     @Override
     @Transactional
