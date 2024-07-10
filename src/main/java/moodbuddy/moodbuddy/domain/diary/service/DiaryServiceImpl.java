@@ -8,6 +8,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
@@ -16,6 +17,8 @@ import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
 import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyException;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNoAccessException;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNotFoundException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +37,9 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NOT_FOUND_DIARY;
+import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NO_ACCESS_DIARY;
 
 @Service
 @Transactional(readOnly = true)
@@ -108,17 +114,19 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
-
-        Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId());// 예외 처리 로직 추가
+        Long kakaoId = JwtUtil.getUserId();
+        Optional<Diary> optionalDiary = diaryRepository.findById(diaryReqUpdateDTO.getDiaryId()); // 예외 처리 로직 추가
         if(!optionalDiary.isPresent()) {
-            // 에러 추가
+            throw new DiaryNotFoundException(NOT_FOUND_DIARY);
         }
 
         Diary findDiary = optionalDiary.get();
-        String summary = summarize(diaryReqUpdateDTO.getDiaryContent()); // 일기 내용 요약 결과
+        Optional<Diary> existingDiary = diaryRepository.findByDiaryDateAndKakaoIdAndDiaryStatus(diaryReqUpdateDTO.getDiaryDate(), kakaoId, DiaryStatus.PUBLISHED); // 오늘 작성한 일기가 있는지 확인
+        if(existingDiary.isPresent()) {
+            throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
+        }
 
-        // 감정 분석 로직 추가 필요
-
+        String summary = summarize(findDiary.getDiaryContent()); // 일기 내용 요약 결과
         findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary);
 
         if (diaryReqUpdateDTO.getImagesToDelete() != null) {
@@ -156,6 +164,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
+    // 임시 저장 -> 다시 작성 -> 일기 수정 API 호출 (문제는 일기를 이러면 하루에 무한대로 쓸 수 있게 됨.)
     public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         Long kakaoId = JwtUtil.getUserId();
@@ -221,10 +230,14 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
         Long kakaoId = JwtUtil.getUserId();
+        Optional<Diary> optionalDiary = diaryRepository.findById(diaryId);
+        if(!optionalDiary.isPresent()) {
+            throw new DiaryNotFoundException(NOT_FOUND_DIARY);
+        }
+        if(!optionalDiary.get().getKakaoId().equals(kakaoId)) {
+            throw new DiaryNoAccessException(NO_ACCESS_DIARY);
+        }
 
-        // [추가해야 할 내]
-        // diaryId가 존재하는 Id 값인지 확인하는 예외처리
-        // userEmail하고 Diary의 userEmail하고 같은 지 확인하는 예외처리
 
         return diaryRepository.findOneByDiaryId(diaryId);
     }

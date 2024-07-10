@@ -2,6 +2,7 @@ package moodbuddy.moodbuddy.domain.diary.repository;
 
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiarySummaryVo;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
 
     // 오늘 작성한 일기가 있는지 확인
     Optional<Diary> findByDiaryDateAndKakaoId(LocalDateTime diaryDate, Long kakaoId);
+    Optional<Diary> findByDiaryDateAndKakaoIdAndDiaryStatus(LocalDateTime diaryDate, Long kakaoId, DiaryStatus diaryStatus);
+
 }
