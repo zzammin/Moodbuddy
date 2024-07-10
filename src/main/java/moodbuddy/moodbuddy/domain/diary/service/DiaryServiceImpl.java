@@ -3,7 +3,6 @@ package moodbuddy.moodbuddy.domain.diary.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
@@ -13,13 +12,12 @@ import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
-import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
-import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
 import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyException;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,6 +63,12 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
         Long kakaoId = JwtUtil.getUserId();
+
+        Optional<Diary> existingDiary = diaryRepository.findByDiaryDateAndKakaoId(diaryReqSaveDTO.getDiaryDate(), kakaoId); // 오늘 작성한 일기가 있는지 확인
+
+        if(existingDiary.isPresent()) {
+            throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
+        }
 
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
         Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary);

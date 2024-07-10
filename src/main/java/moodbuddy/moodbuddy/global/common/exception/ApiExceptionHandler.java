@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.global.common.exception;
 
 import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyException;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,7 +18,16 @@ public class ApiExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
-
+    @ExceptionHandler(DiaryTodayExistingException.class)
+    public ResponseEntity<ApiErrorResponse> handleException(DiaryTodayExistingException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return new ResponseEntity<>(
+                new ApiErrorResponse(
+                        errorCode.getErrorCode(),
+                        errorCode.getMessage()),
+                HttpStatus.valueOf(errorCode.getStatus())
+        );
+    }
 }
 
 
