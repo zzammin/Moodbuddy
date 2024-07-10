@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
-import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
+import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmResDTO;
 import moodbuddy.moodbuddy.domain.user.service.FcmService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +28,7 @@ public class FcmController {
     @PostMapping("/send")
     @Operation(description = "FCM 알림 전송")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResCalendarMonthListDTO.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = FcmResDTO.class)))
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> pushAlarm(

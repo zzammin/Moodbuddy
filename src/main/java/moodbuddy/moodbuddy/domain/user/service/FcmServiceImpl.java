@@ -32,7 +32,7 @@ public class FcmServiceImpl implements FcmService{
             headers.set("Authorization","Bearer "+getAccessToken());
 
             HttpEntity<String> entity = new HttpEntity<>(message,headers);
-            String API_URL = "<https://fcm.googleapis.com/v1/projects/moodbuddy-d8bfa/messages:send>";
+            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy-d8bfa/messages:send";
             ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
 
             System.out.println(response.getStatusCode());
@@ -47,7 +47,6 @@ public class FcmServiceImpl implements FcmService{
             throw new RuntimeException(e);
         }
     }
-
 
     private String makeMessage(FcmReqDTO fcmReqDTO){
         log.info("[FcmService] makeMessage");
@@ -76,7 +75,7 @@ public class FcmServiceImpl implements FcmService{
             String firebaseConfigPath = "firebase.json";
             GoogleCredentials googleCredentials = GoogleCredentials
                     .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
-                    .createScoped(List.of("<https://www.googleapis.com/auth/cloud-platform>"));
+                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
             googleCredentials.refreshIfExpired();
             return googleCredentials.getAccessToken().getTokenValue();
