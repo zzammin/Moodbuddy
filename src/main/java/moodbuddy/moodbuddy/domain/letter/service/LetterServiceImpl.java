@@ -145,7 +145,7 @@ public class LetterServiceImpl implements LetterService {
 ////                letterAlarm(user.getUserId(), user.getFcmToken());
 //            }), 5, TimeUnit.SECONDS);
 
-            if(letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate())){
+            if(letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId())){
                 return 1;
             } else {
                 return 0;
@@ -160,7 +160,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public boolean letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate) {
+    public boolean letterAnswerSave(String worryContent, Integer format, Long letterId) {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
@@ -196,9 +196,10 @@ public class LetterServiceImpl implements LetterService {
                     if (message != null) {
                         String answer = message.getContent();
                         log.info("answer : "+answer);
-                        Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
+                        Optional<Letter> optionalLetter = letterRepository.findById(letterId);
+                        log.info("optionalLetter : "+optionalLetter);
                         if (optionalLetter.isPresent()) {
-                            letterRepository.updateAnswerByUserId(userId, answer);
+                            letterRepository.updateAnswerByLetterId(letterId, answer);
                             return true;
                         }
                     }

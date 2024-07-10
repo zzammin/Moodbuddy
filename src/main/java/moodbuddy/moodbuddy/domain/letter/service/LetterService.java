@@ -20,7 +20,7 @@ public interface LetterService {
 
     // 연동한 GPT API로 고민에 대한 답장을 받은 후 저장
 //    void letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate);
-    boolean letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate);
+    boolean letterAnswerSave(String worryContent, Integer format, Long letterId);
 
     // 알람 보내기
 //    void letterAlarm(Long userId, String fcmToken);
