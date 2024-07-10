@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import moodbuddy.moodbuddy.domain.profile.entity.Profile;
+import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
+import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
+import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
 import moodbuddy.moodbuddy.domain.user.dto.response.LoginResponseDto;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
@@ -29,16 +33,22 @@ import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 @Service
 @Slf4j
 public class KakaoServiceImpl implements KakaoService{
+    private final ProfileImageRepository profileImageRepository;
+    private final ProfileRepository profileRepository;
 
     private final KakaoProperties kakaoProperties;
     private final UserRepository userRepository;
 
     public KakaoServiceImpl
-            (final KakaoProperties kakaoProperties, final UserRepository userRepository)
+            (final KakaoProperties kakaoProperties, final UserRepository userRepository,
+             ProfileRepository profileRepository,
+             ProfileImageRepository profileImageRepository)
     {
         this.kakaoProperties = kakaoProperties;
         this.userRepository = userRepository;
 
+        this.profileRepository = profileRepository;
+        this.profileImageRepository = profileImageRepository;
     }
 
     @Override
@@ -133,34 +143,48 @@ public class KakaoServiceImpl implements KakaoService{
 
         log.info("kakao Access Token 받아오기 성공 " + kakaoAccessToken);
 
-        KakaoProfile profile = getUserInfo(kakaoAccessToken);
-        final Optional<User> byKakaoId = userRepository.findByKakaoId(profile.getId());
+        KakaoProfile kakaoProfile = getUserInfo(kakaoAccessToken);
+        final Optional<User> byKakaoId = userRepository.findByKakaoId(kakaoProfile.getId());
 
         //kakaoId가 존재한다면 login, 존재하지 않는다면 signup
         if (byKakaoId.isEmpty()) {
             final User save = userRepository.save(
                     User.builder()
                             .userRole("ROLE_USER")
-                            .nickname(profile.getProperties().getNickname())
-                            .kakaoId(profile.getId())
-                            .alarm(profile.getKakaoAccount().isTalkMessage())
+                            .nickname(kakaoProfile.getProperties().getNickname())
+                            .kakaoId(kakaoProfile.getId())
+                            .alarm(kakaoProfile.getKakaoAccount().isTalkMessage())
                             .userCurDiaryNums(0)
                             .deleted(false)
-                            .accessToken(JwtUtil.createJwt(profile.getId()))
+                            .accessToken(JwtUtil.createJwt(kakaoProfile.getId()))
                             .accessTokenExpiredAt(LocalDate.now().plusYears(1L))
-                            .refreshToken(JwtUtil.createRefreshToken(profile.getId()))
+                            .refreshToken(JwtUtil.createRefreshToken(kakaoProfile.getId()))
                             .refreshTokenExpiredAt(LocalDate.now().plusYears(1L))
                             .build()
             );
 
-            log.info("sign up is success" + profile.getProperties().getNickname());
+            profileRepository.save(
+                    Profile.builder()
+                            .kakaoId(kakaoProfile.getId())
+                            .build()
+            );
+
+            profileImageRepository.save(
+                    ProfileImage.builder()
+                            .kakaoId(kakaoProfile.getId())
+                            .profileImgURL(kakaoProfile.getProperties().getProfileImage())
+                            .build()
+            );
+
+
+            log.info("sign up is success" +kakaoProfile.getProperties().getNickname());
 
             return modelMapper.map(save, LoginResponseDto.class);
 
         }else{
             User loginUser = byKakaoId.get();
 
-            log.info("login is success" + profile.getProperties().getNickname());
+            log.info("login is success" + kakaoProfile.getProperties().getNickname());
 
             return  modelMapper.map(loginUser, LoginResponseDto.class);
         }

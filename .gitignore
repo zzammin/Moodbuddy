@@ -26,6 +26,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 src/main/resources/application.yml
+src/main/resources/firebase.json
 applicaiton.yml
 .github/workflows/gradle.yml
 src/test

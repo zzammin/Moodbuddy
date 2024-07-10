@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
-    @Query("select p from Profile p where p.user.kakaoId = :kakaoId")
+    @Query("select p from Profile p where p.kakaoId = :kakaoId")
     Optional<Profile> findByKakaoId(@Param("kakaoId") Long kakaoId);
 }

@@ -15,13 +15,10 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
     @Query("select l from Letter l where l.user.userId = :userId")
     List<Letter> findByUserId(@Param("userId") Long userId);
 
-    @Query("select l from Letter l where l.user.userId = :userId and l.letterDate = :letterDate")
-    Optional<Letter> findByUserIdAndDate(@Param("userId") Long userId, @Param("letterDate") LocalDateTime letterDate);
-
     @Modifying
     @Transactional
-    @Query("update Letter l set l.letterAnswerContent = :answer where l.user.userId = :userId")
-    void updateAnswerByUserId(@Param("userId")Long userId, @Param("answer")String answer);
+    @Query("update Letter l set l.letterAnswerContent = :answer where l.id = :letterId")
+    void updateAnswerByLetterId(@Param("letterId")Long letterId, @Param("answer")String answer);
 
     @Query("select l from Letter l where l.id = :letterId and l.user.userId = :userId")
     Optional<Letter> findByIdAndUserId(@Param("letterId") Long letterId, @Param("userId") Long userId);

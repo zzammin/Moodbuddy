@@ -17,7 +17,6 @@ public class DiaryMapper {
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
-                .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
                 .diaryStatus(DiaryStatus.PUBLISHED)
                 .diarySummary(summary)
                 .kakaoId(kakaoId)

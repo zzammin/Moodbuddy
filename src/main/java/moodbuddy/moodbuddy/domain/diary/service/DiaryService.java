@@ -46,8 +46,8 @@ public interface DiaryService {
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
-    // 편지지 개수 증가 (일기 작성 시 편지지 개수 증가)
-    void letterNumPlus(Long userEmail);
+    // 이번 달 일기 개수와 편지지 개수 증가
+    void numPlus(Long kakaoId);
 
     // 일기 한 줄 요약
     String summarize(String content);

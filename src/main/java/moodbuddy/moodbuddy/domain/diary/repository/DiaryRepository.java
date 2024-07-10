@@ -2,10 +2,12 @@ package moodbuddy.moodbuddy.domain.diary.repository;
 
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiarySummaryVo;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,5 +28,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     //사용자가 제일 최근에 쓴 일기 요약본 출력
     @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId ORDER BY diary_date DESC LIMIT 1", nativeQuery = true)
     Optional<Diary> findDiarySummaryById(@Param("kakaoId") Long kakaoId);
+
+    // 오늘 작성한 일기가 있는지 확인
+    Optional<Diary> findByDiaryDateAndKakaoId(LocalDateTime diaryDate, Long kakaoId);
+    Optional<Diary> findByDiaryDateAndKakaoIdAndDiaryStatus(LocalDateTime diaryDate, Long kakaoId, DiaryStatus diaryStatus);
 
 }

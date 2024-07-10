@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -18,8 +17,6 @@ public class QProfile extends EntityPathBase<Profile> {
 
     private static final long serialVersionUID = -2123186801L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QProfile profile = new QProfile("profile");
 
     public final moodbuddy.moodbuddy.global.common.base.QBaseEntity _super = new moodbuddy.moodbuddy.global.common.base.QBaseEntity(this);
@@ -29,6 +26,8 @@ public class QProfile extends EntityPathBase<Profile> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
+
     public final StringPath profileComment = createString("profileComment");
 
     public final StringPath profileNickName = createString("profileNickName");
@@ -36,27 +35,16 @@ public class QProfile extends EntityPathBase<Profile> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
 
-    public final moodbuddy.moodbuddy.domain.user.entity.QUser user;
-
     public QProfile(String variable) {
-        this(Profile.class, forVariable(variable), INITS);
+        super(Profile.class, forVariable(variable));
     }
 
     public QProfile(Path<? extends Profile> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QProfile(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QProfile(PathMetadata metadata, PathInits inits) {
-        this(Profile.class, metadata, inits);
-    }
-
-    public QProfile(Class<? extends Profile> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.user = inits.isInitialized("user") ? new moodbuddy.moodbuddy.domain.user.entity.QUser(forProperty("user")) : null;
+        super(Profile.class, metadata);
     }
 
 }

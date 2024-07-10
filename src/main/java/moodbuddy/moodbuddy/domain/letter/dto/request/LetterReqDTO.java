@@ -17,6 +17,4 @@ public class LetterReqDTO {
     private String letterWorryContent;
     @Schema(description = "사용자가 고민 편지를 작성한 날짜")
     private LocalDateTime letterDate;
-    @Schema(description = "FCM에 필요한 클라이언트의 FCM Token")
-    private String fcmToken;
 }
