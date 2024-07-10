@@ -175,6 +175,7 @@ public class UserServiceImpl implements UserService{
 
             // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
             return summaryDiary.map(diary -> UserResCalendarSummaryDTO.builder()
+                            .diaryId(diary.getId())
                             .diaryTitle(diary.getDiaryTitle())
                             .diarySummary(diary.getDiarySummary())
                             .build())

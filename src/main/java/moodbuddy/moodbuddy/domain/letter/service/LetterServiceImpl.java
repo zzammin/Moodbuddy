@@ -110,7 +110,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public int letterSave(LetterReqDTO letterReqDTO) {
+    public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
@@ -145,13 +145,14 @@ public class LetterServiceImpl implements LetterService {
 ////                letterAlarm(user.getUserId(), user.getFcmToken());
 //            }), 5, TimeUnit.SECONDS);
 
-            if(letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId())){
-                return 1;
-            } else {
-                return 0;
-            }
+            letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 
 
+            return LetterResSaveDTO.builder()
+                    .letterId(letter.getId())
+                    .userNickname(user.getNickname())
+                    .letterDate(letter.getLetterDate())
+                    .build();
         } catch (Exception e) {
             log.error("[LetterService] save error", e);
             throw new RuntimeException("[LetterService] save error", e);
@@ -160,7 +161,7 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional
-    public boolean letterAnswerSave(String worryContent, Integer format, Long letterId) {
+    public void letterAnswerSave(String worryContent, Integer format, Long letterId) {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
@@ -200,7 +201,6 @@ public class LetterServiceImpl implements LetterService {
                         log.info("optionalLetter : "+optionalLetter);
                         if (optionalLetter.isPresent()) {
                             letterRepository.updateAnswerByLetterId(letterId, answer);
-                            return true;
                         }
                     }
                 }
@@ -210,106 +210,7 @@ public class LetterServiceImpl implements LetterService {
         } catch (Exception e) {
             log.error("[LetterService] answerSave error", e);
         }
-        return false;
     }
-
-
-//    @Override
-//    @Transactional
-//    public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
-//        log.info("[LetterService] save");
-//        try {
-//            Long kakaoId = JwtUtil.getUserId();
-//            User user = userRepository.findByKakaoId(kakaoId)
-//                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-//
-//            // 편지지가 없을 경우 예외 처리
-//            if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
-//                throw new IllegalArgumentException("편지지가 없습니다.");
-//            }
-//
-//            // 편지지 개수 업데이트
-//            userRepository.updateLetterNumsByKakaoId(kakaoId, user.getUserLetterNums() - 1);
-//
-//
-//            Letter letter = Letter.builder()
-//                    .user(user)
-//                    .letterFormat(letterReqDTO.getLetterFormat())
-//                    .letterWorryContent(letterReqDTO.getLetterWorryContent())
-//                    .letterDate(letterReqDTO.getLetterDate())
-//                    .build();
-//            letterRepository.save(letter);
-//
-//            // 1. user에 fcm 컬럼 추가하기
-//            // save 메소드에서)
-//            // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
-//            // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
-////            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
-//
-//            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
-////            scheduler.schedule(new ContextAwareRunnable(() -> {
-//////                letterAlarm(user.getUserId(), user.getFcmToken());
-////            }), 5, TimeUnit.SECONDS);
-//
-//            letterAnswerSave(user.getUserId(), letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letterReqDTO.getLetterDate());
-//
-//
-//            return LetterResSaveDTO.builder()
-//                    .letterId(letter.getId())
-//                    .userNickname(user.getNickname())
-//                    .letterDate(letter.getLetterDate())
-//                    .build();
-//
-//        } catch (Exception e) {
-//            log.error("[LetterService] save error", e);
-//            throw new RuntimeException("[LetterService] save error", e);
-//        }
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void letterAnswerSave(Long userId, String worryContent, Integer format, LocalDateTime letterDate) {
-//        log.info("[LetterService] answerSave");
-//        try {
-//            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
-//            GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
-//
-//            GPTResponseDTO response = gptWebClient.post()
-//                    .uri(apiUrl)
-//                    .bodyValue(gptrequestDTO)
-//                    .exchangeToMono(clientResponse -> {
-//                        if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
-//                            return clientResponse.bodyToMono(String.class)
-//                                    .flatMap(errorBody -> {
-//                                        log.error("API 요청 실패 - 상태 코드: " + clientResponse.statusCode());
-//                                        log.error("오류 본문: " + errorBody);
-//                                        return Mono.error(new RuntimeException("API 요청 실패 - 상태 코드: " + clientResponse.statusCode() + ", 오류 본문: " + errorBody));
-//                                    });
-//                        } else {
-//                            return clientResponse.bodyToMono(GPTResponseDTO.class);
-//                        }
-//                    })
-//                    .block();
-//
-//            if (response != null && response.getChoices() != null) {
-//                for (GPTResponseDTO.Choice choice : response.getChoices()) {
-//                    GPTMessageDTO message = choice.getMessage();
-//                    if (message != null) {
-//                        String answer = message.getContent();
-//                        Optional<Letter> optionalLetter = letterRepository.findByUserIdAndDate(userId, letterDate);
-//                        if (optionalLetter.isPresent()) {
-//                            letterRepository.updateAnswerByUserId(userId, answer);
-//                        }
-//                    }
-//                }
-//            } else {
-//                log.error("GPT 응답 오류");
-//            }
-//        } catch (Exception e) {
-//            log.error("[LetterService] answerSave error", e);
-//        }
-//    }
-
 
 //    @Override
 //    public void letterAlarm(Long userId, String fcmToken) {

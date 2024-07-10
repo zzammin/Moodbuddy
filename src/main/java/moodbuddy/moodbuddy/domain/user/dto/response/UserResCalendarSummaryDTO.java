@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResCalendarSummaryDTO {
+    @Schema(description = "그 날의 일기 diaryId")
+    private Long diaryId;
     @Schema(description = "그 날의 일기 제목")
     private String diaryTitle;
     @Schema(description = "그 날의 일기 요약 내용")
