@@ -25,8 +25,8 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_date", nullable = false, columnDefinition = "datetime")
     private LocalDateTime diaryDate;
 
-    @Lob
-    @Column(name = "diary_content", nullable = false, columnDefinition = "TEXT")
+//    @Lob
+    @Column(name = "diary_content", nullable = false, columnDefinition = "text")
     private String diaryContent;
 
     @Enumerated(EnumType.STRING)
@@ -41,7 +41,7 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_status", nullable = false, columnDefinition = "varchar(255)")
     private DiaryStatus diaryStatus;
 
-    @Column(name = "diary_summary", columnDefinition = "mediumtext")
+    @Column(name = "diary_summary", columnDefinition = "varchar(255)")
     private String diarySummary;
 
     @Column(name = "kakao_id", columnDefinition = "bigint")

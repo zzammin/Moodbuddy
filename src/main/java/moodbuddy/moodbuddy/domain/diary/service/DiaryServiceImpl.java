@@ -94,23 +94,6 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public void numPlus(Long kakaoId) {
-        log.info("[DiaryServiceImpl] numPlus");
-        try{
-            User user = userRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-            int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
-            int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
-            userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
-            userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
-        } catch (Exception e){
-            log.error("[DiaryServiceImpl] numPlus error" + e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    @Transactional
     public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
         Long kakaoId = JwtUtil.getUserId();
@@ -247,12 +230,6 @@ public class DiaryServiceImpl implements DiaryService {
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, kakaoId, pageable);
     }
 
-    public Diary findDiaryById(Long diaryId) {
-        return diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new DiaryNotFoundException(NOT_FOUND_DIARY));
-    }
-
-    /** 추가 메서드 **/
 //    private void saveDocument(Diary diary) {
 //        DiaryDocument diaryDocument = convertToDocument(diary);
 //        diaryElasticsearchRepository.save(diaryDocument);
@@ -270,6 +247,12 @@ public class DiaryServiceImpl implements DiaryService {
 //                .userId(diary.getUserId())
 //                .build();
 //    }
+
+    /** 추가 메서드 **/
+    public Diary findDiaryById(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryNotFoundException(NOT_FOUND_DIARY));
+    }
 
     /** =========================================================  재민  ========================================================= **/
 
@@ -324,6 +307,23 @@ public class DiaryServiceImpl implements DiaryService {
         } catch (Exception e) {
             log.error("[DiaryService] getRequestBody error", e);
             throw new RuntimeException("[DiaryService] getRequestBody error", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void numPlus(Long kakaoId) {
+        log.info("[DiaryServiceImpl] numPlus");
+        try{
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
+            int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
+            userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
+            userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
+        } catch (Exception e){
+            log.error("[DiaryServiceImpl] numPlus error" + e);
+            throw new RuntimeException(e);
         }
     }
 
