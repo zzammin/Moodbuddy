@@ -9,10 +9,12 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
+import moodbuddy.moodbuddy.domain.gpt.service.GptServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
@@ -49,16 +51,19 @@ public class DiaryServiceImpl implements DiaryService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
+    private final GptServiceImpl gptService;
     private final WebClient naverWebClient;
     private final ObjectMapper objectMapper;
 
     public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
+                           GptServiceImpl gptService,
                            @Qualifier("naverWebClient") WebClient naverWebClient,
                             ObjectMapper objectMapper){
         this.userRepository = userRepository;
         this.diaryRepository = diaryRepository;
         this.diaryImageService = diaryImageService;
+        this.gptService = gptService;
         this.naverWebClient = naverWebClient;
         this.objectMapper = objectMapper;
     }
@@ -77,8 +82,16 @@ public class DiaryServiceImpl implements DiaryService {
             throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
         }
 
+        /** 일기 요약 로직 **/
         String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary);
+
+        /** 일기 주제 판별 로직 **/
+        Mono<String> subjectMono = gptService.classifyDiaryContent(diaryReqSaveDTO.getDiaryContent());
+        String classifiedSubject = subjectMono.block();
+        DiarySubject diarySubject = DiarySubject.valueOf(classifiedSubject);
+
+
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary, diarySubject);
 
         diary = diaryRepository.save(diary);
 
@@ -105,8 +118,16 @@ public class DiaryServiceImpl implements DiaryService {
 
         Diary findDiary = findDiaryById(diaryReqUpdateDTO.getDiaryId());
 
-        String summary = summarize(findDiary.getDiaryContent()); // 일기 내용 요약 결과
-        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary);
+        /** 일기 요약 로직 **/
+        String summary = summarize(diaryReqUpdateDTO.getDiaryContent()); // 일기 내용 요약 결과
+
+        /** 일기 주제 판별 로직 **/
+        Mono<String> subjectMono = gptService.classifyDiaryContent(diaryReqUpdateDTO.getDiaryContent());
+        String classifiedSubject = subjectMono.block();
+        DiarySubject diarySubject = DiarySubject.valueOf(classifiedSubject);
+
+        /** 일기 수정 로직 **/
+        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary, diarySubject);
 
         if (diaryReqUpdateDTO.getImagesToDelete() != null) {
             diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
@@ -331,7 +352,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryDesResponseDto description() throws JsonProcessingException {
+    public DiaryResResponseDto description() throws JsonProcessingException {
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -362,7 +383,7 @@ public class DiaryServiceImpl implements DiaryService {
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-        DiaryDesResponseDto responseDto = objectMapper.readValue(response, DiaryDesResponseDto.class);
+        DiaryResResponseDto responseDto = objectMapper.readValue(response, DiaryResResponseDto.class);
 
         String emotion = responseDto.getEmotion();
 
