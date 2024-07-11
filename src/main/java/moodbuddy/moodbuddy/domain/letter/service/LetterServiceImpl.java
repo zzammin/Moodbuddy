@@ -165,12 +165,8 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] answerSave");
         try {
             String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
-            log.info("prompt : " + prompt);
             GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
-            log.info("gptrequestDTO : " + gptrequestDTO);
 
-            log.info("apiUrl : " + apiUrl);
-            log.info("model : " + model);
             GPTResponseDTO response = gptWebClient.post()
                     .uri(apiUrl)
                     .bodyValue(gptrequestDTO)
@@ -188,17 +184,12 @@ public class LetterServiceImpl implements LetterService {
                     })
                     .block();
 
-            log.info("response : " + response);
             if (response != null && response.getChoices() != null) {
-                log.info("response.getChoices() : "+response.getChoices());
                 for (GPTResponseDTO.Choice choice : response.getChoices()) {
                     GPTMessageDTO message = choice.getMessage();
-                    log.info("message : "+message);
                     if (message != null) {
                         String answer = message.getContent();
-                        log.info("answer : "+answer);
                         Optional<Letter> optionalLetter = letterRepository.findById(letterId);
-                        log.info("optionalLetter : "+optionalLetter);
                         if (optionalLetter.isPresent()) {
                             letterRepository.updateAnswerByLetterId(letterId, answer);
                         }
