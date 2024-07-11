@@ -5,21 +5,22 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import org.modelmapper.ModelMapper;
 
 public class DiaryMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, String summary) {
+    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, String summary, DiarySubject diarySubject) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
                 .diaryDate(diaryReqSaveDTO.getDiaryDate())
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
-                .diaryEmotion(DiaryEmotion.HAPPY) // 감정 분석 로직 필요
                 .diaryStatus(DiaryStatus.PUBLISHED)
                 .diarySummary(summary)
+                .diarySubject(diarySubject)
                 .kakaoId(kakaoId)
                 .build();
     }

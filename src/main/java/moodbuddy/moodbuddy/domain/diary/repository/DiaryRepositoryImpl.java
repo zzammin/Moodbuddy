@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -14,6 +15,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,11 +30,13 @@ import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
 import static moodbuddy.moodbuddy.domain.diaryImage.entity.QDiaryImage.diaryImage;
 import static org.hibernate.query.results.Builders.fetch;
 
-public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
+public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     private final JPAQueryFactory queryFactory;
+
     public DiaryRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
+
     @Override
     public DiaryResDraftFindAllDTO draftFindAllByKakaoId(Long kakaoId) {
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
@@ -64,7 +68,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryWeather,
                         diary.diaryEmotion,
                         diary.diaryStatus,
-                        diary.diarySummary
+                        diary.diarySummary,
+                        diary.diarySubject
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -110,6 +115,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
                     .diarySummary(d.getDiarySummary())
+                    .diarySubject(d.getDiarySubject())
                     .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
                     .build();
@@ -150,6 +156,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         d.getDiaryEmotion(),
                         d.getDiaryStatus(),
                         d.getDiarySummary(),
+                        d.getDiarySubject(),
                         diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());
@@ -166,32 +173,39 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
-        if (filterDTO.getYear() != null && filterDTO.getMonth() != null) {
-            startDate = LocalDateTime.of(filterDTO.getYear(), filterDTO.getMonth(), 1, 0, 0);
-            endDate = startDate.plusMonths(1).minusSeconds(1);
-        } else if (filterDTO.getYear() != null) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(diary.kakaoId.eq(kakaoId));
+
+        if (filterDTO.getYear() != null) {
             startDate = LocalDateTime.of(filterDTO.getYear(), 1, 1, 0, 0);
             endDate = startDate.plusYears(1).minusSeconds(1);
+            builder.and(betweenDates(startDate, endDate));
+        }
+
+        if (filterDTO.getMonth() != null) {
+            builder.and(monthMatches(filterDTO.getMonth()));
+        }
+
+        if (filterDTO.getKeyWord() != null && !filterDTO.getKeyWord().isEmpty()) {
+            builder.and(containsKeyword(filterDTO.getKeyWord()));
+        }
+
+        if (filterDTO.getDiaryEmotion() != null) {
+            builder.and(diaryEmotionEq(filterDTO.getDiaryEmotion()));
+        }
+
+        if (filterDTO.getDiarySubject() != null) {
+            builder.and(diarySubjectEq(filterDTO.getDiarySubject()));
         }
 
         List<Diary> results = queryFactory.selectFrom(diary)
-                .where(
-                        diary.kakaoId.eq(kakaoId),
-                        containsKeyword(filterDTO.getKeyWord()),
-                        betweenDates(startDate, endDate),
-                        diaryEmotionEq(filterDTO.getDiaryEmotion())
-                )
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         long total = queryFactory.selectFrom(diary)
-                .where(
-                        diary.kakaoId.eq(kakaoId),
-                        containsKeyword(filterDTO.getKeyWord()),
-                        betweenDates(startDate, endDate),
-                        diaryEmotionEq(filterDTO.getDiaryEmotion())
-                )
+                .where(builder)
                 .fetchCount();
 
         List<Long> diaryIds = results.stream().map(Diary::getId).collect(Collectors.toList());
@@ -217,6 +231,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         .diaryEmotion(d.getDiaryEmotion())
                         .diaryStatus(d.getDiaryStatus())
                         .diarySummary(d.getDiarySummary())
+                        .diarySubject(d.getDiarySubject())
                         .diaryImgList(diaryImagesMap.getOrDefault(d.getId(), List.of()))
                         .build())
                 .collect(Collectors.toList());
@@ -245,8 +260,19 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         }
     }
 
+    private BooleanExpression monthMatches(Integer month) {
+        if (month == null) {
+            return null;
+        }
+        // 날짜의 월을 비교하는 조건 추가
+        return diary.diaryDate.month().eq(month);
+    }
+
     private BooleanExpression diaryEmotionEq(DiaryEmotion emotion) {
         return emotion != null ? diary.diaryEmotion.eq(emotion) : null;
     }
 
+    private BooleanExpression diarySubjectEq(DiarySubject subject) {
+        return subject != null ? diary.diarySubject.eq(subject) : null;
+    }
 }

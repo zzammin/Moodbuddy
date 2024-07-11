@@ -60,5 +60,5 @@ public interface DiaryService {
      **/
 
     //일기 감정 분석
-    DiaryDesResponseDto description() throws JsonProcessingException;
+    DiaryResResponseDto description() throws JsonProcessingException;
 }

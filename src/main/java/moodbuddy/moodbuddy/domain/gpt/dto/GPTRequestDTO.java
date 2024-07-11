@@ -1,10 +1,9 @@
-package moodbuddy.moodbuddy.domain.letter.dto.gpt;
+package moodbuddy.moodbuddy.domain.gpt.dto;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
 
 import java.util.ArrayList;
 import java.util.List;

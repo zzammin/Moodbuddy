@@ -26,12 +26,12 @@ public class QProfileImage extends EntityPathBase<ProfileImage> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
+
     public final StringPath profileImgURL = createString("profileImgURL");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
-
-    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QProfileImage(String variable) {
         super(ProfileImage.class, forVariable(variable));

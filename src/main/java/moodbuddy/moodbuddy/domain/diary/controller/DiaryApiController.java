@@ -12,9 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
-import moodbuddy.moodbuddy.global.common.response.ApiPageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,8 +34,8 @@ public class DiaryApiController {
     //클라이언트가 일기 작성 -> 일기 요약본 flask서버로 전달 -> flask 서버에서는 모델을 통한 감정 분석 후 결과를 리턴
     @PostMapping("/description")
     @Operation(description = "일기 감정 분석")
-    public ResponseEntity<DiaryDesResponseDto> description() throws JsonProcessingException {
-        DiaryDesResponseDto result = diaryService.description();
+    public ResponseEntity<DiaryResResponseDto> description() throws JsonProcessingException {
+        DiaryResResponseDto result = diaryService.description();
         return ResponseEntity.ok(result);
     }
 
@@ -164,10 +164,27 @@ public class DiaryApiController {
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> findAllByFilter(@Parameter(description = "필터링 데이터를 담고 있는 DTO")
-                                                 @RequestBody DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+                                                 @RequestParam(value = "keyWord", required = false) String keyWord,
+                                                 @RequestParam(value = "year", required = false) Integer year,
+                                                 @RequestParam(value = "month", required = false) Integer month,
+                                                 @RequestParam(value = "diaryEmotion", required = false) DiaryEmotion diaryEmotion,
+                                                 @RequestParam(value = "diarySubject", required = false) DiarySubject diarySubject, Pageable pageable) {
         log.info("[DiaryApiController] findAllByFilter");
+        DiaryReqFilterDTO diaryReqFilterDTO = getDiaryReqFilterDTO(keyWord, year, month, diaryEmotion, diarySubject);
+
         Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
+    }
+
+    private static DiaryReqFilterDTO getDiaryReqFilterDTO(String keyWord, Integer year, Integer month, DiaryEmotion diaryEmotion, DiarySubject diarySubject) {
+        DiaryReqFilterDTO diaryReqFilterDTO = DiaryReqFilterDTO.builder()
+                .keyWord(keyWord)
+                .year(year)
+                .month(month)
+                .diaryEmotion(diaryEmotion)
+                .diarySubject(diarySubject)
+                .build();
+        return diaryReqFilterDTO;
     }
     /** 키워드 검색 기능 구현 **/
 }

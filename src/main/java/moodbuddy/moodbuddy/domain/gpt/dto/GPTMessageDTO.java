@@ -1,4 +1,4 @@
-package moodbuddy.moodbuddy.domain.letter.dto.gpt;
+package moodbuddy.moodbuddy.domain.gpt.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

@@ -1,13 +1,9 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
 import lombok.extern.slf4j.Slf4j;
-import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTMessageDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTRequestDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.gpt.GPTResponseDTO;
+import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
+import moodbuddy.moodbuddy.domain.gpt.dto.GPTRequestDTO;
+import moodbuddy.moodbuddy.domain.gpt.dto.GPTResponseDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResDetailsDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageAnswerDTO;
@@ -28,17 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
