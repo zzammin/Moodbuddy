@@ -7,6 +7,6 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class DiaryDesResponseDto {
+public class DiaryResResponseDto {
     private String emotion;
 }

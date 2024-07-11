@@ -51,13 +51,14 @@ public class Diary extends BaseEntity {
     @Column(name = "kakao_id", columnDefinition = "bigint")
     private Long kakaoId;
 
-    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary) {
+    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary, DiarySubject diarySubject) {
         this.diaryTitle = title;
         this.diaryDate = date;
         this.diaryContent = content;
         this.diaryWeather = weather;
         this.diarySummary = diarySummary;
         this.diaryStatus = DiaryStatus.PUBLISHED;
+        this.diarySubject = diarySubject;
     }
 
     public void setDiaryEmotion(DiaryEmotion diaryEmotion) {

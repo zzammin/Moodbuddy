@@ -15,6 +15,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,11 +30,13 @@ import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
 import static moodbuddy.moodbuddy.domain.diaryImage.entity.QDiaryImage.diaryImage;
 import static org.hibernate.query.results.Builders.fetch;
 
-public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
+public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     private final JPAQueryFactory queryFactory;
+
     public DiaryRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
+
     @Override
     public DiaryResDraftFindAllDTO draftFindAllByKakaoId(Long kakaoId) {
         List<DiaryResDraftFindOneDTO> draftList = queryFactory
@@ -65,7 +68,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         diary.diaryWeather,
                         diary.diaryEmotion,
                         diary.diaryStatus,
-                        diary.diarySummary
+                        diary.diarySummary,
+                        diary.diarySubject
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -111,6 +115,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                     .diaryEmotion(d.getDiaryEmotion())
                     .diaryStatus(d.getDiaryStatus())
                     .diarySummary(d.getDiarySummary())
+                    .diarySubject(d.getDiarySubject())
                     .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
                     .build();
@@ -151,6 +156,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         d.getDiaryEmotion(),
                         d.getDiaryStatus(),
                         d.getDiarySummary(),
+                        d.getDiarySubject(),
                         diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());
@@ -188,6 +194,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
             builder.and(diaryEmotionEq(filterDTO.getDiaryEmotion()));
         }
 
+        if (filterDTO.getDiarySubject() != null) {
+            builder.and(diarySubjectEq(filterDTO.getDiarySubject()));
+        }
 
         List<Diary> results = queryFactory.selectFrom(diary)
                 .where(builder)
@@ -222,6 +231,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
                         .diaryEmotion(d.getDiaryEmotion())
                         .diaryStatus(d.getDiaryStatus())
                         .diarySummary(d.getDiarySummary())
+                        .diarySubject(d.getDiarySubject())
                         .diaryImgList(diaryImagesMap.getOrDefault(d.getId(), List.of()))
                         .build())
                 .collect(Collectors.toList());
@@ -260,5 +270,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
 
     private BooleanExpression diaryEmotionEq(DiaryEmotion emotion) {
         return emotion != null ? diary.diaryEmotion.eq(emotion) : null;
+    }
+
+    private BooleanExpression diarySubjectEq(DiarySubject subject) {
+        return subject != null ? diary.diarySubject.eq(subject) : null;
     }
 }
