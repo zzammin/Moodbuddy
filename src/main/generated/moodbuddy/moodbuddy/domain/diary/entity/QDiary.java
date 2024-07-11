@@ -32,6 +32,8 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final EnumPath<DiaryStatus> diaryStatus = createEnum("diaryStatus", DiaryStatus.class);
 
+    public final EnumPath<DiarySubject> diarySubject = createEnum("diarySubject", DiarySubject.class);
+
     public final StringPath diarySummary = createString("diarySummary");
 
     public final StringPath diaryTitle = createString("diaryTitle");

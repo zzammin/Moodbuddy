@@ -30,16 +30,20 @@ public class Diary extends BaseEntity {
     private String diaryContent;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_weather", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "diary_weather", nullable = false, columnDefinition = "varchar(10)")
     private DiaryWeather diaryWeather;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_emotion", columnDefinition = "varchar(255)")
+    @Column(name = "diary_emotion", columnDefinition = "varchar(10)")
     private DiaryEmotion diaryEmotion;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "diary_status", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "diary_status", nullable = false, columnDefinition = "varchar(10)")
     private DiaryStatus diaryStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diary_subject", columnDefinition = "varchar(10)")
+    private DiarySubject diarySubject;
 
     @Column(name = "diary_summary", columnDefinition = "varchar(255)")
     private String diarySummary;
