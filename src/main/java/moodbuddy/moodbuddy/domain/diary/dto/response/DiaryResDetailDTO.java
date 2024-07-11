@@ -20,7 +20,7 @@ import java.util.List;
 public class DiaryResDetailDTO {
     @Schema(description = "일기 고유 식별자(diaryId)", example = "1")
     private Long diaryId;
-    @Schema(description = "사용자 고유 식별자(kakaoId)", example = "2")
+    @Schema(description = "사용자 고유 식별자(kakaoId)", example = "1")
     private Long kakaoId;
     @Schema(description = "일기 제목", example = "쿼카의 하루")
     private String diaryTitle;
