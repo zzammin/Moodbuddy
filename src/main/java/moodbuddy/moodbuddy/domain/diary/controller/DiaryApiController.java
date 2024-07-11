@@ -164,10 +164,26 @@ public class DiaryApiController {
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> findAllByFilter(@Parameter(description = "필터링 데이터를 담고 있는 DTO")
-                                                 @RequestBody DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
+                                                 @RequestParam(value = "keyWord", required = false) String keyWord,
+                                                 @RequestParam(value = "year", required = false) Integer year,
+                                                 @RequestParam(value = "month", required = false) Integer month,
+                                                 @RequestParam(value = "diaryEmotion", required = false) DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryApiController] findAllByFilter");
+        log.info("[DiaryApiController] findAllByFilter: keyWord={}, year={}, month={}, diaryEmotion={}", keyWord, year, month, diaryEmotion);
+        DiaryReqFilterDTO diaryReqFilterDTO = getDiaryReqFilterDTO(keyWord, year, month, diaryEmotion);
+
         Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
+    }
+
+    private static DiaryReqFilterDTO getDiaryReqFilterDTO(String keyWord, Integer year, Integer month, DiaryEmotion diaryEmotion) {
+        DiaryReqFilterDTO diaryReqFilterDTO = DiaryReqFilterDTO.builder()
+                .keyWord(keyWord)
+                .year(year)
+                .month(month)
+                .diaryEmotion(diaryEmotion)
+                .build();
+        return diaryReqFilterDTO;
     }
     /** 키워드 검색 기능 구현 **/
 }

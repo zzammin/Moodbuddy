@@ -1,5 +1,6 @@
 package moodbuddy.moodbuddy.domain.diary.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -166,32 +167,36 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
-        if (filterDTO.getYear() != null && filterDTO.getMonth() != null) {
-            startDate = LocalDateTime.of(filterDTO.getYear(), filterDTO.getMonth(), 1, 0, 0);
-            endDate = startDate.plusMonths(1).minusSeconds(1);
-        } else if (filterDTO.getYear() != null) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(diary.kakaoId.eq(kakaoId));
+
+        if (filterDTO.getYear() != null) {
             startDate = LocalDateTime.of(filterDTO.getYear(), 1, 1, 0, 0);
             endDate = startDate.plusYears(1).minusSeconds(1);
+            builder.and(betweenDates(startDate, endDate));
         }
 
+        if (filterDTO.getMonth() != null) {
+            builder.and(monthMatches(filterDTO.getMonth()));
+        }
+
+        if (filterDTO.getKeyWord() != null && !filterDTO.getKeyWord().isEmpty()) {
+            builder.and(containsKeyword(filterDTO.getKeyWord()));
+        }
+
+        if (filterDTO.getDiaryEmotion() != null) {
+            builder.and(diaryEmotionEq(filterDTO.getDiaryEmotion()));
+        }
+
+
         List<Diary> results = queryFactory.selectFrom(diary)
-                .where(
-                        diary.kakaoId.eq(kakaoId),
-                        containsKeyword(filterDTO.getKeyWord()),
-                        betweenDates(startDate, endDate),
-                        diaryEmotionEq(filterDTO.getDiaryEmotion())
-                )
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         long total = queryFactory.selectFrom(diary)
-                .where(
-                        diary.kakaoId.eq(kakaoId),
-                        containsKeyword(filterDTO.getKeyWord()),
-                        betweenDates(startDate, endDate),
-                        diaryEmotionEq(filterDTO.getDiaryEmotion())
-                )
+                .where(builder)
                 .fetchCount();
 
         List<Long> diaryIds = results.stream().map(Diary::getId).collect(Collectors.toList());
@@ -245,8 +250,15 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom{
         }
     }
 
+    private BooleanExpression monthMatches(Integer month) {
+        if (month == null) {
+            return null;
+        }
+        // 날짜의 월을 비교하는 조건 추가
+        return diary.diaryDate.month().eq(month);
+    }
+
     private BooleanExpression diaryEmotionEq(DiaryEmotion emotion) {
         return emotion != null ? diary.diaryEmotion.eq(emotion) : null;
     }
-
 }
