@@ -90,6 +90,8 @@ public class DiaryServiceImpl implements DiaryService {
         String classifiedSubject = subjectMono.block();
         DiarySubject diarySubject = DiarySubject.valueOf(classifiedSubject);
 
+        log.info("일기 주제 : {}", classifiedSubject);
+
 
         Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary, diarySubject);
 
