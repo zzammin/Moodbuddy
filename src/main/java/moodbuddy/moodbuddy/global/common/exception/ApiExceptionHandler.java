@@ -4,6 +4,7 @@ import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyE
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNoAccessException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNotFoundException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
+import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,11 +16,19 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleException(DatabaseNullOrEmptyException ex){
         return new ResponseEntity<>(
                 new ApiErrorResponse(
-                        "JED-001",
+                        "MOD-001",
                         ex.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
+
+    @ExceptionHandler(MemberIdNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleException(MemberIdNotFoundException ex) {
+        ApiErrorResponse response = new ApiErrorResponse("MOD-002", "Member id not found: " + ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DiaryTodayExistingException.class)
     public ResponseEntity<ApiErrorResponse> handleException(DiaryTodayExistingException ex) {
         ErrorCode errorCode = ex.getErrorCode();

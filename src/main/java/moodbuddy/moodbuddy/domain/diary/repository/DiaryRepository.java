@@ -33,4 +33,13 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     Optional<Diary> findByDiaryDateAndKakaoId(LocalDateTime diaryDate, Long kakaoId);
     Optional<Diary> findByDiaryDateAndKakaoIdAndDiaryStatus(LocalDateTime diaryDate, Long kakaoId, DiaryStatus diaryStatus);
 
+    @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND YEAR(d.diaryDate) = :year AND MONTH(d.diaryDate) = :month")
+    List<Diary> findDiaryEmotionByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("month") int month);
+
+    @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND YEAR(d.diaryDate) = :year")
+    List<Diary> findAllByYear(@Param("kakaoId") Long kakaoId, @Param("year") int year);
+
+    @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId")
+    List<Diary> findDiaryEmotionAllByKakaoId(@Param("kakaoId") Long kakaoId);
+
 }

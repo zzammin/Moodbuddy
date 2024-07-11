@@ -377,7 +377,7 @@ public class DiaryServiceImpl implements DiaryService {
         HttpEntity<String> entity = new HttpEntity<String>(param , headers);
 
         //실제 Flask 서버랑 연결하기 위한 URL
-        String url = "http://127.0.0.1:8099/model";
+        String url = "http://prolog.shop/model";
 
         // Flask 서버로 데이터를 전송하고 받은 응답 값을 처리
         String response = restTemplate.postForObject(url, entity, String.class);
