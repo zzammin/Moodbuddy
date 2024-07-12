@@ -14,6 +14,7 @@ import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
+import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.gpt.service.GptServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
@@ -51,13 +52,13 @@ public class DiaryServiceImpl implements DiaryService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
-    private final GptServiceImpl gptService;
+    private final GptService gptService;
     private final WebClient naverWebClient;
     private final ObjectMapper objectMapper;
 
     public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
-                           GptServiceImpl gptService,
+                           GptService gptService,
                            @Qualifier("naverWebClient") WebClient naverWebClient,
                             ObjectMapper objectMapper){
         this.userRepository = userRepository;

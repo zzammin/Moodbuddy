@@ -38,4 +38,17 @@ public class GptServiceImpl implements GptService{
                 .bodyToMono(GPTResponseDTO.class)
                 .map(response -> response.getChoices().get(0).getMessage().getContent().trim().toUpperCase());
     }
+
+    @Override
+    public Mono<GPTResponseDTO> letterAnswerSave(String worryContent, Integer format){
+        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
+
+        GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
+
+        return gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptRequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class);
+    }
 }

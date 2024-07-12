@@ -11,6 +11,7 @@ import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public UserResMainPageDTO mainPage(){
+    public UserResMainPageDTO mainPage(UserReqMainPageDTO mainPageDTO){
         log.info("[UserService] mainPage");
         try {
             // kakaoId를 통해 userRepository에서 유저 조회 (Optional 사용)
@@ -52,6 +53,9 @@ public class UserServiceImpl implements UserService{
             Optional<Profile> optionalProfile = profileRepository.findByKakaoId(kakaoId);
 
             if (optionalUser.isPresent() && optionalProfile.isPresent()) {
+                // 유저의 FCM Token 저장
+                userRepository.updateFcmTokenByKakaoId(kakaoId, mainPageDTO.getFcmToken());
+
                 // profile_id를 통해 profileImageRepository에서 유저 프로필 이미지 조회 (Optional 사용)
                 Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByKakaoId(kakaoId);
                 String profileImgURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");

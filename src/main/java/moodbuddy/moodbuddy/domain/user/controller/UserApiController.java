@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
@@ -25,16 +26,17 @@ public class UserApiController {
 
     private final UserService userService;
 
-
-
     @GetMapping("/main")
     @Operation(summary = "메인 화면", description = "메인 화면으로 이동합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResMainPageDTO.class)))
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> mainPage(){
-        return ResponseEntity.ok(userService.mainPage());
+    public ResponseEntity<?> mainPage(
+            @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
+            @RequestBody UserReqMainPageDTO mainPageDTO
+    ){
+        return ResponseEntity.ok(userService.mainPage(mainPageDTO));
     }
 
     @PostMapping("/main/month")

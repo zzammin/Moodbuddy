@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class FcmServiceImpl implements FcmService{
     @Override
-    public FcmResDTO sendMessage(FcmReqDTO fcmReqDTO){
+    public FcmResDTO sendMessageTo(FcmReqDTO fcmReqDTO){
         log.info("[FcmService] sendMessage");
         try{
             String message = makeMessage(fcmReqDTO);

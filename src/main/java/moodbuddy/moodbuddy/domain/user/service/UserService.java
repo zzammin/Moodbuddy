@@ -4,6 +4,7 @@ import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 public interface UserService {
     // 메인 화면 이동
-    UserResMainPageDTO mainPage();
+    UserResMainPageDTO mainPage(UserReqMainPageDTO mainPageDTO);
 
     // 각 emotion의 횟수를 세는 메소드
     Map<DiaryEmotion,Integer> emotionNum(List<Diary> diaryList);
