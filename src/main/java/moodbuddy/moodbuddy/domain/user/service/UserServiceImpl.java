@@ -9,6 +9,7 @@ import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
@@ -16,14 +17,20 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
+import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
+
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,7 +49,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public UserResMainPageDTO mainPage(UserReqMainPageDTO mainPageDTO){
+    public UserResMainPageDTO mainPage(){
         log.info("[UserService] mainPage");
         try {
             // kakaoId를 통해 userRepository에서 유저 조회 (Optional 사용)
@@ -53,9 +60,6 @@ public class UserServiceImpl implements UserService{
             Optional<Profile> optionalProfile = profileRepository.findByKakaoId(kakaoId);
 
             if (optionalUser.isPresent() && optionalProfile.isPresent()) {
-                // 유저의 FCM Token 저장
-                userRepository.updateFcmTokenByKakaoId(kakaoId, mainPageDTO.getFcmToken());
-
                 // profile_id를 통해 profileImageRepository에서 유저 프로필 이미지 조회 (Optional 사용)
                 Optional<ProfileImage> optionalProfileImage = profileImageRepository.findByKakaoId(kakaoId);
                 String profileImgURL = optionalProfileImage.map(ProfileImage::getProfileImgURL).orElse("");
@@ -205,6 +209,174 @@ public class UserServiceImpl implements UserService{
             log.error("[UserService] changeDiaryNums error"+ e);
             throw new RuntimeException(e);
         }
+    }
+
+    //해당하는 월에 유저 아이디로 diary_emotion 조회 -> 감정별로 group by or 불러와서 리스트 또는 hashmap 형태로 가공 (감정(key), 횟수(value))
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmotionStaticDto> getEmotionStatic(LocalDate month) {
+
+        Long kakaoId = JwtUtil.getUserId();
+
+        int year = month.getYear();
+        int monthValue = month.getMonthValue();
+
+        List<Diary> diaries = diaryRepository.findDiaryEmotionByKakaoIdAndMonth(kakaoId, year, monthValue);
+
+        // 감정별로 횟수를 세기 위한 Map 생성 및 초기화
+        Map<DiaryEmotion, Integer> emotionCountMap = new HashMap<>();
+
+        // 모든 가능한 감정에 대해 기본값 0 설정
+        for (DiaryEmotion emotion : DiaryEmotion.values()) {
+            emotionCountMap.put(emotion, 0);
+        }
+
+        // 일기 데이터를 이용하여 감정별로 횟수를 세기
+        for (Diary diary : diaries) {
+            DiaryEmotion emotion = diary.getDiaryEmotion();
+            emotionCountMap.put(emotion, emotionCountMap.get(emotion) + 1);
+        }
+
+        // Map을 EmotionStaticDto 리스트로 변환하고 nums 값으로 내림차순 정렬
+        return emotionCountMap.entrySet().stream()
+                .map(entry -> new EmotionStaticDto(entry.getKey(), entry.getValue()))
+                .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
+                .collect(Collectors.toList());
+
+    }
+
+    //일기 작성 횟수 조회
+    //year parameter로 받아서 -> year에 해당하는 데이터 key,value <month, nums> 형태로 출력
+    @Override
+    @Transactional(readOnly = true)
+    public List<DiaryNumsDto> getDiaryNums(LocalDate year) {
+
+        Long kakaoId = JwtUtil.getUserId();
+        int yearValue = year.getYear();
+
+        List<Diary> diaries = diaryRepository.findAllByYear(kakaoId, yearValue);
+
+        Map<Integer, Integer> yearCountMap = new HashMap<>();
+
+        // 1월~12월에 대해 일기 작성 횟수 0으로 초기화
+        for (int i = 1; i < 13; i++) {
+            yearCountMap.put(i, 0);
+        }
+
+        // diary 객체를 이용하여 일기 작성 횟수 세기
+        for (Diary diary : diaries) {
+            int monthValue = diary.getDiaryDate().getMonthValue();
+            yearCountMap.put(monthValue, yearCountMap.get(monthValue) + 1);
+        }
+
+        // 결과를 정렬하여 반환
+        return yearCountMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey()) // 키 값으로 정렬
+                .map(entry -> new DiaryNumsDto(entry.getKey() + "월", entry.getValue())) // String 형식으로 변환
+                .collect(Collectors.toList());
+    }
+
+    //감정 횟수 조회(해당 년도)
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmotionStaticDto> getEmotionNums() {
+
+        Long kakaoId = JwtUtil.getUserId();
+
+        List<Diary> diaries = diaryRepository.findDiaryEmotionAllByKakaoId(kakaoId);
+
+        log.info("일기들", diaries);
+
+        Map<DiaryEmotion, Integer> emotionCountMap = new HashMap<>();
+
+        for (DiaryEmotion emotion : DiaryEmotion.values()) {
+            emotionCountMap.put(emotion, 0);
+        }
+
+        for (Diary diary : diaries) {
+            DiaryEmotion emotion = diary.getDiaryEmotion();
+            if (emotion != null && emotionCountMap.containsKey(emotion)) {
+                emotionCountMap.put(emotion, emotionCountMap.get(emotion) + 1);
+            }
+        }
+
+        return emotionCountMap.entrySet().stream()
+                .map(entry -> new EmotionStaticDto(entry.getKey(), entry.getValue()))
+                .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
+                .collect(Collectors.toList());
+
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserProfileDto getUserProfile() {
+        Long kakaoId = JwtUtil.getUserId();
+
+        User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+        Profile profile = profileRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+        ProfileImage profileImage = profileImageRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+
+        UserProfileDto profileDto = UserProfileDto.builder()
+                .url(profileImage.getProfileImgURL())
+                .profileComment(profile.getProfileComment())
+                .nickname(user.getNickname())
+                .alarm(user.getAlarm())
+                .alarmTime(user.getAlarmTime())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .build();
+
+        return profileDto;
+    }
+
+    @Override
+    @Transactional
+    public UserProfileDto updateProfile(UserProfileUpdateDto dto) {
+        Long kakaoId = JwtUtil.getUserId();
+
+        User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+        Profile profile = profileRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+        ProfileImage profileImage = profileImageRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
+
+        profileImage.setProfileImgURL(dto.getUrl());
+        profileImageRepository.save(profileImage);
+
+        profile.setProfileComment(dto.getProfileComment());
+        profileRepository.save(profile);
+
+        user.setNickname(dto.getNickname());
+        user.setAlarm(dto.getAlarm());
+        user.setAlarmTime(dto.getAlarmTime());
+        user.setGender(dto.getGender());
+        user.setBirthday(dto.getBirthday());
+        userRepository.save(user);
+
+        // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
+        UserProfileDto userProfileDto = UserProfileDto.builder()
+                .url(profileImage.getProfileImgURL())
+                .profileComment(profile.getProfileComment())
+                .nickname(user.getNickname())
+                .alarm(user.getAlarm())
+                .alarmTime(user.getAlarmTime())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .build();
+
+        return userProfileDto;
+
     }
 
     public User findUserByKakaoId(Long kakaoId) {

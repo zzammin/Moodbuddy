@@ -7,17 +7,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
+import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,11 +38,8 @@ public class UserApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResMainPageDTO.class)))
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> mainPage(
-            @Parameter(description = "캘린더에서 이동할 년, 월을 담고 있는 DTO")
-            @RequestBody UserReqMainPageDTO mainPageDTO
-    ){
-        return ResponseEntity.ok(userService.mainPage(mainPageDTO));
+    public ResponseEntity<?> mainPage(){
+        return ResponseEntity.ok(userService.mainPage());
     }
 
     @PostMapping("/main/month")
@@ -64,4 +67,55 @@ public class UserApiController {
     ){
         return ResponseEntity.ok(userService.summary(calendarSummaryDTO));
     }
+
+    //월별 통계 보기 _ 월별 감정 통계
+    @GetMapping("/main/emotion-static")
+    @Operation(summary = "월별 감정 통계 보기", description = "사용자가 선택한 월의 감정 통계를 보여줍니다.")
+    public ResponseEntity<?> getEmotionStatic
+    (@RequestParam("month") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
+        List<EmotionStaticDto> emotionStats = userService.getEmotionStatic(month);
+        return ResponseEntity.ok(emotionStats);
+    }
+
+
+    //내 활동 _ 일기 횟수 조회 , 년 + 해당하는 월
+    @GetMapping("/main/diary-nums")
+    @Operation(summary = "현재까지 작성한 일기 횟수", description = "해당 년도의 월별로 작성한 일기 횟수를 보여줍니다.")
+    public ResponseEntity<?> getDiaryNums
+    (@RequestParam("year") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate year) {
+        List<DiaryNumsDto> diaryNumsDtos = userService.getDiaryNums(year);
+        return ResponseEntity.ok(userService.getDiaryNums(year));
+    }
+
+
+    //감정 횟수 조회
+    @GetMapping("/main/emotion-nums")
+    @Operation(summary = "감정 횟수 조회", description = "감정 횟수를 보여줍니다")
+    public ResponseEntity<?> getEmotionNums()
+    {
+        List<EmotionStaticDto> emotionNums = userService.getEmotionNums();
+        return ResponseEntity.ok(emotionNums);
+    }
+
+    //프로필 조회
+    @GetMapping("/main/profile")
+    @Operation(summary = "프로필 조회")
+    public ResponseEntity<?> getProfile()
+    {
+        UserProfileDto profile = userService.getUserProfile();
+        return ResponseEntity.ok(profile);
+    }
+
+
+    //프로필 수정
+    @PutMapping("/main/profile-edit")
+    @Operation(summary = "프로필 수정")
+    public ResponseEntity<?> updateProfile(UserProfileUpdateDto updateDto)
+    {
+        UserProfileDto updateProfile = userService.updateProfile(updateDto);
+        return ResponseEntity.ok(updateProfile);
+    }
+
+
+
 }
