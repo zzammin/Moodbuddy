@@ -350,12 +350,7 @@ public class UserServiceImpl implements UserService{
         Profile profile = profileRepository.findByKakaoId(kakaoId).orElseThrow(
                 () -> new MemberIdNotFoundException(JwtUtil.getUserId())
         );
-        ProfileImage profileImage = profileImageRepository.findByKakaoId(kakaoId).orElseThrow(
-                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
-        );
 
-        profileImage.setProfileImgURL(dto.getUrl());
-        profileImageRepository.save(profileImage);
 
         profile.setProfileComment(dto.getProfileComment());
         profileRepository.save(profile);
@@ -370,7 +365,6 @@ public class UserServiceImpl implements UserService{
 
         // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
         UserProfileDto userProfileDto = UserProfileDto.builder()
-                .url(profileImage.getProfileImgURL())
                 .profileComment(profile.getProfileComment())
                 .nickname(user.getNickname())
                 .alarm(user.getAlarm())
