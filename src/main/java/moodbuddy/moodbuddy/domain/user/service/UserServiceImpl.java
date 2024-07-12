@@ -355,7 +355,6 @@ public class UserServiceImpl implements UserService{
         profile.setProfileComment(dto.getProfileComment());
         profileRepository.save(profile);
 
-        user.setNickname(dto.getNickname());
         user.setAlarm(dto.getAlarm());
         user.setAlarmTime(dto.getAlarmTime());
         user.setGender(dto.getGender());
@@ -366,7 +365,6 @@ public class UserServiceImpl implements UserService{
         // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .profileComment(profile.getProfileComment())
-                .nickname(user.getNickname())
                 .alarm(user.getAlarm())
                 .alarmTime(user.getAlarmTime())
                 .gender(user.getGender())

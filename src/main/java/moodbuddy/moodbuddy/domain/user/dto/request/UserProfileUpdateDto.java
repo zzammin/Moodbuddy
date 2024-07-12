@@ -15,7 +15,6 @@ import java.time.LocalTime;
 @Setter
 public class UserProfileUpdateDto {
     String profileComment;
-    String nickname;
     Boolean alarm;
     @Schema(description = "알림, HH:mm 형식")
     String alarmTime;
