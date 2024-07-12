@@ -21,6 +21,7 @@ import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.domain.user.service.FcmService;
+import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,8 +94,9 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
+                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+            );
 
             // 편지지가 없을 경우 예외 처리
             if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
@@ -104,7 +106,6 @@ public class LetterServiceImpl implements LetterService {
             // 편지지 개수 업데이트
             userRepository.updateLetterNumsByKakaoId(kakaoId, user.getUserLetterNums() - 1);
 
-
             Letter letter = Letter.builder()
                     .user(user)
                     .letterFormat(letterReqDTO.getLetterFormat())
@@ -113,14 +114,10 @@ public class LetterServiceImpl implements LetterService {
                     .build();
             letterRepository.save(letter);
 
-            // 1. user에 fcm 컬럼 추가하기
-            // save 메소드에서)
-            // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
-            // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
-//            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
-
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 
+            // FCM
+            log.info("사용자 FcmToken : " + user.getFcmToken());
             // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
             fcmService.sendMessageTo(FcmReqDTO.builder()
                     .token(user.getFcmToken())

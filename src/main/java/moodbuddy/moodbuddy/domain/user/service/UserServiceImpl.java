@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService{
     private final ProfileImageRepository profileImageRepository;
     private final DiaryRepository diaryRepository;
 
+    /** =========================================================  재민  ========================================================= **/
 
     @Override
     @Transactional
@@ -211,6 +212,8 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    /** =========================================================  다연  ========================================================= **/
+
     //해당하는 월에 유저 아이디로 diary_emotion 조회 -> 감정별로 group by or 불러와서 리스트 또는 hashmap 형태로 가공 (감정(key), 횟수(value))
     @Override
     @Transactional(readOnly = true)
@@ -362,6 +365,7 @@ public class UserServiceImpl implements UserService{
         user.setAlarmTime(dto.getAlarmTime());
         user.setGender(dto.getGender());
         user.setBirthday(dto.getBirthday());
+        user.setFcmToken(dto.getFcmToken());
         userRepository.save(user);
 
         // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
@@ -373,6 +377,7 @@ public class UserServiceImpl implements UserService{
                 .alarmTime(user.getAlarmTime())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
+                .fcmToken(user.getFcmToken())
                 .build();
 
         return userProfileDto;

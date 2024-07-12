@@ -18,4 +18,5 @@ public class UserProfileUpdateDto {
     LocalDateTime alarmTime;
     Boolean gender;
     LocalDateTime birthday;
+    String fcmToken;
 }
