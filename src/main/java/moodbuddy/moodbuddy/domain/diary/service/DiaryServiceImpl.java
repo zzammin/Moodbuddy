@@ -15,7 +15,8 @@ import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.gpt.service.GptService;
-import moodbuddy.moodbuddy.domain.gpt.service.GptServiceImpl;
+import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIService;
+import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
@@ -38,6 +39,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,7 @@ import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NO_ACCESS_DI
 @Service
 @Transactional(readOnly = true)
 @Slf4j
-public class DiaryServiceImpl implements DiaryService {
+public class DiaryServiceImpl implements DiaryService, DiaryCountService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
@@ -252,23 +254,15 @@ public class DiaryServiceImpl implements DiaryService {
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, kakaoId, pageable);
     }
 
-//    private void saveDocument(Diary diary) {
-//        DiaryDocument diaryDocument = convertToDocument(diary);
-//        diaryElasticsearchRepository.save(diaryDocument);
-//    }
-//
-//    private DiaryDocument convertToDocument(Diary diary) {
-//        return DiaryDocument.builder()
-//                .id(diary.getId())
-//                .diaryTitle(diary.getDiaryTitle())
-//                .diaryDate(diary.getDiaryDate())
-//                .diaryContent(diary.getDiaryContent())
-//                .diaryWeather(diary.getDiaryWeather())
-//                .diaryEmotion(diary.getDiaryEmotion())
-//                .diaryStatus(diary.getDiaryStatus())
-//                .userId(diary.getUserId())
-//                .build();
-//    }
+    @Override
+    public long countByEmotionAndDateRange(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end) {
+        return diaryRepository.countByEmotionAndDateRange(diaryEmotion, start, end);
+    }
+
+    @Override
+    public long countBySubjectAndDateRange(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
+        return diaryRepository.countBySubjectAndDateRange(subject, start, end);
+    }
 
     /** 추가 메서드 **/
     public Diary findDiaryById(Long diaryId) {

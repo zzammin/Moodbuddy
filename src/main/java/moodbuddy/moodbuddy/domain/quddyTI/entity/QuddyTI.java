@@ -20,31 +20,31 @@ public class QuddyTI extends BaseEntity {
     private Long kakaoId;
 
     /** 감정 갯수 **/
-    @Column(name = "happiness_count", nullable = false, columnDefinition = "int")
+    @Column(name = "happiness_count", columnDefinition = "int")
     private int happinessCount;
-    @Column(name = "anger_count", nullable = false, columnDefinition = "int")
+    @Column(name = "anger_count", columnDefinition = "int")
     private int angerCount;
-    @Column(name = "disgust_count", nullable = false, columnDefinition = "int")
+    @Column(name = "disgust_count", columnDefinition = "int")
     private int disgustCount;
-    @Column(name = "fear_count", nullable = false, columnDefinition = "int")
+    @Column(name = "fear_count", columnDefinition = "int")
     private int fearCount;
-    @Column(name = "neutral_count", nullable = false, columnDefinition = "int")
+    @Column(name = "neutral_count", columnDefinition = "int")
     private int neutralCount;
-    @Column(name = "sadness_count", nullable = false, columnDefinition = "int")
+    @Column(name = "sadness_count", columnDefinition = "int")
     private int sadnessCount;
-    @Column(name = "surprise_count", nullable = false, columnDefinition = "int")
+    @Column(name = "surprise_count", columnDefinition = "int")
     private int surpriseCount;
 
     /** 주제 갯수 **/
-    @Column(name = "daily_count", nullable = false, columnDefinition = "int")
+    @Column(name = "daily_count", columnDefinition = "int")
     private int dailyCount;
-    @Column(name = "growth_count", nullable = false, columnDefinition = "int")
+    @Column(name = "growth_count", columnDefinition = "int")
     private int growthCount;
-    @Column(name = "emotion_count", nullable = false, columnDefinition = "int")
+    @Column(name = "emotion_count", columnDefinition = "int")
     private int emotionCount;
-    @Column(name = "travel_count", nullable = false, columnDefinition = "int")
+    @Column(name = "travel_count", columnDefinition = "int")
     private int travelCount;
 
-    @Column(name = "quddy_ti_type", nullable = false, columnDefinition = "varchar(10)")
+    @Column(name = "quddy_ti_type", columnDefinition = "varchar(10)")
     private String quddyTIType ;
 }
