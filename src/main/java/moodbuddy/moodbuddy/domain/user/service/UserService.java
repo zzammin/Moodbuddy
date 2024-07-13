@@ -2,10 +2,7 @@ package moodbuddy.moodbuddy.domain.user.service;
 
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.*;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
@@ -53,4 +50,6 @@ public interface UserService {
 
     // 알람 설정한 유저 리스트 보내기
     List<User> getAllUsersWithAlarms();
+
+    UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO);
 }

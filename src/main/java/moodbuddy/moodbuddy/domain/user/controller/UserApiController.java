@@ -7,19 +7,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqMainPageDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.*;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
-import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -124,6 +118,14 @@ public class UserApiController {
         return ResponseEntity.ok(updateProfile);
     }
 
-
+    // FCM Token 받아오기
+    @PostMapping("/main/fcmToken")
+    @Operation(summary = "FcmToken")
+    public ResponseEntity<?> getToken(
+            @Parameter(description = "FCM Token을 받아오는 DTO")
+            @RequestBody UserReqUpdateTokenDTO userReqUpdateTokenDTO
+    ){
+        return ResponseEntity.ok(userService.updateToken(userReqUpdateTokenDTO));
+    }
 
 }

@@ -20,8 +20,6 @@ public class UserProfileDto {
     String alarmTime;
     Boolean gender;
     String birthday;
-    @Schema(description = "사용자가 알람 설정을 할 때 (alarm을 ON으로 할 때) 보낼 푸시 알림을 위한 FCM Token")
-    String fcmToken;
 }
 
 

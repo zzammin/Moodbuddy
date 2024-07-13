@@ -119,11 +119,13 @@ public class LetterServiceImpl implements LetterService {
             // FCM
             log.info("사용자 FcmToken : " + user.getFcmToken());
             // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
-            fcmService.sendMessageTo(FcmReqDTO.builder()
-                    .token(user.getFcmToken())
-                    .title("moodbuddy : 고민 답장이 도착하였습니다.")
-                    .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-                    .build());
+            if(!user.getFcmToken().isEmpty()){
+                fcmService.sendMessageTo(FcmReqDTO.builder()
+                        .token(user.getFcmToken())
+                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
+                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+                        .build());
+            }
             // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
 //            scheduler.schedule(new ContextAwareRunnable(() -> {
 ////                letterAlarm(user.getUserId(), user.getFcmToken());

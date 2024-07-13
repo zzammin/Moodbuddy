@@ -13,6 +13,7 @@ import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository
 import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.UserReqUpdateTokenDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
@@ -333,7 +334,6 @@ public class UserServiceImpl implements UserService{
                 .alarmTime(user.getAlarmTime())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
-                .fcmToken("")
                 .build();
 
         return profileDto;
@@ -364,7 +364,6 @@ public class UserServiceImpl implements UserService{
         user.setNickname(dto.getNickname());
         user.setGender(dto.getGender());
         user.setBirthday(dto.getBirthday());
-        user.setFcmToken(dto.getFcmToken());
         userRepository.save(user);
 
         if (dto.getNewProfileImg() != null) {
@@ -372,7 +371,6 @@ public class UserServiceImpl implements UserService{
             profileImage.setProfileImgURL(url);
             profileImageRepository.save(profileImage);
         }
-
 
         // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
         UserProfileDto updateUserProfile = UserProfileDto.builder()
@@ -383,16 +381,33 @@ public class UserServiceImpl implements UserService{
                 .nickname(user.getNickname())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
-                .fcmToken(user.getFcmToken())
                 .build();
 
         return updateUserProfile;
     }
 
+    @Override
+    @Transactional
     public List<User> getAllUsersWithAlarms() {
         return userRepository.findAll().stream()
                 .filter(user -> user.getAlarm() != null && user.getAlarm())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
+        try{
+            log.info("[UserService] updateToken");
+            Long kakaoId = JwtUtil.getUserId();
+            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
+            return UserResUpdateTokenDTO.builder()
+                    .fcmToken(userReqTokenDTO.getFcmToken())
+                    .build();
+        } catch (Exception e){
+            log.error("[UserService] updateToken error",e);
+            throw new RuntimeException(e);
+        }
     }
 
     public User findUserByKakaoId(Long kakaoId) {
