@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResCalendarMonthDTO {
+    @Schema(description = "일기의 diary Id")
+    private Long diaryId;
     @Schema(description = "일기 작성 날짜")
     private LocalDateTime diaryDate;
     @Schema(description = "일기의 감정")

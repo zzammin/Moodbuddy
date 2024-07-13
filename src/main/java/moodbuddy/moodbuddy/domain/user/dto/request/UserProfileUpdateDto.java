@@ -21,5 +21,6 @@ public class UserProfileUpdateDto {
     Boolean gender;
     @Schema(description = "생일, YYYY-mm-dd 형식")
     String birthday;
+    @Schema(description = "유저의 fcmToken")
     String fcmToken;
 }

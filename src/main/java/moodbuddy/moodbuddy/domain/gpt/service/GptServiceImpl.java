@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class GptServiceImpl implements GptService{
-
     private final WebClient gptWebClient;
 
     @Value("${gpt.model}")
@@ -28,6 +27,20 @@ public class GptServiceImpl implements GptService{
     @Override
     public Mono<String> classifyDiaryContent(String content) {
         String prompt = "DiaryContent 내용을 보고 \"일상\", \"성장\", \"감정\", \"여행\" 중 어떤 주제에 해당하는 지 주제 값만 \"DAILY\", \"GROWTH\", \"EMOTION\", \"TRAVEL\" 로 출력해줘.\nContent: " + content + "\nCategory:";
+
+        GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
+
+        return gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptRequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class)
+                .map(response -> response.getChoices().get(0).getMessage().getContent().trim().toUpperCase());
+    }
+
+    @Override
+    public Mono<String> emotionComment(String emotion){
+        String prompt = emotion + " 이 감정에 따른 코멘트를 한 줄로 해줘. 예를 들어서 감정이 행복이면 오늘 행복한 하루를 보냈네요! 같은 코멘트야. 꼭 한 줄로 해줘!";
 
         GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
 

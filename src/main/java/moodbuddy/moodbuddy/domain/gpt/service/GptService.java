@@ -7,4 +7,6 @@ public interface GptService {
     Mono<String> classifyDiaryContent(String content);
 
     Mono<GPTResponseDTO> letterAnswerSave(String worryContent, Integer format);
+
+    Mono<String> emotionComment(String emotion);
 }

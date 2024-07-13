@@ -158,6 +158,7 @@ public class UserServiceImpl implements UserService{
 
             List<UserResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> UserResCalendarMonthDTO.builder()
+                            .diaryId(diary.getId())
                             .diaryDate(diary.getDiaryDate())
                             .diaryEmotion(diary.getDiaryEmotion())
                             .build())
@@ -308,7 +309,6 @@ public class UserServiceImpl implements UserService{
                 .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
                 .collect(Collectors.toList());
 
-
     }
 
     @Override
@@ -334,6 +334,7 @@ public class UserServiceImpl implements UserService{
                 .alarmTime(user.getAlarmTime())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
+                .fcmToken("")
                 .build();
 
         return profileDto;
@@ -373,7 +374,12 @@ public class UserServiceImpl implements UserService{
                 .build();
 
         return userProfileDto;
+    }
 
+    public List<User> getAllUsersWithAlarms() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getAlarm() != null && user.getAlarm())
+                .collect(Collectors.toList());
     }
 
     public User findUserByKakaoId(Long kakaoId) {

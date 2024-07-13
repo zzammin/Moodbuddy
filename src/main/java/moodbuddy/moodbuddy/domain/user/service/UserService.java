@@ -10,6 +10,7 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
+import moodbuddy.moodbuddy.domain.user.entity.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,4 +49,7 @@ public interface UserService {
 
     //프로필 수정
     UserProfileDto updateProfile(UserProfileUpdateDto dto);
+
+    // 알람 설정한 유저 리스트 보내기
+    List<User> getAllUsersWithAlarms();
 }

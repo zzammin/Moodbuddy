@@ -384,7 +384,16 @@ public class DiaryServiceImpl implements DiaryService {
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-        DiaryResResponseDto responseDto = objectMapper.readValue(response, DiaryResResponseDto.class);
+//        DiaryResResponseDto responseDto = objectMapper.readValue(response, DiaryResResponseDto.class);
+
+        Mono<String> monoComment = gptService.emotionComment(response);
+        String comment = monoComment.block();
+
+        DiaryResResponseDto responseDto = DiaryResResponseDto.builder()
+                .emotion(response)
+                .diaryDate(diary.getDiaryDate())
+                .comment(comment)
+                .build();
 
         String emotion = responseDto.getEmotion();
 
