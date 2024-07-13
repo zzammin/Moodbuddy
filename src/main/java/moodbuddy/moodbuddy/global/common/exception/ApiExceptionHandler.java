@@ -5,6 +5,7 @@ import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNoAccessException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNotFoundException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
 import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
+import moodbuddy.moodbuddy.global.common.exception.quddyTI.QuddyTINotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -51,6 +52,17 @@ public class ApiExceptionHandler {
     }
     @ExceptionHandler(DiaryNoAccessException.class)
     public ResponseEntity<ApiErrorResponse> handleException(DiaryNoAccessException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return new ResponseEntity<>(
+                new ApiErrorResponse(
+                        errorCode.getErrorCode(),
+                        errorCode.getMessage()),
+                HttpStatus.valueOf(errorCode.getStatus())
+        );
+    }
+
+    @ExceptionHandler(QuddyTINotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleException(QuddyTINotFoundException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return new ResponseEntity<>(
                 new ApiErrorResponse(

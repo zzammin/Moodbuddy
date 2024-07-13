@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
-public class DiaryResResponseDto {
+public class DiaryResDTO {
     private String emotion;
     private LocalDateTime diaryDate;
     private String comment;
