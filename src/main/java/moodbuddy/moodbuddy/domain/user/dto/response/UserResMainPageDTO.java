@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UserResMainPageDTO {
     private String profileNickName;
-    private LocalDateTime userBirth;
+    private String userBirth;
     private String profileComment;
     private String profileImgURL;
     private Integer userCurDiaryNums;

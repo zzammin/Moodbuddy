@@ -12,6 +12,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "user")
@@ -39,11 +40,11 @@ public class User {
     @Column(name = "alarm", columnDefinition = "tinyint")
     private Boolean alarm;
 
-    @Column(name = "alarm_time", columnDefinition = "datetime")
-    private LocalDateTime alarmTime;
+    @Column(name = "alarm_time", columnDefinition = "varchar(10)")
+    private String alarmTime;
 
-    @Column(name = "birthday", columnDefinition = "datetime(6)")
-    private LocalDateTime birthday;
+    @Column(name = "birthday", columnDefinition ="varchar(10)")
+    private String birthday;
 
     @Column(name = "gender", columnDefinition = "tinyint")
     private Boolean gender;

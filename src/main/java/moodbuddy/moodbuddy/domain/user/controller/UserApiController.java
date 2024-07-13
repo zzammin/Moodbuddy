@@ -2,6 +2,7 @@ package moodbuddy.moodbuddy.domain.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -71,6 +72,9 @@ public class UserApiController {
     //월별 통계 보기 _ 월별 감정 통계
     @GetMapping("/main/emotion-static")
     @Operation(summary = "월별 감정 통계 보기", description = "사용자가 선택한 월의 감정 통계를 보여줍니다.")
+    @Parameters({
+            @Parameter(name="month", description = "YYYY-MM-DD 형식으로 입력하세요"),
+    })
     public ResponseEntity<?> getEmotionStatic
     (@RequestParam("month") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
         List<EmotionStaticDto> emotionStats = userService.getEmotionStatic(month);
@@ -81,6 +85,9 @@ public class UserApiController {
     //내 활동 _ 일기 횟수 조회 , 년 + 해당하는 월
     @GetMapping("/main/diary-nums")
     @Operation(summary = "현재까지 작성한 일기 횟수", description = "해당 년도의 월별로 작성한 일기 횟수를 보여줍니다.")
+    @Parameters({
+            @Parameter(name="year", description = "YYYY-MM-DD 형식으로 입력하세요"),
+    })
     public ResponseEntity<?> getDiaryNums
     (@RequestParam("year") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate year) {
         List<DiaryNumsDto> diaryNumsDtos = userService.getDiaryNums(year);
@@ -108,8 +115,8 @@ public class UserApiController {
 
 
     //프로필 수정
-    @PutMapping("/main/profile-edit")
-    @Operation(summary = "프로필 수정")
+    @PostMapping ("/main/profile-edit")
+    @Operation(summary = "프로필 수정", description = "alarmTime(str) -> HH:mm 형식,birthday(str) -> YYYY-mm-dd 형식 ")
     public ResponseEntity<?> updateProfile(UserProfileUpdateDto updateDto)
     {
         UserProfileDto updateProfile = userService.updateProfile(updateDto);

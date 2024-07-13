@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,9 +17,9 @@ public class UserProfileDto {
     String profileComment;
     String nickname;
     Boolean alarm;
-    LocalDateTime alarmTime;
+    String alarmTime;
     Boolean gender;
-    LocalDateTime birthday;
+    String birthday;
     @Schema(description = "사용자가 알람 설정을 할 때 (alarm을 ON으로 할 때) 보낼 푸시 알림을 위한 FCM Token")
     String fcmToken;
 }
