@@ -49,6 +49,19 @@ public class LetterApiController {
         return ResponseEntity.ok(letterService.letterSave(letterReqDTO));
     }
 
+//    @PostMapping("/answer/{letterId}")
+//    @Operation(summary = "고민상담소 답장 등록", description = "사용자가 작성한 고민 편지에 대한 답장을 등록합니다.")
+//    @ApiResponses(value = {
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = LetterResSaveDTO.class)))
+//            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+//    })
+//    public ResponseEntity<?> answerSave(
+//            @Parameter(description = "편지의 letterId")
+//            @PathVariable("letterId") Long letterId
+//    ){
+//        return ResponseEntity.ok(letterService.letterAnswerSave(letterId));
+//    }
+
     @GetMapping("/details/{letterId}")
     @Operation(summary = "고민상담소 편지 내용", description = "사용자가 작성한 편지 내용과 그에 대한 쿼디의 답변 내용을 보여줍니다.")
     @ApiResponses(value = {

@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class GptServiceImpl implements GptService{
-
     private final WebClient gptWebClient;
 
     @Value("${gpt.model}")
@@ -37,5 +36,32 @@ public class GptServiceImpl implements GptService{
                 .retrieve()
                 .bodyToMono(GPTResponseDTO.class)
                 .map(response -> response.getChoices().get(0).getMessage().getContent().trim().toUpperCase());
+    }
+
+    @Override
+    public Mono<String> emotionComment(String emotion){
+        String prompt = emotion + " 이 감정에 따른 코멘트를 한 줄로 해줘. 예를 들어서 감정이 행복이면 오늘 행복한 하루를 보냈네요! 같은 코멘트야. 꼭 한 줄로 해줘!";
+
+        GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
+
+        return gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptRequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class)
+                .map(response -> response.getChoices().get(0).getMessage().getContent().trim().toUpperCase());
+    }
+
+    @Override
+    public Mono<GPTResponseDTO> letterAnswerSave(String worryContent, Integer format){
+        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
+
+        GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
+
+        return gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptRequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class);
     }
 }

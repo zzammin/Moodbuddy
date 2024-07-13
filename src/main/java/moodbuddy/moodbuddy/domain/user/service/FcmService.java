@@ -9,5 +9,5 @@ import java.io.IOException;
 @Service
 public interface FcmService {
 
-    FcmResDTO sendMessage(FcmReqDTO fcmReqDTO);
+    FcmResDTO sendMessageTo(FcmReqDTO fcmReqDTO);
 }

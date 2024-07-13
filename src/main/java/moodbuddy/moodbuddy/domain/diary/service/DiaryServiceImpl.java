@@ -14,7 +14,7 @@ import moodbuddy.moodbuddy.domain.diary.mapper.DiaryMapper;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
-import moodbuddy.moodbuddy.domain.gpt.service.GptServiceImpl;
+import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
@@ -37,6 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,13 +52,13 @@ public class DiaryServiceImpl implements DiaryService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryImageServiceImpl diaryImageService;
-    private final GptServiceImpl gptService;
+    private final GptService gptService;
     private final WebClient naverWebClient;
     private final ObjectMapper objectMapper;
 
     public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
-                           GptServiceImpl gptService,
+                           GptService gptService,
                            @Qualifier("naverWebClient") WebClient naverWebClient,
                             ObjectMapper objectMapper){
         this.userRepository = userRepository;
@@ -253,23 +254,15 @@ public class DiaryServiceImpl implements DiaryService {
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, kakaoId, pageable);
     }
 
-//    private void saveDocument(Diary diary) {
-//        DiaryDocument diaryDocument = convertToDocument(diary);
-//        diaryElasticsearchRepository.save(diaryDocument);
-//    }
-//
-//    private DiaryDocument convertToDocument(Diary diary) {
-//        return DiaryDocument.builder()
-//                .id(diary.getId())
-//                .diaryTitle(diary.getDiaryTitle())
-//                .diaryDate(diary.getDiaryDate())
-//                .diaryContent(diary.getDiaryContent())
-//                .diaryWeather(diary.getDiaryWeather())
-//                .diaryEmotion(diary.getDiaryEmotion())
-//                .diaryStatus(diary.getDiaryStatus())
-//                .userId(diary.getUserId())
-//                .build();
-//    }
+    @Override
+    public long getDiaryEmotionCount(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end) {
+        return diaryRepository.countByEmotionAndDateRange(diaryEmotion, start, end);
+    }
+
+    @Override
+    public long getDiarySubjectCount(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
+        return diaryRepository.countBySubjectAndDateRange(subject, start, end);
+    }
 
     /** 추가 메서드 **/
     public Diary findDiaryById(Long diaryId) {
@@ -354,7 +347,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     @Override
     @Transactional
-    public DiaryResResponseDto description() throws JsonProcessingException {
+    public DiaryResDTO description() throws JsonProcessingException {
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -379,13 +372,22 @@ public class DiaryServiceImpl implements DiaryService {
         HttpEntity<String> entity = new HttpEntity<String>(param , headers);
 
         //실제 Flask 서버랑 연결하기 위한 URL
-        String url = "http://127.0.0.1:8099/model";
+        String url = "http://flask-server/model";
 
         // Flask 서버로 데이터를 전송하고 받은 응답 값을 처리
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-        DiaryResResponseDto responseDto = objectMapper.readValue(response, DiaryResResponseDto.class);
+//        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
+
+        Mono<String> monoComment = gptService.emotionComment(response);
+        String comment = monoComment.block();
+
+        DiaryResDTO responseDto = DiaryResDTO.builder()
+                .emotion(response)
+                .diaryDate(diary.getDiaryDate())
+                .comment(comment)
+                .build();
 
         String emotion = responseDto.getEmotion();
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "552282225926",
+    "project_id": "moodbuddy-d8bfa",
+    "storage_bucket": "moodbuddy-d8bfa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552282225926:android:d5f1a7c07c1be2db2bf287",
+        "android_client_info": {
+          "package_name": "moodbuddy.moodbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmbDd4cX2HKnP319Ei1-TG4DmE1UTdG9k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

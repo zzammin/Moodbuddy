@@ -22,6 +22,7 @@ public class DiaryMapper {
                 .diarySummary(summary)
                 .diarySubject(diarySubject)
                 .kakaoId(kakaoId)
+                .diaryBookMarkCheck(false)
                 .build();
     }
 
@@ -33,6 +34,7 @@ public class DiaryMapper {
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
                 .diaryStatus(DiaryStatus.DRAFT)
                 .kakaoId(kakaoId)
+                .diaryBookMarkCheck(false)
                 .build();
     }
 

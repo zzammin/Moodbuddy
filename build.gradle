@@ -78,7 +78,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux:3.3.1'
 
     // FCM
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '5.0.0-alpha.14'
+
+    //slack
+    implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+
+//    implementation platform('com.google.firebase:firebase-bom:33.1.1')
+//    implementation 'com.google.firebase:firebase-analytics'
 
 //    // Elasticsearch
 //    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'

@@ -17,7 +17,7 @@ public class LetterResPageDTO {
     @Schema(description = "프로필 닉네임")
     private String profileNickname;
     @Schema(description = "유저 생일")
-    private LocalDateTime userBirth;
+    private String userBirth;
     @Schema(description = "프로필 코멘트")
     private String profileComment;
     @Schema(description = "프로필 이미지")

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
+import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface DiaryService {
@@ -38,11 +40,14 @@ public interface DiaryService {
     // 일기 비슷한 감정 조회
     Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion diaryEmotion, Pageable pageable);
 
-    // 검색어 조회 -> 일라스틱서치 사용할 예정
-//    Page<DiaryDocument> searchDiariesByKeyword(String keyword, Pageable pageable);
-
     // 상세검색 조회
     Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
+
+    // 감정 갯수 검색
+    long getDiaryEmotionCount(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end);
+
+    // 주제 갯수 검색
+    long getDiarySubjectCount(DiarySubject subject, LocalDateTime start, LocalDateTime end);
 
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
@@ -60,5 +65,5 @@ public interface DiaryService {
      **/
 
     //일기 감정 분석
-    DiaryResResponseDto description() throws JsonProcessingException;
+    DiaryResDTO description() throws JsonProcessingException;
 }

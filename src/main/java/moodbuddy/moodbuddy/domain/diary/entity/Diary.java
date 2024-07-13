@@ -51,6 +51,9 @@ public class Diary extends BaseEntity {
     @Column(name = "kakao_id", columnDefinition = "bigint")
     private Long kakaoId;
 
+    @Column(name = "diary_book_mark_check", columnDefinition = "varchar(20)")
+    private Boolean diaryBookMarkCheck; // 북마크 여부
+
     public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary, DiarySubject diarySubject) {
         this.diaryTitle = title;
         this.diaryDate = date;
@@ -64,4 +67,5 @@ public class Diary extends BaseEntity {
     public void setDiaryEmotion(DiaryEmotion diaryEmotion) {
         this.diaryEmotion = diaryEmotion;
     }
+    public void setDiaryBookMarkCheck(Boolean diaryBookMarkCheck) { this.diaryBookMarkCheck = diaryBookMarkCheck; }
 }

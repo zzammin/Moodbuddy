@@ -12,10 +12,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqFilterDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindOneDTO;
-import moodbuddy.moodbuddy.domain.diary.entity.Diary;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
-import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
+import moodbuddy.moodbuddy.domain.diary.entity.*;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -69,7 +66,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         diary.diaryEmotion,
                         diary.diaryStatus,
                         diary.diarySummary,
-                        diary.diarySubject
+                        diary.diarySubject,
+                        diary.diaryBookMarkCheck
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -118,6 +116,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                     .diarySubject(d.getDiarySubject())
                     .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
+                    .diaryBookMarkCheck(d.getDiaryBookMarkCheck())
                     .build();
         }).collect(Collectors.toList());
 
@@ -157,6 +156,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         d.getDiaryStatus(),
                         d.getDiarySummary(),
                         d.getDiarySubject(),
+                        d.getDiaryBookMarkCheck(),
                         diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());
@@ -274,5 +274,23 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
     private BooleanExpression diarySubjectEq(DiarySubject subject) {
         return subject != null ? diary.diarySubject.eq(subject) : null;
+    }
+
+    @Override
+    public long countByEmotionAndDateRange(DiaryEmotion emotion, LocalDateTime start, LocalDateTime end) {
+        QDiary qDiary = QDiary.diary;
+        return queryFactory.selectFrom(qDiary)
+                .where(qDiary.diaryDate.between(start, end)
+                        .and(qDiary.diaryEmotion.eq(emotion)))
+                .fetchCount();
+    }
+
+    @Override
+    public long countBySubjectAndDateRange(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
+        QDiary qDiary = QDiary.diary;
+        return queryFactory.selectFrom(qDiary)
+                .where(qDiary.diaryDate.between(start, end)
+                        .and(qDiary.diarySubject.eq(subject)))
+                .fetchCount();
     }
 }

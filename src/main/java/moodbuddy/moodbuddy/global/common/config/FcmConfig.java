@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+// 애플리케이션 시작 시 firebase 초기화
 @Configuration
 @Slf4j
 public class FcmConfig {

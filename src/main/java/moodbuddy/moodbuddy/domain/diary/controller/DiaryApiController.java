@@ -34,8 +34,8 @@ public class DiaryApiController {
     //클라이언트가 일기 작성 -> 일기 요약본 flask서버로 전달 -> flask 서버에서는 모델을 통한 감정 분석 후 결과를 리턴
     @PostMapping("/description")
     @Operation(description = "일기 감정 분석")
-    public ResponseEntity<DiaryResResponseDto> description() throws JsonProcessingException {
-        DiaryResResponseDto result = diaryService.description();
+    public ResponseEntity<DiaryResDTO> description() throws JsonProcessingException {
+        DiaryResDTO result = diaryService.description();
         return ResponseEntity.ok(result);
     }
 

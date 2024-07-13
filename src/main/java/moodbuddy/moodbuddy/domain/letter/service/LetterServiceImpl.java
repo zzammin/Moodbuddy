@@ -1,9 +1,11 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTRequestDTO;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTResponseDTO;
+import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResDetailsDTO;
 import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageAnswerDTO;
@@ -15,8 +17,11 @@ import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
+import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.domain.user.service.FcmService;
+import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 @Slf4j
 public class LetterServiceImpl implements LetterService {
 
@@ -41,26 +47,9 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
-    private final WebClient gptWebClient;
+    private final GptService gptService;
+    private final FcmService fcmService;
 //    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
-
-    @Value("${gpt.model}")
-    private String model;
-    @Value("${gpt.api.url}")
-    private String apiUrl;
-
-    // 생성자 주입을 통한 의존성 주입
-    public LetterServiceImpl(UserRepository userRepository,
-                             ProfileRepository profileRepository,
-                             ProfileImageRepository profileImageRepository,
-                             LetterRepository letterRepository,
-                             @Qualifier("gptWebClient") WebClient gptWebClient) {
-        this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
-        this.profileImageRepository = profileImageRepository;
-        this.letterRepository = letterRepository;
-        this.gptWebClient = gptWebClient;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -105,8 +94,9 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
+                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+            );
 
             // 편지지가 없을 경우 예외 처리
             if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
@@ -116,7 +106,6 @@ public class LetterServiceImpl implements LetterService {
             // 편지지 개수 업데이트
             userRepository.updateLetterNumsByKakaoId(kakaoId, user.getUserLetterNums() - 1);
 
-
             Letter letter = Letter.builder()
                     .user(user)
                     .letterFormat(letterReqDTO.getLetterFormat())
@@ -125,19 +114,22 @@ public class LetterServiceImpl implements LetterService {
                     .build();
             letterRepository.save(letter);
 
-            // 1. user에 fcm 컬럼 추가하기
-            // save 메소드에서)
-            // 2. userId에 맞는 user를 가져와서, fcm 컬럼에 fcmToken 저장
-            // 3. 이후에 alarmTalk 메소드 호출 시 그 user의 fcmToken 값 넣기
-//            userRepository.updateFcmTokenByKakaoId(kakaoId, letterReqDTO.getFcmToken());
+            letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 
+            // FCM
+            log.info("사용자 FcmToken : " + user.getFcmToken());
+            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
+            if(user.getFcmToken()!=null){
+                fcmService.sendMessageTo(FcmReqDTO.builder()
+                        .token(user.getFcmToken())
+                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
+                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+                        .build());
+            }
             // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
 //            scheduler.schedule(new ContextAwareRunnable(() -> {
 ////                letterAlarm(user.getUserId(), user.getFcmToken());
 //            }), 5, TimeUnit.SECONDS);
-
-            letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
-
 
             return LetterResSaveDTO.builder()
                     .letterId(letter.getId())
@@ -155,41 +147,14 @@ public class LetterServiceImpl implements LetterService {
     public void letterAnswerSave(String worryContent, Integer format, Long letterId) {
         log.info("[LetterService] answerSave");
         try {
-            String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
-            log.info("prompt : " + prompt);
-            GPTRequestDTO gptrequestDTO = new GPTRequestDTO(model, prompt);
-            log.info("gptrequestDTO : " + gptrequestDTO);
+            GPTResponseDTO response = gptService.letterAnswerSave(worryContent, format).block();
 
-            log.info("apiUrl : " + apiUrl);
-            log.info("model : " + model);
-            GPTResponseDTO response = gptWebClient.post()
-                    .uri(apiUrl)
-                    .bodyValue(gptrequestDTO)
-                    .exchangeToMono(clientResponse -> {
-                        if (clientResponse.statusCode().is4xxClientError() || clientResponse.statusCode().is5xxServerError()) {
-                            return clientResponse.bodyToMono(String.class)
-                                    .flatMap(errorBody -> {
-                                        log.error("API 요청 실패 - 상태 코드: " + clientResponse.statusCode());
-                                        log.error("오류 본문: " + errorBody);
-                                        return Mono.error(new RuntimeException("API 요청 실패 - 상태 코드: " + clientResponse.statusCode() + ", 오류 본문: " + errorBody));
-                                    });
-                        } else {
-                            return clientResponse.bodyToMono(GPTResponseDTO.class);
-                        }
-                    })
-                    .block();
-
-            log.info("response : " + response);
             if (response != null && response.getChoices() != null) {
-                log.info("response.getChoices() : "+response.getChoices());
                 for (GPTResponseDTO.Choice choice : response.getChoices()) {
                     GPTMessageDTO message = choice.getMessage();
-                    log.info("message : "+message);
                     if (message != null) {
                         String answer = message.getContent();
-                        log.info("answer : "+answer);
                         Optional<Letter> optionalLetter = letterRepository.findById(letterId);
-                        log.info("optionalLetter : "+optionalLetter);
                         if (optionalLetter.isPresent()) {
                             letterRepository.updateAnswerByLetterId(letterId, answer);
                         }

@@ -24,6 +24,8 @@ public class QDiary extends EntityPathBase<Diary> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdTime = _super.createdTime;
 
+    public final BooleanPath diaryBookMarkCheck = createBoolean("diaryBookMarkCheck");
+
     public final StringPath diaryContent = createString("diaryContent");
 
     public final DateTimePath<java.time.LocalDateTime> diaryDate = createDateTime("diaryDate", java.time.LocalDateTime.class);
