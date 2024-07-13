@@ -5,13 +5,9 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 // 애플리케이션 시작 시 firebase 초기화
@@ -22,7 +18,7 @@ public class FcmConfig {
     @PostConstruct
     public void initializeFirebase(){
         try {
-            InputStream serviceAccount = new ClassPathResource("firebase.json").getInputStream();
+            InputStream serviceAccount = new ClassPathResource("firebase/firebase.json").getInputStream();
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
