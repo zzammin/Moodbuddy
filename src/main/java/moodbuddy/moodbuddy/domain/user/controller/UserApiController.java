@@ -121,6 +121,10 @@ public class UserApiController {
     // FCM Token 받아오기
     @PostMapping("/main/fcmToken")
     @Operation(summary = "FcmToken")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResUpdateTokenDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<?> getToken(
             @Parameter(description = "FCM Token을 받아오는 DTO")
             @RequestBody UserReqUpdateTokenDTO userReqUpdateTokenDTO
