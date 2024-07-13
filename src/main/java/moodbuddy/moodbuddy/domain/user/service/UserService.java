@@ -11,6 +11,7 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -47,5 +48,5 @@ public interface UserService {
     UserProfileDto getUserProfile();
 
     //프로필 수정
-    UserProfileDto updateProfile(UserProfileUpdateDto dto);
+    UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException;
 }

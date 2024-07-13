@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
+import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
@@ -45,6 +47,7 @@ public class UserServiceImpl implements UserService{
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiaryRepository diaryRepository;
+    private final DiaryImageServiceImpl diaryImageService;
 
     /** =========================================================  재민  ========================================================= **/
 
@@ -339,9 +342,11 @@ public class UserServiceImpl implements UserService{
         return profileDto;
     }
 
+    //프로필 이미지 -> s3 사용
+    //프로필 이미지 s3에 저장 -> url setter로 변경
     @Override
     @Transactional
-    public UserProfileDto updateProfile(UserProfileUpdateDto dto) {
+    public UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException {
         Long kakaoId = JwtUtil.getUserId();
 
         User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
@@ -350,29 +355,41 @@ public class UserServiceImpl implements UserService{
         Profile profile = profileRepository.findByKakaoId(kakaoId).orElseThrow(
                 () -> new MemberIdNotFoundException(JwtUtil.getUserId())
         );
-
+        ProfileImage profileImage = profileImageRepository.findByKakaoId(kakaoId).orElseThrow(
+                () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+        );
 
         profile.setProfileComment(dto.getProfileComment());
         profileRepository.save(profile);
 
         user.setAlarm(dto.getAlarm());
         user.setAlarmTime(dto.getAlarmTime());
+        user.setNickname(dto.getNickname());
         user.setGender(dto.getGender());
         user.setBirthday(dto.getBirthday());
         user.setFcmToken(dto.getFcmToken());
         userRepository.save(user);
 
+        if (dto.getNewProfileImg() != null) {
+            String url = diaryImageService.saveProfileImages(dto.getNewProfileImg());
+            profileImage.setProfileImgURL(url);
+            profileImageRepository.save(profileImage);
+        }
+
+
         // 업데이트된 정보를 기반으로 UserProfileDto 객체를 생성하여 반환
-        UserProfileDto userProfileDto = UserProfileDto.builder()
+        UserProfileDto updateUserProfile = UserProfileDto.builder()
+                .url(profileImage.getProfileImgURL())
                 .profileComment(profile.getProfileComment())
                 .alarm(user.getAlarm())
                 .alarmTime(user.getAlarmTime())
+                .nickname(user.getNickname())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
                 .fcmToken(user.getFcmToken())
                 .build();
 
-        return userProfileDto;
+        return updateUserProfile;
 
     }
 

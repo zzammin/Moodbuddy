@@ -184,43 +184,6 @@ public class KakaoServiceImpl implements KakaoService{
         }else{
             User loginUser = byKakaoId.get();
 
-            boolean isProfileUpdated = false;
-
-            if (!loginUser.getNickname().equals(kakaoProfile.getProperties().getNickname())) {
-                loginUser.setNickname(kakaoProfile.getProperties().getNickname());
-                isProfileUpdated = true;
-            }
-
-            if (!loginUser.getAccessToken().equals(JwtUtil.createJwt(kakaoProfile.getId()))) {
-                loginUser.setAccessToken(JwtUtil.createJwt(kakaoProfile.getId()));
-                loginUser.setAccessTokenExpiredAt(LocalDate.now().plusYears(1L));
-                isProfileUpdated = true;
-            }
-
-            if (!loginUser.getRefreshToken().equals(JwtUtil.createRefreshToken(kakaoProfile.getId()))) {
-                loginUser.setRefreshToken(JwtUtil.createRefreshToken(kakaoProfile.getId()));
-                loginUser.setRefreshTokenExpiredAt(LocalDate.now().plusYears(1L));
-                isProfileUpdated = true;
-            }
-
-            if (!profileImageRepository.findByKakaoId(kakaoProfile.getId())
-                    .map(ProfileImage::getProfileImgURL)
-                    .orElse("")
-                    .equals(kakaoProfile.getProperties().getProfileImage())) {
-                profileImageRepository.save(
-                        ProfileImage.builder()
-                                .kakaoId(kakaoProfile.getId())
-                                .profileImgURL(kakaoProfile.getProperties().getProfileImage())
-                                .build()
-                );
-                isProfileUpdated = true;
-            }
-
-            if (isProfileUpdated) {
-                userRepository.save(loginUser);
-                log.info("프로필 업데이트 성공: " + kakaoProfile.getProperties().getNickname());
-            }
-
             log.info("login is success" + kakaoProfile.getProperties().getNickname());
 
             return  modelMapper.map(loginUser, LoginResponseDto.class);
