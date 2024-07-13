@@ -15,8 +15,6 @@ import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.gpt.service.GptService;
-import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIService;
-import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
@@ -49,7 +47,7 @@ import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NO_ACCESS_DI
 @Service
 @Transactional(readOnly = true)
 @Slf4j
-public class DiaryServiceImpl implements DiaryService, DiaryCountService {
+public class DiaryServiceImpl implements DiaryService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
@@ -255,12 +253,12 @@ public class DiaryServiceImpl implements DiaryService, DiaryCountService {
     }
 
     @Override
-    public long countByEmotionAndDateRange(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end) {
+    public long getDiaryEmotionCount(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end) {
         return diaryRepository.countByEmotionAndDateRange(diaryEmotion, start, end);
     }
 
     @Override
-    public long countBySubjectAndDateRange(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
+    public long getDiarySubjectCount(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
         return diaryRepository.countBySubjectAndDateRange(subject, start, end);
     }
 
@@ -347,7 +345,7 @@ public class DiaryServiceImpl implements DiaryService, DiaryCountService {
 
     @Override
     @Transactional
-    public DiaryResResponseDto description() throws JsonProcessingException {
+    public DiaryResDTO description() throws JsonProcessingException {
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -378,12 +376,12 @@ public class DiaryServiceImpl implements DiaryService, DiaryCountService {
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-//        DiaryResResponseDto responseDto = objectMapper.readValue(response, DiaryResResponseDto.class);
+//        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
 
         Mono<String> monoComment = gptService.emotionComment(response);
         String comment = monoComment.block();
 
-        DiaryResResponseDto responseDto = DiaryResResponseDto.builder()
+        DiaryResDTO responseDto = DiaryResDTO.builder()
                 .emotion(response)
                 .diaryDate(diary.getDiaryDate())
                 .comment(comment)

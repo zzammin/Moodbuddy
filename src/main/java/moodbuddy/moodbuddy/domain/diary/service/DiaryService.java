@@ -43,6 +43,12 @@ public interface DiaryService {
     // 상세검색 조회
     Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
 
+    // 감정 갯수 검색
+    long getDiaryEmotionCount(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end);
+
+    // 주제 갯수 검색
+    long getDiarySubjectCount(DiarySubject subject, LocalDateTime start, LocalDateTime end);
+
     /** =========================================================  위 정목 아래 재민  ========================================================= **/
 
     // 이번 달 일기 개수와 편지지 개수 증가
@@ -59,5 +65,5 @@ public interface DiaryService {
      **/
 
     //일기 감정 분석
-    DiaryResResponseDto description() throws JsonProcessingException;
+    DiaryResDTO description() throws JsonProcessingException;
 }
