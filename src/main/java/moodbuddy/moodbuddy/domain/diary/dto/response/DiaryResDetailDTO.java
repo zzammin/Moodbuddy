@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import moodbuddy.moodbuddy.domain.bookMark.entity.BookMark;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
@@ -39,12 +40,14 @@ public class DiaryResDetailDTO {
     @Schema(description = "일기 주제", example = "쿼카의 하루에 대한 일기 주제입니다.")
     private DiarySubject diarySubject;
 
+    private Boolean diaryBookMarkCheck; // 일기 북마크 여부
+
     @JsonInclude(JsonInclude.Include.NON_NULL) // 굳이 필요하지 않은 경우가 있음.
     @Schema(description = "일기 이미지 List", example = "[이미지 URL, 이미지 URL]")
     private List<String> diaryImgList;
 
 
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
@@ -55,8 +58,9 @@ public class DiaryResDetailDTO {
         this.diaryStatus = diaryStatus;
         this.diarySummary = diarySummary;
         this.diarySubject = diarySubject;
+        this.diaryBookMarkCheck = diaryBookMarkCheck;
     }
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, List<String> diaryImgList) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, List<String> diaryImgList) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
@@ -67,6 +71,7 @@ public class DiaryResDetailDTO {
         this.diaryStatus = diaryStatus;
         this.diarySummary = diarySummary;
         this.diarySubject = diarySubject;
+        this.diaryBookMarkCheck = diaryBookMarkCheck;
         this.diaryImgList = diaryImgList;
     }
 }

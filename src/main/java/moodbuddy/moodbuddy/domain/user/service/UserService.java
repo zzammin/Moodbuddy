@@ -12,6 +12,7 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public interface UserService {
     UserProfileDto getUserProfile();
 
     //프로필 수정
-    UserProfileDto updateProfile(UserProfileUpdateDto dto);
+    UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException;
 
     // 알람 설정한 유저 리스트 보내기
     List<User> getAllUsersWithAlarms();

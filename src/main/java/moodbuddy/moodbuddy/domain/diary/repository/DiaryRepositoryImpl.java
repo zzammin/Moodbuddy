@@ -69,7 +69,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         diary.diaryEmotion,
                         diary.diaryStatus,
                         diary.diarySummary,
-                        diary.diarySubject
+                        diary.diarySubject,
+                        diary.diaryBookMarkCheck
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -118,6 +119,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                     .diarySubject(d.getDiarySubject())
                     .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
+                    .diaryBookMarkCheck(d.getDiaryBookMarkCheck())
                     .build();
         }).collect(Collectors.toList());
 
@@ -157,6 +159,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         d.getDiaryStatus(),
                         d.getDiarySummary(),
                         d.getDiarySubject(),
+                        d.getDiaryBookMarkCheck(),
                         diaryImages.getOrDefault(d.getId(), List.of())
                 ))
                 .collect(Collectors.toList());

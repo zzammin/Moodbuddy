@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.repository.DiaryImageRepository;
+import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
+import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
+import moodbuddy.moodbuddy.domain.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class DiaryImageServiceImpl implements DiaryImageService {
     private final DiaryImageRepository diaryImageRepository;
     private final AmazonS3 amazonS3;
+    private final ProfileImageRepository profileImageRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -43,6 +47,8 @@ public class DiaryImageServiceImpl implements DiaryImageService {
             saveDiaryImageEntities(diaryUrlList, diary);
         }
     }
+
+    //파일 s3에 업로드
 
     private String uploadImage(MultipartFile diaryImg) {
         try {
@@ -96,5 +102,11 @@ public class DiaryImageServiceImpl implements DiaryImageService {
     public List<DiaryImage> findImagesByDiary(Diary diary) {
         Optional<List<DiaryImage>> optionalDiaryList = diaryImageRepository.findByDiary(diary);
         return optionalDiaryList.orElseGet(Collections::emptyList);
+    }
+
+    @Override
+    public String saveProfileImages(MultipartFile newProfileImg) throws IOException {
+            String url = uploadImage(newProfileImg);
+            return url;
     }
 }
