@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,8 @@ public class DiaryReqUpdateDTO {
     private String diaryContent;
     @Schema(description = "수정할 일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")
     private DiaryWeather diaryWeather;
+    @Schema(description = "수정할 일기 상태(DRAFT, PUBLISHED)", example = "DRAFT")
+    private DiaryStatus diaryStatus;
     @Schema(description = "수정할 일기 이미지 List", example = "[\"image1.png\", \"image2.png\"]")
     private List<MultipartFile> diaryImgList;
     @Schema(description = "삭제할 일기 이미지 List", example = "[\"이미지 URL\", \"이미지 URL\"]")
