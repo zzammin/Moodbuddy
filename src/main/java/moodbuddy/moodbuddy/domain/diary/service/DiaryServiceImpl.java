@@ -370,22 +370,19 @@ public class DiaryServiceImpl implements DiaryService {
         HttpEntity<String> entity = new HttpEntity<String>(param , headers);
 
         //실제 Flask 서버랑 연결하기 위한 URL
-        String url = "http://flask-server/model";
+        String url = "https://clean-brave-eel.ngrok-free.app/model";
 
         // Flask 서버로 데이터를 전송하고 받은 응답 값을 처리
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-//        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
+        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
 
         Mono<String> monoComment = gptService.emotionComment(response);
         String comment = monoComment.block();
 
-        DiaryResDTO responseDto = DiaryResDTO.builder()
-                .emotion(response)
-                .diaryDate(diary.getDiaryDate())
-                .comment(comment)
-                .build();
+        responseDto.setComment(comment);
+        responseDto.setDiaryDate(diary.getDiaryDate());
 
         String emotion = responseDto.getEmotion();
 
