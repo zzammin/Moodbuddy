@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.quddyTI.dto.response.QuddyTIResDetailDTO;
-import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIServiceImpl;
+import moodbuddy.moodbuddy.domain.quddyTI.service.QuddyTIService;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class QuddyTIApiController {
-    private final QuddyTIServiceImpl quddyTIService;
+    private final QuddyTIService quddyTIService;
 
     /** 구현 완료 **/
     @GetMapping("/findAll")

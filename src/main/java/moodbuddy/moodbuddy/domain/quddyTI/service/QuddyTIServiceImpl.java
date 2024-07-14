@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
-import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
+import moodbuddy.moodbuddy.domain.diary.service.DiaryCountService;
 import moodbuddy.moodbuddy.domain.quddyTI.dto.response.QuddyTIResDetailDTO;
 import moodbuddy.moodbuddy.domain.quddyTI.entity.QuddyTI;
 import moodbuddy.moodbuddy.domain.quddyTI.mapper.QuddyTIMapper;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class QuddyTIServiceImpl implements QuddyTIService {
 
     private final QuddyTIRepository quddyTIRepository;
-    private final DiaryServiceImpl diaryService;
+    private final DiaryCountService diaryCountService;
 
     @Override
     @Transactional
@@ -74,7 +74,7 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     private Map<DiaryEmotion, Long> getDiaryEmotionCounts(LocalDateTime start, LocalDateTime end) {
         Map<DiaryEmotion, Long> emotionCounts = new EnumMap<>(DiaryEmotion.class);
         for (DiaryEmotion emotion : DiaryEmotion.values()) {
-            emotionCounts.put(emotion, diaryService.getDiaryEmotionCount(emotion, start, end));
+            emotionCounts.put(emotion, diaryCountService.getDiaryEmotionCount(emotion, start, end));
         }
         return emotionCounts;
     }
@@ -82,7 +82,7 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     private Map<DiarySubject, Long> getDiarySubjectCounts(LocalDateTime start, LocalDateTime end) {
         Map<DiarySubject, Long> subjectCounts = new EnumMap<>(DiarySubject.class);
         for (DiarySubject subject : DiarySubject.values()) {
-            subjectCounts.put(subject, diaryService.getDiarySubjectCount(subject, start, end));
+            subjectCounts.put(subject, diaryCountService.getDiarySubjectCount(subject, start, end));
         }
         return subjectCounts;
     }

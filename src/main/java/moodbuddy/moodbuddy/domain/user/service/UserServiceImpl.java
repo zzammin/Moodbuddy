@@ -417,6 +417,24 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+    @Transactional
+    public void numPlus(Long kakaoId) {
+        log.info("[DiaryServiceImpl] numPlus");
+        try{
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
+            int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
+            userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
+            userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
+        } catch (Exception e){
+            log.error("[DiaryServiceImpl] numPlus error" + e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public User findUserByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
