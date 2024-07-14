@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 // 애플리케이션 시작 시 firebase 초기화
@@ -17,16 +18,30 @@ public class FcmConfig {
 
     @PostConstruct
     public void initializeFirebase(){
+
         try {
-            InputStream serviceAccount = new ClassPathResource("firebase/firebase.json").getInputStream();
+            FileInputStream serviceAccount = new FileInputStream("firebase/firebase.json");
+
+            GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(credentials)
+                    .setProjectId("moodbuddy-d8bfa")
                     .build();
-            if (FirebaseApp.getApps().isEmpty()) { // FirebaseApp이 이미 초기화되어 있지 않은 경우에만 초기화 실행
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (Exception e){
-            log.error("fcm error : ",e);;
+
+            FirebaseApp.initializeApp(options);
+        } catch (Exception e) {
+            log.error("fcm error : ", e);
         }
+//        try {
+//            InputStream serviceAccount = new ClassPathResource("firebase/firebase.json").getInputStream();
+//            FirebaseOptions options = FirebaseOptions.builder()
+//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                    .build();
+//            if (FirebaseApp.getApps().isEmpty()) { // FirebaseApp이 이미 초기화되어 있지 않은 경우에만 초기화 실행
+//                FirebaseApp.initializeApp(options);
+//            }
+//        } catch (Exception e){
+//            log.error("fcm error : ",e);;
+//        }
     }
 }
