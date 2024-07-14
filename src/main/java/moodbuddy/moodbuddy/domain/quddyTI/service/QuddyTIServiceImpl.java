@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NOT_FOUND_QUDDYTI;
@@ -40,40 +42,12 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     @Transactional
     public void aggregateAndSaveDiaryData() {
         Long kakaoId = JwtUtil.getUserId();
-        LocalDate now = LocalDate.now();
-        YearMonth lastMonth = YearMonth.from(now).minusMonths(1);
-        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
-        LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
+        LocalDateTime[] lastMonthRange = getLastMonthDateTimeRange();
 
-        long happinessCount = diaryService.getDiaryEmotionCount(DiaryEmotion.HAPPINESS, startOfLastMonth, endOfLastMonth);
-        long angerCount = diaryService.getDiaryEmotionCount(DiaryEmotion.ANGER, startOfLastMonth, endOfLastMonth);
-        long disgustCount = diaryService.getDiaryEmotionCount(DiaryEmotion.DISGUST, startOfLastMonth, endOfLastMonth);
-        long fearCount = diaryService.getDiaryEmotionCount(DiaryEmotion.FEAR, startOfLastMonth, endOfLastMonth);
-        long neutralCount = diaryService.getDiaryEmotionCount(DiaryEmotion.NEUTRAL, startOfLastMonth, endOfLastMonth);
-        long sadnessCount = diaryService.getDiaryEmotionCount(DiaryEmotion.SADNESS, startOfLastMonth, endOfLastMonth);
-        long surpriseCount = diaryService.getDiaryEmotionCount(DiaryEmotion.SURPRISE, startOfLastMonth, endOfLastMonth);
+        Map<DiaryEmotion, Long> emotionCounts = getDiaryEmotionCounts(lastMonthRange[0], lastMonthRange[1]);
+        Map<DiarySubject, Long> subjectCounts = getDiarySubjectCounts(lastMonthRange[0], lastMonthRange[1]);
 
-        long dailyCount = diaryService.getDiarySubjectCount(DiarySubject.DAILY, startOfLastMonth, endOfLastMonth);
-        long growthCount = diaryService.getDiarySubjectCount(DiarySubject.GROWTH, startOfLastMonth, endOfLastMonth);
-        long emotionCount = diaryService.getDiarySubjectCount(DiarySubject.EMOTION, startOfLastMonth, endOfLastMonth);
-        long travelCount = diaryService.getDiarySubjectCount(DiarySubject.TRAVEL, startOfLastMonth, endOfLastMonth);
-
-        QuddyTI quddyTI = QuddyTI.builder()
-                .kakaoId(kakaoId)
-                .happinessCount((int) happinessCount)
-                .angerCount((int) angerCount)
-                .disgustCount((int) disgustCount)
-                .fearCount((int) fearCount)
-                .neutralCount((int) neutralCount)
-                .sadnessCount((int) sadnessCount)
-                .surpriseCount((int) surpriseCount)
-                .dailyCount((int) dailyCount)
-                .growthCount((int) growthCount)
-                .emotionCount((int) emotionCount)
-                .travelCount((int) travelCount)
-                .quddyTIType("monthly") // 필요에 따라 적절한 타입을 설정하세요.
-                .build();
-
+        QuddyTI quddyTI = QuddyTIMapper.toQuddyTI(kakaoId, emotionCounts, subjectCounts);
         saveQuddyTI(quddyTI);
     }
 
@@ -86,10 +60,31 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     }
 
     private QuddyTI getQuddyTI(Long kakaoId) {
-        Optional<QuddyTI> optionalQuddyTI = quddyTIRepository.findByKakaoId(kakaoId);
-        if(!optionalQuddyTI.isPresent()) {
-            throw new QuddyTINotFoundException(NOT_FOUND_QUDDYTI);
+        return quddyTIRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new QuddyTINotFoundException(NOT_FOUND_QUDDYTI));
+    }
+
+    private LocalDateTime[] getLastMonthDateTimeRange() {
+        LocalDate now = LocalDate.now();
+        YearMonth lastMonth = YearMonth.from(now).minusMonths(1);
+        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
+        return new LocalDateTime[]{startOfLastMonth, endOfLastMonth};
+    }
+
+    private Map<DiaryEmotion, Long> getDiaryEmotionCounts(LocalDateTime start, LocalDateTime end) {
+        Map<DiaryEmotion, Long> emotionCounts = new EnumMap<>(DiaryEmotion.class);
+        for (DiaryEmotion emotion : DiaryEmotion.values()) {
+            emotionCounts.put(emotion, diaryService.getDiaryEmotionCount(emotion, start, end));
         }
-        return optionalQuddyTI.get();
+        return emotionCounts;
+    }
+
+    private Map<DiarySubject, Long> getDiarySubjectCounts(LocalDateTime start, LocalDateTime end) {
+        Map<DiarySubject, Long> subjectCounts = new EnumMap<>(DiarySubject.class);
+        for (DiarySubject subject : DiarySubject.values()) {
+            subjectCounts.put(subject, diaryService.getDiarySubjectCount(subject, start, end));
+        }
+        return subjectCounts;
     }
 }
