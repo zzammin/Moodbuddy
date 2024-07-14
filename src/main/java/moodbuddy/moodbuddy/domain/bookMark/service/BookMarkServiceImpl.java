@@ -43,6 +43,8 @@ public class BookMarkServiceImpl implements BookMarkService {
         User findUser = userService.findUserByKakaoId(kakaoId);
         Diary findDiary = diaryFindService.findDiaryById(diaryId);
 
+        diaryFindService.validateDiaryAccess(findDiary, kakaoId);
+
         Optional<BookMark> optionalBookMark = bookMarkRepository.findByUserAndDiary(findUser, findDiary);
 
         if(optionalBookMark.isPresent()) { // 북마크가 존재한다면,

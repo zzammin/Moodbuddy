@@ -71,6 +71,7 @@ public class DiaryServiceImpl implements DiaryService {
         }
 
         Diary findDiary = diaryFindService.findDiaryById(diaryReqUpdateDTO.getDiaryId());
+        diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         String summary = diarySummarizeService.summarize(diaryReqUpdateDTO.getDiaryContent());
         DiarySubject diarySubject = classifyDiaryContent(diaryReqUpdateDTO.getDiaryContent());
@@ -87,7 +88,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public void delete(Long diaryId) throws IOException {
         log.info("[DiaryServiceImpl] delete");
+        Long kakaoId = JwtUtil.getUserId();
         Diary findDiary = diaryFindService.findDiaryById(diaryId);
+        diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         bookMarkService.deleteByDiaryId(diaryId);
         DiaryUtil.deleteDiaryImages(diaryImageService, findDiary);
@@ -122,7 +125,7 @@ public class DiaryServiceImpl implements DiaryService {
         Long kakaoId = JwtUtil.getUserId();
 
         List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
-                .filter(diary -> diary.getKakaoId().equals(kakaoId))
+                .peek(diary -> diaryFindService.validateDiaryAccess(diary, kakaoId)) // 접근 권한 확인
                 .collect(Collectors.toList());
 
         diariesToDelete.forEach(diary -> {
