@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Configuration
@@ -47,18 +48,29 @@ public class UserAlarmConfig implements SchedulingConfigurer {
         for (User user : users) {
             if (Boolean.TRUE.equals(user.getAlarm())) {
                 String alarmTime = user.getAlarmTime();
-                LocalTime time = LocalTime.parse(alarmTime);
-                taskRegistrar.addTriggerTask(
-                        new UserAlarmRunnableTask(user, fcmService),
-                        triggerContext -> {
-                            ZonedDateTime nextExecutionTime = ZonedDateTime.now().plusDays(1)
-                                    .withHour(time.getHour())
-                                    .withMinute(time.getMinute())
-                                    .withSecond(0)
-                                    .withNano(0);
-                            return nextExecutionTime.toInstant();
-                        }
-                );
+                try {
+                    LocalTime time;
+                    if (alarmTime == null || alarmTime.isEmpty()) {
+                        log.warn("User {} has empty alarm time. Setting default time to 12:00.", user.getUserId());
+                        time = LocalTime.NOON;
+                    } else {
+                        time = LocalTime.parse(alarmTime);
+                    }
+
+                    taskRegistrar.addTriggerTask(
+                            new UserAlarmRunnableTask(user, fcmService),
+                            triggerContext -> {
+                                ZonedDateTime nextExecutionTime = ZonedDateTime.now().plusDays(1)
+                                        .withHour(time.getHour())
+                                        .withMinute(time.getMinute())
+                                        .withSecond(0)
+                                        .withNano(0);
+                                return nextExecutionTime.toInstant();
+                            }
+                    );
+                } catch (DateTimeParseException e) {
+                    log.error("Invalid alarm time for user {}: {}", user.getUserId(), alarmTime, e);
+                }
             }
         }
     }

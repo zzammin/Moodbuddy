@@ -31,7 +31,7 @@ public class DiaryResDetailDTO {
     private String diaryContent;
     @Schema(description = "일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")
     private DiaryWeather diaryWeather;
-    @Schema(description = "일기 감정(HAPPY, ANGRY, AVERSION, SURPRISED, CALMNESS, DEPRESSION, FEAR)", example = "HAPPY")
+    @Schema(description = "일기 감정(HAPPINESS, ANGER, DISGUST, FEAR, NEUTRAL, SADNESS, SURPRISE)", example = "HAPPY")
     private DiaryEmotion diaryEmotion;
     @Schema(description = "일기 상태(DRAFT, PUBLISHED", example = "DRAFT")
     private DiaryStatus diaryStatus;
@@ -39,7 +39,7 @@ public class DiaryResDetailDTO {
     private String diarySummary;
     @Schema(description = "일기 주제", example = "쿼카의 하루에 대한 일기 주제입니다.")
     private DiarySubject diarySubject;
-
+    @Schema(description = "일기 북마크 여부", example = "ture")
     private Boolean diaryBookMarkCheck; // 일기 북마크 여부
 
     @JsonInclude(JsonInclude.Include.NON_NULL) // 굳이 필요하지 않은 경우가 있음.

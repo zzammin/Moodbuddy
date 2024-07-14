@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -58,8 +59,8 @@ public class DiaryServiceImpl implements DiaryService {
 
     public DiaryServiceImpl(UserRepository userRepository, DiaryRepository diaryRepository,
                             DiaryImageServiceImpl diaryImageService,
-                           GptService gptService,
-                           @Qualifier("naverWebClient") WebClient naverWebClient,
+                            GptService gptService,
+                            @Qualifier("naverWebClient") WebClient naverWebClient,
                             ObjectMapper objectMapper){
         this.userRepository = userRepository;
         this.diaryRepository = diaryRepository;
@@ -77,32 +78,15 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] save");
         Long kakaoId = JwtUtil.getUserId();
 
-        Optional<Diary> existingDiary = diaryRepository.findByDiaryDateAndKakaoId(diaryReqSaveDTO.getDiaryDate(), kakaoId); // 오늘 작성한 일기가 있는지 확인
+        validateExistingDiary(diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
-        if(existingDiary.isPresent()) {
-            throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
-        }
-
-        /** 일기 요약 로직 **/
-        String summary = summarize(diaryReqSaveDTO.getDiaryContent()); // 일기 내용 요약 결과
-
-        /** 일기 주제 판별 로직 **/
-        Mono<String> subjectMono = gptService.classifyDiaryContent(diaryReqSaveDTO.getDiaryContent());
-        String classifiedSubject = subjectMono.block();
-        DiarySubject diarySubject = DiarySubject.valueOf(classifiedSubject);
-
-        log.info("일기 주제 : {}", classifiedSubject);
-
+        String summary = summarize(diaryReqSaveDTO.getDiaryContent());
+        DiarySubject diarySubject = classifyDiaryContent(diaryReqSaveDTO.getDiaryContent());
 
         Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary, diarySubject);
-
         diary = diaryRepository.save(diary);
 
-//        saveDocument(diary);
-
-        if (diaryReqSaveDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
-        }
+        saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
 
         numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
         return DiaryMapper.toDetailDTO(diary);
@@ -114,33 +98,19 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] update");
         Long kakaoId = JwtUtil.getUserId();
 
-        Optional<Diary> existingDiary = diaryRepository.findByDiaryDateAndKakaoIdAndDiaryStatus(diaryReqUpdateDTO.getDiaryDate(), kakaoId, DiaryStatus.PUBLISHED); // 오늘 작성한 일기가 있는지 확인
-        if(existingDiary.isPresent()) {
-            throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
+        if (isDraftToPublished(diaryReqUpdateDTO)) {
+            validateExistingDiary(diaryReqUpdateDTO.getDiaryDate(), kakaoId);
         }
 
         Diary findDiary = findDiaryById(diaryReqUpdateDTO.getDiaryId());
 
-        /** 일기 요약 로직 **/
-        String summary = summarize(diaryReqUpdateDTO.getDiaryContent()); // 일기 내용 요약 결과
+        String summary = summarize(diaryReqUpdateDTO.getDiaryContent());
+        DiarySubject diarySubject = classifyDiaryContent(diaryReqUpdateDTO.getDiaryContent());
 
-        /** 일기 주제 판별 로직 **/
-        Mono<String> subjectMono = gptService.classifyDiaryContent(diaryReqUpdateDTO.getDiaryContent());
-        String classifiedSubject = subjectMono.block();
-        DiarySubject diarySubject = DiarySubject.valueOf(classifiedSubject);
+        findDiary.updateDiary(diaryReqUpdateDTO, summary, diarySubject);
 
-        /** 일기 수정 로직 **/
-        findDiary.updateDiary(diaryReqUpdateDTO.getDiaryTitle(), diaryReqUpdateDTO.getDiaryDate(), diaryReqUpdateDTO.getDiaryContent(), diaryReqUpdateDTO.getDiaryWeather(), summary, diarySubject);
-
-        if (diaryReqUpdateDTO.getImagesToDelete() != null) {
-            diaryImageService.deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
-        }
-
-        if (diaryReqUpdateDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), findDiary);
-        }
-
-//        saveDocument(diary);
+        deleteDiaryImages(diaryReqUpdateDTO.getImagesToDelete());
+        saveDiaryImages(diaryReqUpdateDTO.getDiaryImgList(), findDiary);
 
         return DiaryMapper.toDetailDTO(findDiary);
     }
@@ -151,22 +121,12 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] delete");
         Diary findDiary = findDiaryById(diaryId);
 
-        List<DiaryImage> images = diaryImageService.findImagesByDiary(findDiary);
-        List<String> imageUrls = images.stream()
-                .map(DiaryImage::getDiaryImgURL)
-                .collect(Collectors.toList());
-
-        if (!imageUrls.isEmpty()) {
-            diaryImageService.deleteDiaryImages(imageUrls);
-        }
-
+        deleteDiaryImages(findDiary);
         diaryRepository.delete(findDiary);
-//        diaryElasticsearchRepository.deleteById(diaryId);
     }
 
     @Override
     @Transactional
-    // 임시 저장 -> 다시 작성 -> 일기 수정 API 호출 (문제는 일기를 이러면 하루에 무한대로 쓸 수 있게 됨.)
     public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         Long kakaoId = JwtUtil.getUserId();
@@ -174,9 +134,7 @@ public class DiaryServiceImpl implements DiaryService {
         Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId);
         diary = diaryRepository.save(diary);
 
-        if (diaryReqSaveDTO.getDiaryImgList() != null) {
-            diaryImageService.saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
-        }
+        saveDiaryImages(diaryReqSaveDTO.getDiaryImgList(), diary);
 
         return DiaryMapper.toDetailDTO(diary);
     }
@@ -198,20 +156,8 @@ public class DiaryServiceImpl implements DiaryService {
                 .filter(diary -> diary.getKakaoId().equals(kakaoId))
                 .collect(Collectors.toList());
 
-        // 관련된 이미지 삭제
-        for (Diary diary : diariesToDelete) {
-            List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+        diariesToDelete.forEach(this::deleteDiaryImages);
 
-            List<String> imageUrls = images.stream()
-                    .map(DiaryImage::getDiaryImgURL)
-                    .collect(Collectors.toList());
-
-            if (!imageUrls.isEmpty()) {
-                diaryImageService.deleteDiaryImages(imageUrls);
-            }
-        }
-
-        // 일기 삭제
         diaryRepository.deleteAll(diariesToDelete);
     }
 
@@ -222,16 +168,13 @@ public class DiaryServiceImpl implements DiaryService {
         Long kakaoId = JwtUtil.getUserId();
 
         Diary findDiary = findDiaryById(diaryId);
-        if(!findDiary.getKakaoId().equals(kakaoId)) {
-            throw new DiaryNoAccessException(NO_ACCESS_DIARY);
-        }
-
+        validateDiaryAccess(findDiary, kakaoId);
 
         return diaryRepository.findOneByDiaryId(diaryId);
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAll(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllWithPageable");
         Long kakaoId = JwtUtil.getUserId();
 
@@ -239,7 +182,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion diaryEmotion, Pageable pageable) {
+    public Page<DiaryResDetailDTO> findAllByEmotion(DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
         Long kakaoId = JwtUtil.getUserId();
 
@@ -265,6 +208,51 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     /** 추가 메서드 **/
+    private void validateExistingDiary(LocalDateTime diaryDate, Long kakaoId) {
+        if (diaryRepository.findByDiaryDateAndKakaoId(diaryDate, kakaoId).isPresent()) {
+            throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
+        }
+    }
+
+    private boolean isDraftToPublished(DiaryReqUpdateDTO diaryReqUpdateDTO) {
+        return diaryReqUpdateDTO.getDiaryStatus().equals(DiaryStatus.DRAFT);
+    }
+
+    private void validateDiaryAccess(Diary findDiary, Long kakaoId) {
+        if (!findDiary.getKakaoId().equals(kakaoId)) {
+            throw new DiaryNoAccessException(NO_ACCESS_DIARY);
+        }
+    }
+
+    private void saveDiaryImages(List<MultipartFile> diaryImgList, Diary diary) throws IOException {
+        if (diaryImgList != null) {
+            diaryImageService.saveDiaryImages(diaryImgList, diary);
+        }
+    }
+
+    private void deleteDiaryImages(List<String> imagesToDelete) {
+        if (imagesToDelete != null) {
+            diaryImageService.deleteDiaryImages(imagesToDelete);
+        }
+    }
+
+    private void deleteDiaryImages(Diary diary) {
+        List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
+        List<String> imageUrls = images.stream()
+                .map(DiaryImage::getDiaryImgURL)
+                .collect(Collectors.toList());
+
+        if (!imageUrls.isEmpty()) {
+            diaryImageService.deleteDiaryImages(imageUrls);
+        }
+    }
+
+    private DiarySubject classifyDiaryContent(String diaryContent) {
+        Mono<String> subjectMono = gptService.classifyDiaryContent(diaryContent);
+        String classifiedSubject = subjectMono.block();
+        return DiarySubject.valueOf(classifiedSubject);
+    }
+
     public Diary findDiaryById(Long diaryId) {
         return diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryNotFoundException(NOT_FOUND_DIARY));
@@ -372,17 +360,15 @@ public class DiaryServiceImpl implements DiaryService {
         HttpEntity<String> entity = new HttpEntity<String>(param , headers);
 
         //실제 Flask 서버랑 연결하기 위한 URL
-        String url = "http://flask-server/model";
+        String url = "https://clean-brave-eel.ngrok-free.app/model";
 
         // Flask 서버로 데이터를 전송하고 받은 응답 값을 처리
         String response = restTemplate.postForObject(url, entity, String.class);
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
-//        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
 
         Mono<String> monoComment = gptService.emotionComment(response);
         String comment = monoComment.block();
-
         DiaryResDTO responseDto = DiaryResDTO.builder()
                 .emotion(response)
                 .diaryDate(diary.getDiaryDate())
@@ -402,6 +388,7 @@ public class DiaryServiceImpl implements DiaryService {
             // 유효하지 않은 emotion 값이 들어왔을 때의 처리
             System.err.println("Invalid emotion value: " + emotion);
         }
+
 
         return responseDto;
     }
