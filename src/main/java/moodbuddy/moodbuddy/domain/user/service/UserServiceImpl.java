@@ -71,8 +71,11 @@ public class UserServiceImpl implements UserService{
                 // 현재 달의 일기 리스트
                 List<Diary> diaryList = diaryRepository.findByKakaoIdAndMonth(kakaoId, currentYearMonth);
 
+                log.info("diaryList : "+diaryList);
+
                 // 횟수가 최댓값인 emotion과 그 값을 저장하기 위한 Map
                 Map<DiaryEmotion, Integer> emotionMap = emotionNum(diaryList);
+                log.info("emotionMap : "+emotionMap);
 
                 // Map에서 key와 value 가져오기
                 DiaryEmotion diaryEmotion = emotionMap.keySet().iterator().next(); // key가 하나밖에 없기 때문에 iterator().next() 사용
@@ -105,8 +108,10 @@ public class UserServiceImpl implements UserService{
             for(Diary d : diaryList){
                 // emotionNum에 현재 Diary의 key가 없다면, key의 value를 1로 설정
                 // 이미 현재 Diary의 key가 있다면, 그 key의 value를 + 1
+                log.info("d.getDiaryEmotion() : "+d.getDiaryEmotion());
                 emotionNum.merge(d.getDiaryEmotion(), 1, Integer::sum);
             }
+            log.info("emotionNum : "+emotionNum);
             // emotion 개수 중 최댓값 찾기
             return getMaxEmotion(emotionNum);
         } catch (Exception e){
@@ -128,6 +133,8 @@ public class UserServiceImpl implements UserService{
                 }
             }
 
+            log.info("maxKey : "+maxKey);
+            log.info("maxValue : "+maxValue);
             // emotion 개수 중 최댓값의 emotion과 그 값을 저장할 Map
             Map<DiaryEmotion,Integer> maxEmotion = new HashMap<>();
             if(maxKey != null){
