@@ -45,7 +45,9 @@ public class QuddyTIServiceImpl implements QuddyTIService {
         Map<DiaryEmotion, Long> emotionCounts = getDiaryEmotionCounts(lastMonthRange[0], lastMonthRange[1]);
         Map<DiarySubject, Long> subjectCounts = getDiarySubjectCounts(lastMonthRange[0], lastMonthRange[1]);
 
-        QuddyTI quddyTI = QuddyTIMapper.toQuddyTI(kakaoId, emotionCounts, subjectCounts);
+        String quddyTIType = determineQuddyTIType(emotionCounts, subjectCounts);
+
+        QuddyTI quddyTI = QuddyTIMapper.toQuddyTI(kakaoId, emotionCounts, subjectCounts, quddyTIType);
         saveQuddyTI(quddyTI);
     }
 
@@ -53,7 +55,6 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     public QuddyTIResDetailDTO findAll() {
         Long kakaoId = JwtUtil.getUserId();
         QuddyTI findQuddyTI = getQuddyTI(kakaoId);
-
         return QuddyTIMapper.toQuddyTIResDetailDTO(findQuddyTI);
     }
 
@@ -84,5 +85,38 @@ public class QuddyTIServiceImpl implements QuddyTIService {
             subjectCounts.put(subject, diaryService.getDiarySubjectCount(subject, start, end));
         }
         return subjectCounts;
+    }
+
+    private String getEmotionAbbreviation(DiaryEmotion emotion) {
+        return switch (emotion) {
+            case HAPPINESS -> "H";
+            case ANGER -> "A";
+            case DISGUST -> "D";
+            case FEAR -> "F";
+            case NEUTRAL -> "N";
+            case SADNESS -> "Sa";
+            case SURPRISE -> "Su";
+        };
+    }
+
+    private String determineQuddyTIType(Map<DiaryEmotion, Long> emotionCounts, Map<DiarySubject, Long> subjectCounts) {
+        long totalDiaryCount = emotionCounts.values().stream().mapToLong(Long::longValue).sum();
+        String diaryType = totalDiaryCount >= 15 ? "J" : "P";
+
+        String mostFrequentSubject = subjectCounts.entrySet().stream()
+                .sorted(Map.Entry.<DiarySubject, Long>comparingByValue().reversed()
+                        .thenComparing(entry -> entry.getKey().name()))
+                .map(entry -> entry.getKey().name().substring(0, 1))
+                .findFirst()
+                .orElse("D");
+
+        String mostFrequentEmotion = emotionCounts.entrySet().stream()
+                .sorted(Map.Entry.<DiaryEmotion, Long>comparingByValue().reversed()
+                        .thenComparing(entry -> entry.getKey().name()))
+                .map(entry -> getEmotionAbbreviation(entry.getKey()))
+                .findFirst()
+                .orElse("H");
+
+        return diaryType + mostFrequentSubject + mostFrequentEmotion;
     }
 }

@@ -15,7 +15,7 @@ public class QuddyTIMapper {
         return modelMapper.map(quddyTI, QuddyTIResDetailDTO.class);
     }
 
-    public static QuddyTI toQuddyTI(Long kakaoId, Map<DiaryEmotion, Long> emotionCounts, Map<DiarySubject, Long> subjectCounts) {
+    public static QuddyTI toQuddyTI(Long kakaoId, Map<DiaryEmotion, Long> emotionCounts, Map<DiarySubject, Long> subjectCounts, String quddyTIType) {
         return QuddyTI.builder()
                 .kakaoId(kakaoId)
                 .happinessCount(emotionCounts.getOrDefault(DiaryEmotion.HAPPINESS, 0L).intValue())
@@ -29,7 +29,7 @@ public class QuddyTIMapper {
                 .growthCount(subjectCounts.getOrDefault(DiarySubject.GROWTH, 0L).intValue())
                 .emotionCount(subjectCounts.getOrDefault(DiarySubject.EMOTION, 0L).intValue())
                 .travelCount(subjectCounts.getOrDefault(DiarySubject.TRAVEL, 0L).intValue())
-                .quddyTIType("monthly")
+                .quddyTIType(quddyTIType)
                 .build();
     }
 }
