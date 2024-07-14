@@ -2,6 +2,7 @@ package moodbuddy.moodbuddy.domain.diary.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
 import java.time.LocalDateTime;
@@ -54,11 +55,11 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_book_mark_check", columnDefinition = "varchar(20)")
     private Boolean diaryBookMarkCheck; // 북마크 여부
 
-    public void updateDiary(String title, LocalDateTime date, String content, DiaryWeather weather, String diarySummary, DiarySubject diarySubject) {
-        this.diaryTitle = title;
-        this.diaryDate = date;
-        this.diaryContent = content;
-        this.diaryWeather = weather;
+    public void updateDiary(DiaryReqUpdateDTO diaryReqUpdateDTO, String diarySummary, DiarySubject diarySubject) {
+        this.diaryTitle = diaryReqUpdateDTO.getDiaryTitle();
+        this.diaryDate = diaryReqUpdateDTO.getDiaryDate();
+        this.diaryContent = diaryReqUpdateDTO.getDiaryContent();
+        this.diaryWeather = diaryReqUpdateDTO.getDiaryWeather();
         this.diarySummary = diarySummary;
         this.diaryStatus = DiaryStatus.PUBLISHED;
         this.diarySubject = diarySubject;

@@ -35,10 +35,10 @@ public interface DiaryService {
     DiaryResDetailDTO findOneByDiaryId(Long diaryId);
 
     // 일기 전체 조회 (페이징)
-    Page<DiaryResDetailDTO> findAllWithPageable(Pageable pageable);
+    Page<DiaryResDetailDTO> findAll(Pageable pageable);
 
     // 일기 비슷한 감정 조회
-    Page<DiaryResDetailDTO> findAllByEmotionWithPageable(DiaryEmotion diaryEmotion, Pageable pageable);
+    Page<DiaryResDetailDTO> findAllByEmotion(DiaryEmotion diaryEmotion, Pageable pageable);
 
     // 상세검색 조회
     Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);

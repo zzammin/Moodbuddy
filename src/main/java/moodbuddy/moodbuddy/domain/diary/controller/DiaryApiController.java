@@ -54,7 +54,7 @@ public class DiaryApiController {
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
     }
     /** 구현 완료 **/
-    @PatchMapping("/update")
+    @PostMapping("/update")
     @Operation(summary = "일기 수정", description = "기존 일기를 수정합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = DiaryResDetailDTO.class)))
@@ -137,9 +137,9 @@ public class DiaryApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = DiaryResDetailDTO.class)))
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> findAllWithPageable(Pageable pageable) {
+    public ResponseEntity<?> findAll(Pageable pageable) {
         log.info("[DiaryApiController] findAllPageable");
-        Page<DiaryResDetailDTO> result = diaryService.findAllWithPageable(pageable);
+        Page<DiaryResDetailDTO> result = diaryService.findAll(pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
     }
     /** 구현 완료 **/
@@ -149,11 +149,11 @@ public class DiaryApiController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = DiaryResDetailDTO.class))),
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> findAllByEmotionWithPageable(
+    public ResponseEntity<?> findAllByEmotion(
             @Parameter(description = "검색하고 싶은 감정(HAPPY, ANGRY, AVERSION, SURPRISED, CALMNESS, DEPRESSION, FEAR)", example = "HAPPY")
             @RequestParam("diaryEmotion") DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryApiController] findAllByEmotionWithPageable");
-        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotionWithPageable(diaryEmotion, pageable);
+        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotion(diaryEmotion, pageable);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
     }
     /** 구현 완료(키워드 제외) **/
@@ -186,5 +186,4 @@ public class DiaryApiController {
                 .build();
         return diaryReqFilterDTO;
     }
-    /** 키워드 검색 기능 구현 **/
 }
