@@ -14,7 +14,6 @@ import moodbuddy.moodbuddy.domain.diary.util.DiaryUtil;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageService;
 import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
-import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import static moodbuddy.moodbuddy.global.common.exception.ErrorCode.NOT_FOUND_DIARY;
 
 @Service
 @Transactional(readOnly = true)
