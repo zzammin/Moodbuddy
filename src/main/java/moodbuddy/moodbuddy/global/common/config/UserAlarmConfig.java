@@ -49,7 +49,6 @@ public class UserAlarmConfig implements SchedulingConfigurer {
             if (Boolean.TRUE.equals(user.getAlarm())) {
                 String alarmTime = user.getAlarmTime();
                 try {
-                    // 빈 문자열이나 null 값을 기본 시간으로 설정 (예: 12:00)
                     LocalTime time;
                     if (alarmTime == null || alarmTime.isEmpty()) {
                         log.warn("User {} has empty alarm time. Setting default time to 12:00.", user.getUserId());

@@ -18,30 +18,16 @@ public class FcmConfig {
 
     @PostConstruct
     public void initializeFirebase(){
-
         try {
-            FileInputStream serviceAccount = new FileInputStream("firebase/firebase.json");
-
-            GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
+            InputStream serviceAccount = new ClassPathResource("firebase/firebase.json").getInputStream();
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(credentials)
-                    .setProjectId("moodbuddy-d8bfa")
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
-
-            FirebaseApp.initializeApp(options);
-        } catch (Exception e) {
-            log.error("fcm error : ", e);
+            if (FirebaseApp.getApps().isEmpty()) { // FirebaseApp이 이미 초기화되어 있지 않은 경우에만 초기화 실행
+                FirebaseApp.initializeApp(options);
+            }
+        } catch (Exception e){
+            log.error("fcm error : ",e);;
         }
-//        try {
-//            InputStream serviceAccount = new ClassPathResource("firebase/firebase.json").getInputStream();
-//            FirebaseOptions options = FirebaseOptions.builder()
-//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-//                    .build();
-//            if (FirebaseApp.getApps().isEmpty()) { // FirebaseApp이 이미 초기화되어 있지 않은 경우에만 초기화 실행
-//                FirebaseApp.initializeApp(options);
-//            }
-//        } catch (Exception e){
-//            log.error("fcm error : ",e);;
-//        }
     }
 }
