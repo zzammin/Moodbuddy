@@ -389,6 +389,7 @@ public class DiaryServiceImpl implements DiaryService {
             System.err.println("Invalid emotion value: " + emotion);
         }
 
+
         return responseDto;
     }
 }
