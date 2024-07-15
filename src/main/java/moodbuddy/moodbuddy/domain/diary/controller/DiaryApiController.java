@@ -13,6 +13,7 @@ import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
+import moodbuddy.moodbuddy.domain.diary.service.DiaryService;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.data.domain.Page;
@@ -29,16 +30,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryApiController {
-    private final DiaryServiceImpl diaryService;
-
-    //클라이언트가 일기 작성 -> 일기 요약본 flask서버로 전달 -> flask 서버에서는 모델을 통한 감정 분석 후 결과를 리턴
-    @PostMapping("/description")
-    @Operation(description = "일기 감정 분석")
-    public ResponseEntity<DiaryResDTO> description() throws JsonProcessingException {
-        DiaryResDTO result = diaryService.description();
-        return ResponseEntity.ok(result);
-    }
-
+    private final DiaryService diaryService;
 
     /** 구현 완료 **/
     @PostMapping("/save")
@@ -74,7 +66,7 @@ public class DiaryApiController {
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> delete(@Parameter(description = "일기 고유 식별자")
-                                        @PathVariable("diaryId") Long diaryId) {
+                                        @PathVariable("diaryId") Long diaryId) throws IOException {
         log.info("[DiaryApiController] delete");
         diaryService.delete(diaryId);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController delete"));
@@ -112,7 +104,7 @@ public class DiaryApiController {
 //            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> draftSelectDelete(@Parameter(description = "삭제할 임시 저장 일기 고유 식별자를 담고 있는 DTO")
-                                                   @RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
+                                                   @RequestBody DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) throws IOException {
         log.info("[DiaryApiController] draftSelectDelete");
         diaryService.draftSelectDelete(diaryReqDraftSelectDeleteDTO);
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSelectDelete"));

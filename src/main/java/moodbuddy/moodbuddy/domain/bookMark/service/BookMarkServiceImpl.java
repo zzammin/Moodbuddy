@@ -7,11 +7,17 @@ import moodbuddy.moodbuddy.domain.bookMark.entity.BookMark;
 import moodbuddy.moodbuddy.domain.bookMark.repository.BookMarkRepository;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.service.DiaryFindService;
+import moodbuddy.moodbuddy.domain.diary.service.DiaryService;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
+import moodbuddy.moodbuddy.domain.diary.util.DiaryUtil;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
 import moodbuddy.moodbuddy.domain.user.entity.User;
+import moodbuddy.moodbuddy.domain.user.service.UserService;
 import moodbuddy.moodbuddy.domain.user.service.UserServiceImpl;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,10 +29,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
-public class BookMarkServiceImpl implements BookMarkService{
+public class BookMarkServiceImpl implements BookMarkService {
     private final BookMarkRepository bookMarkRepository;
-    private final UserServiceImpl userService;
-    private final DiaryServiceImpl diaryService;
+    private final UserService userService;
+    private final DiaryFindService diaryFindService;
 
     @Override
     @Transactional
@@ -35,7 +41,9 @@ public class BookMarkServiceImpl implements BookMarkService{
         Long kakaoId = JwtUtil.getUserId();
 
         User findUser = userService.findUserByKakaoId(kakaoId);
-        Diary findDiary = diaryService.findDiaryById(diaryId);
+        Diary findDiary = diaryFindService.findDiaryById(diaryId);
+
+        diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         Optional<BookMark> optionalBookMark = bookMarkRepository.findByUserAndDiary(findUser, findDiary);
 
@@ -63,5 +71,13 @@ public class BookMarkServiceImpl implements BookMarkService{
         User findUser = userService.findUserByKakaoId(kakaoId);
 
         return bookMarkRepository.bookMarkFindAllWithPageable(findUser, pageable);
+    }
+
+    @Override
+    public void deleteByDiaryId(Long diaryId) {
+        Optional<BookMark> optionalBookMark = bookMarkRepository.findByDiaryId(diaryId);
+        if(optionalBookMark.isPresent()) {
+            bookMarkRepository.deleteByDiaryId(diaryId);
+        }
     }
 }

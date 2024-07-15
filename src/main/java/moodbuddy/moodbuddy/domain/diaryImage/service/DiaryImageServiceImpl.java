@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class DiaryImageServiceImpl implements DiaryImageService {
     private final DiaryImageRepository diaryImageRepository;
     private final AmazonS3 amazonS3;
-    private final ProfileImageRepository profileImageRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;

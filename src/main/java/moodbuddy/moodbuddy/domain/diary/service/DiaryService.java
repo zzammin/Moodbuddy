@@ -3,6 +3,7 @@ package moodbuddy.moodbuddy.domain.diary.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import moodbuddy.moodbuddy.domain.diary.dto.request.*;
 import moodbuddy.moodbuddy.domain.diary.dto.response.*;
+import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface DiaryService {
     DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException;
 
     // 일기 삭제
-    void delete(Long diaryId);
+    void delete(Long diaryId) throws IOException;
 
     // 일기 임시 저장
     DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException;
@@ -42,28 +43,4 @@ public interface DiaryService {
 
     // 상세검색 조회
     Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable);
-
-    // 감정 갯수 검색
-    long getDiaryEmotionCount(DiaryEmotion diaryEmotion, LocalDateTime start, LocalDateTime end);
-
-    // 주제 갯수 검색
-    long getDiarySubjectCount(DiarySubject subject, LocalDateTime start, LocalDateTime end);
-
-    /** =========================================================  위 정목 아래 재민  ========================================================= **/
-
-    // 이번 달 일기 개수와 편지지 개수 증가
-    void numPlus(Long kakaoId);
-
-    // 일기 한 줄 요약
-    String summarize(String content);
-
-    // 네이버 클라우드 API 연동을 위한 Request Body 생성
-    Map<String,Object> getRequestBody(String content);
-
-    /**
-     * =========================================================  위 재민 아래 다연  =========================================================
-     **/
-
-    //일기 감정 분석
-    DiaryResDTO description() throws JsonProcessingException;
 }

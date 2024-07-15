@@ -52,4 +52,8 @@ public interface UserService {
     List<User> getAllUsersWithAlarms();
 
     UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO);
+    User findUserByKakaoId(Long kakaoId);
+
+    // 이번 달 일기 개수와 편지지 개수 증가
+    void numPlus(Long kakaoId);
 }

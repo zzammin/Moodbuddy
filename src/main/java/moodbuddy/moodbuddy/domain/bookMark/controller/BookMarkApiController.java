@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.bookMark.dto.response.BookMarkResToggleDTO;
-import moodbuddy.moodbuddy.domain.bookMark.service.BookMarkServiceImpl;
+import moodbuddy.moodbuddy.domain.bookMark.service.BookMarkService;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 public class BookMarkApiController {
-    private final BookMarkServiceImpl bookMarkService;
+    private final BookMarkService bookMarkService;
     /** 구현 완료 **/
     @PostMapping("/toggle/{diaryId}")
     @Operation(summary = "북마크 토글", description = "북마크 토글 북마크 성공(true) / 북마크 취소(false)")
