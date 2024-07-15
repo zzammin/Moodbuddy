@@ -14,8 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class LetterResPageDTO {
-    @Schema(description = "프로필 닉네임")
-    private String profileNickname;
+    @Schema(description = "유저 닉네임")
+    private String nickname;
     @Schema(description = "유저 생일")
     private String userBirth;
     @Schema(description = "프로필 코멘트")

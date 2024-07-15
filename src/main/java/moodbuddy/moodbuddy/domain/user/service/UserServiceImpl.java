@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService{
                 int maxEmotionNum = emotionMap.get(diaryEmotion);
 
                 return UserResMainPageDTO.builder()
-                        .profileNickName(optionalProfile.get().getProfileNickName())
+                        .nickname(optionalUser.get().getNickname())
                         .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImgURL(profileImgURL)

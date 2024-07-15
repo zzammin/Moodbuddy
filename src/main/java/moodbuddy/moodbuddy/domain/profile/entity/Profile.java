@@ -18,9 +18,6 @@ public class Profile extends BaseEntity {
     @Column(name = "profile_id")
     private Long id;
 
-    @Column(name = "profile_nick_name", columnDefinition = "varchar(255)")
-    private String profileNickName;
-
     @Column(name = "profile_comment", columnDefinition = "varchar(255)")
     private String profileComment;
 

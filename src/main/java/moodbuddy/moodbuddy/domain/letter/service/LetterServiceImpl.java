@@ -73,7 +73,7 @@ public class LetterServiceImpl implements LetterService {
                         .collect(Collectors.toList());
 
                 return LetterResPageDTO.builder()
-                        .profileNickname(optionalProfile.get().getProfileNickName())
+                        .nickname(optionalUser.get().getNickname())
                         .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)

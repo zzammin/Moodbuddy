@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class UserResMainPageDTO {
-    private String profileNickName;
+    private String nickname;
     private String userBirth;
     private String profileComment;
     private String profileImgURL;
