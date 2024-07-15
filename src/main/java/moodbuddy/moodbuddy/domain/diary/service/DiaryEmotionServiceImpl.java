@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Transactional(readOnly = true)
 @Slf4j
 @RequiredArgsConstructor
 public class DiaryEmotionServiceImpl implements DiaryEmotionService {
@@ -64,13 +63,13 @@ public class DiaryEmotionServiceImpl implements DiaryEmotionService {
 
         // 받은 응답 값을 DiaryDesResponseDto로 변환
 
+        DiaryResDTO responseDto = objectMapper.readValue(response, DiaryResDTO.class);
+
         Mono<String> monoComment = gptService.emotionComment(response);
         String comment = monoComment.block();
-        DiaryResDTO responseDto = DiaryResDTO.builder()
-                .emotion(response)
-                .diaryDate(diary.getDiaryDate())
-                .comment(comment)
-                .build();
+
+        responseDto.setComment(comment);
+        responseDto.setDiaryDate(diary.getDiaryDate());
 
         String emotion = responseDto.getEmotion();
 

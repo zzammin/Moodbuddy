@@ -244,7 +244,9 @@ public class UserServiceImpl implements UserService{
         // 일기 데이터를 이용하여 감정별로 횟수를 세기
         for (Diary diary : diaries) {
             DiaryEmotion emotion = diary.getDiaryEmotion();
-            emotionCountMap.put(emotion, emotionCountMap.get(emotion) + 1);
+            if (emotion != null && emotionCountMap.containsKey(emotion)) {
+                emotionCountMap.put(emotion, emotionCountMap.get(emotion) + 1);
+            }
         }
 
         // Map을 EmotionStaticDto 리스트로 변환하고 nums 값으로 내림차순 정렬
@@ -252,6 +254,7 @@ public class UserServiceImpl implements UserService{
                 .map(entry -> new EmotionStaticDto(entry.getKey(), entry.getValue()))
                 .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
                 .collect(Collectors.toList());
+
 
     }
 
