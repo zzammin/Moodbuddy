@@ -7,13 +7,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.user.dto.request.*;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
+import moodbuddy.moodbuddy.global.common.response.ApiResponse;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/member")
+@Slf4j
 public class UserApiController {
 
     private final UserService userService;
@@ -132,4 +138,18 @@ public class UserApiController {
         return ResponseEntity.ok(userService.updateToken(userReqUpdateTokenDTO));
     }
 
+    /** 테스트를 위한 임시 자체 로그인 **/
+    @PostMapping("/test/login")
+    @Operation(summary = "자체 로그인")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = LoginResponseDto.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> login(
+            @Parameter(description = "자체 로그인 회원 정보를 받아오는 DTO")
+            @RequestBody UserReqLoginDTO userReqLoginDTO
+    ){
+        log.info("[DiaryApiController] login");
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController login", userService.login(userReqLoginDTO)));
+    }
 }

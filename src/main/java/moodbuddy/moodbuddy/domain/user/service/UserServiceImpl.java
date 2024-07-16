@@ -10,10 +10,7 @@ import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserProfileUpdateDto;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarMonthDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqCalendarSummaryDTO;
-import moodbuddy.moodbuddy.domain.user.dto.request.UserReqUpdateTokenDTO;
+import moodbuddy.moodbuddy.domain.user.dto.request.*;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarMonthListDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.UserResCalendarSummaryDTO;
@@ -32,6 +29,8 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
 
 @Service
 @Transactional(readOnly = true)
@@ -441,5 +440,13 @@ public class UserServiceImpl implements UserService{
     public User findUserByKakaoId(Long kakaoId) {
         return userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    }
+
+    /** 테스트를 위한 임시 자체 로그인 **/
+    @Override
+    public LoginResponseDto login(UserReqLoginDTO userReqLoginDTO) {
+        final Optional<User> byKakaoId = userRepository.findByKakaoId(userReqLoginDTO.getKakaoId());
+        User loginUser = byKakaoId.get();
+        return  modelMapper.map(loginUser, LoginResponseDto.class);
     }
 }
