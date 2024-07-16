@@ -30,8 +30,6 @@ public class QProfile extends EntityPathBase<Profile> {
 
     public final StringPath profileComment = createString("profileComment");
 
-    public final StringPath profileNickName = createString("profileNickName");
-
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedTime = _super.updatedTime;
 

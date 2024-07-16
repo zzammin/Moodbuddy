@@ -48,7 +48,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
-                .map(d -> new DiaryResDraftFindOneDTO(d.getProductId(), d.getKakaoId(), d.getDiaryDate(), d.getDiaryStatus()))
+                .map(d -> new DiaryResDraftFindOneDTO(d.getDiaryId(), d.getKakaoId(), d.getDiaryDate(), d.getDiaryStatus()))
                 .collect(Collectors.toList());
 
         return new DiaryResDraftFindAllDTO(draftList);
