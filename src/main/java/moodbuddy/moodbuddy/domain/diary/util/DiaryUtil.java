@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DiaryUtil {
 
@@ -22,25 +21,12 @@ public class DiaryUtil {
     }
 
     public static void saveDiaryImages(DiaryImageService diaryImageService, List<MultipartFile> diaryImgList, Diary diary) throws IOException {
-        if (diaryImgList != null) {
+        if (diaryImgList != null && !diaryImgList.isEmpty()) {
             diaryImageService.saveDiaryImages(diaryImgList, diary);
         }
     }
 
-    public static void deleteDiaryImages(DiaryImageService diaryImageService, List<String> imagesToDelete) throws IOException {
-        if (imagesToDelete != null) {
-            diaryImageService.deleteDiaryImages(imagesToDelete);
-        }
-    }
-
-    public static void deleteDiaryImages(DiaryImageService diaryImageService, Diary diary) throws IOException {
-        List<DiaryImage> images = diaryImageService.findImagesByDiary(diary);
-        List<String> imageUrls = images.stream()
-                .map(DiaryImage::getDiaryImgURL)
-                .collect(Collectors.toList());
-
-        if (!imageUrls.isEmpty()) {
-            diaryImageService.deleteDiaryImages(imageUrls);
-        }
+    public static void deleteAllDiaryImages(DiaryImageService diaryImageService, Diary diary) throws IOException {
+        diaryImageService.deleteAllDiaryImages(diary);
     }
 }

@@ -32,6 +32,6 @@ public class DiaryReqUpdateDTO {
     private DiaryStatus diaryStatus;
     @Schema(description = "수정할 일기 이미지 List", example = "[\"image1.png\", \"image2.png\"]")
     private List<MultipartFile> diaryImgList;
-    @Schema(description = "삭제할 일기 이미지 List", example = "[\"이미지 URL\", \"이미지 URL\"]")
-    private List<String> imagesToDelete;
+//    @Schema(description = "삭제할 일기 이미지 List", example = "[\"이미지 URL\", \"이미지 URL\"]")
+//    private List<String> imagesToDelete;
 }

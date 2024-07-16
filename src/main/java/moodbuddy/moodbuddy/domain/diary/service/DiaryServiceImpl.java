@@ -78,7 +78,10 @@ public class DiaryServiceImpl implements DiaryService {
 
         findDiary.updateDiary(diaryReqUpdateDTO, summary, diarySubject);
 
-        DiaryUtil.deleteDiaryImages(diaryImageService, diaryReqUpdateDTO.getImagesToDelete());
+        // 기존 이미지 삭제
+        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
+
+        // 새로운 이미지 저장
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqUpdateDTO.getDiaryImgList(), findDiary);
 
         return DiaryMapper.toDetailDTO(findDiary);
@@ -93,7 +96,7 @@ public class DiaryServiceImpl implements DiaryService {
         diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         bookMarkService.deleteByDiaryId(diaryId);
-        DiaryUtil.deleteDiaryImages(diaryImageService, findDiary);
+        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
         diaryRepository.delete(findDiary);
     }
 
@@ -130,7 +133,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         diariesToDelete.forEach(diary -> {
             try {
-                DiaryUtil.deleteDiaryImages(diaryImageService, diary);
+                DiaryUtil.deleteAllDiaryImages(diaryImageService, diary);
             } catch (IOException e) {
                 log.error("Error deleting diary images", e);
                 throw new RuntimeException(e);  // 필요에 따라 적절한 예외 처리
