@@ -33,7 +33,6 @@ public class QuddyTIApiController {
     })
     public ResponseEntity<?> findAll() {
         log.info("[QuddyTIApiController] findAll");
-        QuddyTIResDetailDTO result = quddyTIService.findAll();
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] QuddyTIApiController findAll", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] QuddyTIApiController findAll", quddyTIService.findAll()));
     }
 }

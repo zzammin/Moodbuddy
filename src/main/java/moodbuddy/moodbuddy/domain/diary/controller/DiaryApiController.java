@@ -1,6 +1,4 @@
 package moodbuddy.moodbuddy.domain.diary.controller;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,7 +12,6 @@ import moodbuddy.moodbuddy.domain.diary.dto.response.*;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diary.service.DiaryService;
-import moodbuddy.moodbuddy.domain.diary.service.DiaryServiceImpl;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +39,7 @@ public class DiaryApiController {
     public ResponseEntity<?> save(@Parameter(description = "일기 정보를 담고 있는 DTO")
                                       @ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] save");
-        DiaryResDetailDTO result = diaryService.save(diaryReqSaveDTO);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController save", diaryService.save(diaryReqSaveDTO)));
     }
     /** 구현 완료 **/
     @PostMapping("/update")
@@ -55,8 +51,7 @@ public class DiaryApiController {
     public ResponseEntity<?> update(@Parameter(description = "수정된 일기 정보를 담고 있는 DTO")
                                         @ModelAttribute DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryApiController] update");
-        DiaryResDetailDTO result = diaryService.update(diaryReqUpdateDTO);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController update", diaryService.update(diaryReqUpdateDTO)));
     }
     /** 구현 완료 **/
     @DeleteMapping("/delete/{diaryId}")
@@ -81,8 +76,7 @@ public class DiaryApiController {
     public ResponseEntity<?> draftSave(@Parameter(description = "임시 저장 일기 정보를 담고 있는 DTO")
                                            @ModelAttribute DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryApiController] draftSave");
-        DiaryResDetailDTO result = diaryService.draftSave(diaryReqSaveDTO);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftSave", diaryService.draftSave(diaryReqSaveDTO)));
     }
     /** 구현 완료 **/
     @GetMapping("/draftFindAll")
@@ -93,8 +87,7 @@ public class DiaryApiController {
     })
     public ResponseEntity<?> draftFindAll() {
         log.info("[DiaryApiController] draftFindAll");
-        DiaryResDraftFindAllDTO result = diaryService.draftFindAll();
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController draftFindAll", diaryService.draftFindAll()));
     }
     /** 구현 완료 **/
     @DeleteMapping("/draftSelectDelete")
@@ -119,8 +112,7 @@ public class DiaryApiController {
     public ResponseEntity<?> findOneByDiaryId(@Parameter(description = "일기 고유 식별자")
                                                   @PathVariable("diaryId") Long diaryId) {
         log.info("[DiaryApiController] findOne");
-        DiaryResDetailDTO result = diaryService.findOneByDiaryId(diaryId);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findOne", diaryService.findOneByDiaryId(diaryId)));
     }
     /** 구현 완료 **/
     @GetMapping("/findAllPageable")
@@ -131,8 +123,7 @@ public class DiaryApiController {
     })
     public ResponseEntity<?> findAll(Pageable pageable) {
         log.info("[DiaryApiController] findAllPageable");
-        Page<DiaryResDetailDTO> result = diaryService.findAll(pageable);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllPageable", diaryService.findAll(pageable)));
     }
     /** 구현 완료 **/
     @GetMapping("/findAllByEmotionWithPageable")
@@ -145,8 +136,7 @@ public class DiaryApiController {
             @Parameter(description = "검색하고 싶은 감정(HAPPY, ANGRY, AVERSION, SURPRISED, CALMNESS, DEPRESSION, FEAR)", example = "HAPPY")
             @RequestParam("diaryEmotion") DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryApiController] findAllByEmotionWithPageable");
-        Page<DiaryResDetailDTO> result = diaryService.findAllByEmotion(diaryEmotion, pageable);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByEmotionWithPageable", diaryService.findAllByEmotion(diaryEmotion, pageable)));
     }
     /** 구현 완료(키워드 제외) **/
     @GetMapping("/findAllByFilter")
@@ -163,9 +153,7 @@ public class DiaryApiController {
                                                  @RequestParam(value = "diarySubject", required = false) DiarySubject diarySubject, Pageable pageable) {
         log.info("[DiaryApiController] findAllByFilter");
         DiaryReqFilterDTO diaryReqFilterDTO = getDiaryReqFilterDTO(keyWord, year, month, diaryEmotion, diarySubject);
-
-        Page<DiaryResDetailDTO> result = diaryService.findAllByFilter(diaryReqFilterDTO, pageable);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] DiaryApiController findAllByFilter", diaryService.findAllByFilter(diaryReqFilterDTO, pageable)));
     }
 
     private static DiaryReqFilterDTO getDiaryReqFilterDTO(String keyWord, Integer year, Integer month, DiaryEmotion diaryEmotion, DiarySubject diarySubject) {
