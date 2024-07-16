@@ -18,7 +18,9 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
 import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
+import moodbuddy.moodbuddy.global.common.exception.user.UserKakaoIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -446,6 +448,9 @@ public class UserServiceImpl implements UserService{
     @Override
     public LoginResponseDto login(UserReqLoginDTO userReqLoginDTO) {
         final Optional<User> byKakaoId = userRepository.findByKakaoId(userReqLoginDTO.getKakaoId());
+        if(!byKakaoId.isPresent()) {
+            throw new UserKakaoIdNotFoundException(ErrorCode.NOT_FOUND_USER);
+        }
         User loginUser = byKakaoId.get();
         return  modelMapper.map(loginUser, LoginResponseDto.class);
     }
