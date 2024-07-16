@@ -1,0 +1,76 @@
+-- ALTER TABLE `user`
+--     MODIFY COLUMN `refresh_token_expired_at` DATE NULL;
+--
+-- ALTER TABLE `user`
+--     MODIFY COLUMN `access_token_expired_at` DATE NULL;
+--
+-- INSERT INTO `user` (user_role, nickname, kakao_id, alarm, alarm_time, birthday, gender, created_at, deleted, access_token, refresh_token, user_cur_diary_nums, user_last_diary_nums, user_letter_nums, fcm_token)
+-- VALUES
+--     ('ROLE_USER', '최선우', 1000000000, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMCwiaWF0IjoxNzIxMTUyMjg2fQ.wXwTEfkAo74530VohdMirDY6QwJz4Mk09ZGNh_s9kVA', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMCwiZXhwIjoxNzIyNjIzNTE1fQ.Cudr2VARoS3fWDjGR8GMPcwgjQ6WyHf0s2uUGj4vt-8', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '박예은', 1000000001, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMSwiaWF0IjoxNzIxMTUyMjg2fQ.JBjcbQcKyk4FIo2YDpFkj-mXE8BgMPC1gJPuNaSsi2E', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMSwiZXhwIjoxNzIyNjIzNTE1fQ.wCBr7jBq3qpdOJ-eUAhKyZGtwvy7LNLRSitG7YMXB7o', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '이태호', 1000000002, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMiwiaWF0IjoxNzIxMTUyMjg2fQ.r193svZ32zwdShrhuDGHTdxk7kinANpF1bb-OIvtubU', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMiwiZXhwIjoxNzIyNjIzNTE1fQ.5bHSlEyKcG5mUwcK3p0MayieMfNESUarNnsQv52pVNU', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '한지영', 1000000003, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMywiaWF0IjoxNzIxMTUyMjg2fQ.c4mTFEPC3FLtQBY57lR9Tjm7XpUkf0mNZ8jmiIpy-kA', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwMywiZXhwIjoxNzIyNjIzNTE1fQ.2X5XkxqqA_G6Qx-k1RtYogiJNpQtQMydoQnTQ5oR13U', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '박경완', 1000000004, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNCwiaWF0IjoxNzIxMTUyMjg2fQ.KdhpU1_Qeedxjx_cos38WMrOJIHJerYPlUtGqSXSTl0', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNCwiZXhwIjoxNzIyNjIzNTE1fQ.MBaXz3vCHMr4Fo76Y4ulQXky7_3jKWrmi9uzcgWJLMo', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '김윤수', 1000000005, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNSwiaWF0IjoxNzIxMTUyMjg2fQ.u6-x0UZyzCi4su0pjh0u6UYWn2Ow9mL-P1GRk1KV9co', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNSwiZXhwIjoxNzIyNjIzNTE1fQ.lJWc_jTau3mjIQuQd2uwu4eZo1prQw3_vmhg_LHl7j8', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '김서영', 1000000006, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNiwiaWF0IjoxNzIxMTUyMjg2fQ.KAo7PilcIGo2HeDMD8FYHz3Zu2UpmaHXtSlyPwM2w-c', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNiwiZXhwIjoxNzIyNjIzNTE1fQ.cPxl3eUTH50CKmM54RNO_o0qXqFEruqwlSWGvfKQ3pA', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '박우영', 1000000007, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNywiaWF0IjoxNzIxMTUyMjg2fQ.3VCmMc9kE4lQbgRSOgMzSsikG6Mo-WnTADtB0CukpEg', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwNywiZXhwIjoxNzIyNjIzNTE1fQ.KtKS-dIgOBGxrEdDzAyzXnYnhG8ejqDQ1-A_FN5pX4E', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '유승연', 1000000008, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwOCwiaWF0IjoxNzIxMTUyMjg2fQ.egy4FD_Qcvx7qf1R_2mZEmKTCeNp4jtcZ4JOEb3bY54', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwOCwiZXhwIjoxNzIyNjIzNTE1fQ.mwDAq_SM_qQtIn-uuPMx6rLyKjU9s6SL8G1wen2UxYk', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '유재영', 1000000009, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwOSwiaWF0IjoxNzIxMTUyMjg2fQ.wDK_vraPolobGs3UDOqtd92mZFUR_5r7WjSHoqqGSM4', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAwOSwiZXhwIjoxNzIyNjIzNTE1fQ.9sO-njZs-NRDesgANkIwmKdwBrK9aNSRR-P3KrRTixw', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '고두현', 1000000010, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMCwiaWF0IjoxNzIxMTUyMjg2fQ.QbqgjGu0GDSu5lUhJ9G9gUYUNBscCjhp0EChgHtbGOM', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMCwiZXhwIjoxNzIyNjIzNTE1fQ.LoUeUL95PFQD7Pg3X03AnMe5znPX3S6ERpCImAKiCiY', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '박수아', 1000000011, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMSwiaWF0IjoxNzIxMTUyMjg2fQ.fht6x2Eri_1ZXskKcr5c75QkEnnNIIfs2M3H1KeU8zw', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMSwiZXhwIjoxNzIyNjIzNTE1fQ.v5KuxFJjJTbhchYb38zzz3k_HRHMfuYrMZVMWvNVTuU', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '이소희', 1000000012, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMiwiaWF0IjoxNzIxMTUyMjg2fQ.Fi3mUngOOCaBSd9PiuiraBm5iC6BECS5SOVLkgG0CJk', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMiwiZXhwIjoxNzIyNjIzNTE1fQ.cHAQq4MJM5xVdiouAcX49-7yVUdAy-otYTG0Binu5xI', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '성나영', 1000000013, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMywiaWF0IjoxNzIxMTUyMjg2fQ.S7Xzg9DygCIui6tRWc6rqhNuY4xDhSIPLu5JGD7nloc', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxMywiZXhwIjoxNzIyNjIzNTE1fQ.rq4xTaX-SEB0dKVwQhVv-Snhh8Wh1LN6nSk3gtAgD74', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '김정목', 1000000014, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNCwiaWF0IjoxNzIxMTUyMjg2fQ.oh13PBDCKE9erUfNBebt_ULFHOgp_qkWsfKXOWpx2s4', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNCwiZXhwIjoxNzIyNjIzNTE1fQ.suYPxjZx9BJ_OiPzu8sZILuSkfCr1zFf7AHl8aoAgmQ', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '이다연', 1000000015, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNSwiaWF0IjoxNzIxMTUyMjg2fQ.U6OcU6bp5RMz8UdyGkrsmDOkdWFLZEPE7iLNuQ8N9VM', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNSwiZXhwIjoxNzIyNjIzNTE1fQ.0-_Ek69ChsbjmAzDZJMcDvhiMTsvqwlA4Kg3n-jLeVQ', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '정재민', 1000000016, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNiwiaWF0IjoxNzIxMTUyMjg2fQ.ph4X9netBnaAxbfILxkWJTkzqjX1N0JkP_4TCGrvCdI', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNiwiZXhwIjoxNzIyNjIzNTE1fQ.sxftacmthuooo4klREdkWBE8tqTmjNR26J0zG3ERj6E', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '강민하', 1000000017, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNywiaWF0IjoxNzIxMTUyMjg2fQ.b-RBwBQaMY0c0Pb1VVkmlO9NITY5_oQs5GlDXxmj2P4', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxNywiZXhwIjoxNzIyNjIzNTE1fQ.pXP6x7pYqIRYmYW1IebylpaGDpbh-9V5sctijIHz6lY', 0, 0, 0, 'sample_fcm_token'),
+--     ('ROLE_USER', '최영서', 1000000018, 1, '08:00', '2000-01-01', 1, NOW(), 0, 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxOCwiaWF0IjoxNzIxMTUyMjg2fQ.xrleIsp-wP5GlJ4_UhDVK1scGa0lmXCVSUizA2zQcBA', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MTAwMDAwMDAxOCwiZXhwIjoxNzIyNjIzNTE1fQ.CTnWN3iVbSWjTzezWtuLZJBj8lx8DArwtWqFCb0pbi0', 0, 0, 0, 'sample_fcm_token');
+--
+--
+-- INSERT INTO profile (profile_comment, kakao_id)
+-- VALUES
+--     ('최선우\'s comment', 1000000000),
+-- ('박예은\'s comment', 1000000001),
+--     ('이태호\'s comment', 1000000002),
+-- ('한지영\'s comment', 1000000003),
+--     ('박경완\'s comment', 1000000004),
+-- ('김윤수\'s comment', 1000000005),
+--     ('김서영\'s comment', 1000000006),
+-- ('박우영\'s comment', 1000000007),
+--     ('유승연\'s comment', 1000000008),
+-- ('유재영\'s comment', 1000000009),
+--     ('고두현\'s comment', 1000000010),
+-- ('박수아\'s comment', 1000000011),
+--     ('이소희\'s comment', 1000000012),
+-- ('성나영\'s comment', 1000000013),
+--     ('김정목\'s comment', 1000000014),
+-- ('이다연\'s comment', 1000000015),
+--     ('정재민\'s comment', 1000000016),
+-- ('강민하\'s comment', 1000000017),
+--     ('최영서\'s comment', 1000000018);
+--
+-- INSERT INTO profile_image (kakao_id, profile_img_url)
+-- VALUES
+-- (1000000000, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000001, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000002, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000003, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000004, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000005, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000006, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000007, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000008, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000009, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000010, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000011, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000012, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000013, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000014, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000015, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000016, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000017, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640'),
+-- (1000000018, 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640');
+--
+--
+-- DELETE FROM `user`
+-- WHERE `user_id` = 86;
