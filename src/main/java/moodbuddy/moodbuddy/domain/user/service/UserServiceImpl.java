@@ -455,18 +455,28 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 
-    @Override
-    public void setUserCheckTodayDairy(Long kakaoId) {
-        User findUser = getUser_kakaoId(kakaoId);
-        findUser.setCheckTodayDiary(true);
-    }
-
     /** 테스트를 위한 임시 자체 로그인 **/
     @Override
     public LoginResponseDto login(UserReqLoginDTO userReqLoginDTO) {
         User findUser = getUser_kakaoId(userReqLoginDTO.getKakaoId());
         return  modelMapper.map(findUser, LoginResponseDto.class);
     }
+
+    @Override
+    public UserResCheckTodayDiaryDTO checkTodayDiary() {
+        Long kakaoId = JwtUtil.getUserId();
+        return UserResCheckTodayDiaryDTO.builder()
+                .kakaoId(kakaoId)
+                .checkTodayDairy(getUser_kakaoId(kakaoId).getCheckTodayDairy())
+                .build();
+    }
+
+    @Override
+    public void setUserCheckTodayDairy(Long kakaoId) {
+        User findUser = getUser_kakaoId(kakaoId);
+        findUser.setCheckTodayDiary(false);
+    }
+
 
     private User getUser_kakaoId(Long kakaoId) {
         final Optional<User> optionalUser = userRepository.findByKakaoId(kakaoId);

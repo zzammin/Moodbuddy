@@ -26,5 +26,5 @@ public class DiaryReqSaveDTO {
     @Schema(description = "일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")
     private DiaryWeather diaryWeather;
     @Schema(description = "일기 이미지 List", example = "[\"image1.png\", \"image2.png\"]")
-    private List<MultipartFile> diaryImgList;
+    private List<MultipartFile> diaryImgList; 
 }

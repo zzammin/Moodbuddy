@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);
 
-        userService.numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
+        checkTodayDiaryPlusLetter(diaryReqSaveDTO, kakaoId); // 오늘 날짜의 일기인 경우에만 편지지 개수를 늘려줍니다.
         userService.setUserCheckTodayDairy(kakaoId); // 일기 작성 불가
 
         return DiaryMapper.toDetailDTO(diary);
@@ -201,6 +202,13 @@ public class DiaryServiceImpl implements DiaryService {
         Mono<String> subjectMono = gptService.classifyDiaryContent(diaryContent);
         String classifiedSubject = subjectMono.block();
         return DiarySubject.valueOf(classifiedSubject);
+    }
+
+    private void checkTodayDiaryPlusLetter(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
+        LocalDate today = LocalDate.now();
+        if (diaryReqSaveDTO.getDiaryDate().isEqual(today)) {
+            userService.numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
+        }
     }
 
 }

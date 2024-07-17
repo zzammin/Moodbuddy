@@ -152,4 +152,15 @@ public class UserApiController {
         log.info("[DiaryApiController] login");
         return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController login", userService.login(userReqLoginDTO)));
     }
+
+    @GetMapping("/checkTodayDiary")
+    @Operation(summary = "오늘 일기 작성 가능 여부 확인")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResCheckTodayDiaryDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> checkTodayDiary(){
+        log.info("[DiaryApiController] login");
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] UserApiController checkTodayDiary", userService.checkTodayDiary()));
+    }
 }
