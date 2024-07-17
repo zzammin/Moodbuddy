@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,18 +45,18 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] save");
         final Long kakaoId = JwtUtil.getUserId();
 
-        /** format **/
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime parsedDiaryDate = LocalDateTime.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
+//        /** format **/
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+//        LocalDate parsedDiaryDate = LocalDate.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
+//
+//        /** format **/
 
-        DiaryUtil.validateExistingDiary(diaryRepository, parsedDiaryDate, kakaoId);
-        /** format **/
-
+        DiaryUtil.validateExistingDiary(diaryRepository, diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
         String summary = diarySummarizeService.summarize(diaryReqSaveDTO.getDiaryContent());
         DiarySubject diarySubject = classifyDiaryContent(diaryReqSaveDTO.getDiaryContent());
 
-        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, parsedDiaryDate, summary, diarySubject);
+        Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary, diarySubject);
         diary = diaryRepository.save(diary);
 
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);
@@ -115,13 +113,13 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] draftSave");
         final Long kakaoId = JwtUtil.getUserId();
 
-        /** format **/
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime parsedDiaryDate = LocalDateTime.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
-        /** format **/
+//        /** format **/
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+//        LocalDateTime parsedDiaryDate = LocalDateTime.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
+//        /** format **/
 
 
-        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId, parsedDiaryDate);
+        Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId);
         diary = diaryRepository.save(diary);
 
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);

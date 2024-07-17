@@ -30,7 +30,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     Optional<Diary> findDiarySummaryById(@Param("kakaoId") Long kakaoId);
 
     // 오늘 작성한 일기가 있는지 확인
-    Optional<Diary> findByDiaryDateAndKakaoId(LocalDateTime diaryDate, Long kakaoId);
+    Optional<Diary> findByDiaryDateAndKakaoId(LocalDate diaryDate, Long kakaoId);
     Optional<Diary> findByDiaryDateAndKakaoIdAndDiaryStatus(LocalDateTime diaryDate, Long kakaoId, DiaryStatus diaryStatus);
 
     @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND YEAR(d.diaryDate) = :year AND MONTH(d.diaryDate) = :month")

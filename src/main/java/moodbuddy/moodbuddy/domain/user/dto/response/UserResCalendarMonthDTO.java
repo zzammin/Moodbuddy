@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,7 +18,7 @@ public class UserResCalendarMonthDTO {
     @Schema(description = "일기의 diary Id")
     private Long diaryId;
     @Schema(description = "일기 작성 날짜")
-    private LocalDateTime diaryDate;
+    private LocalDate diaryDate;
     @Schema(description = "일기의 감정")
     private DiaryEmotion diaryEmotion;
 }

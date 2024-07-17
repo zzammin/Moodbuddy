@@ -2,6 +2,7 @@ package moodbuddy.moodbuddy.domain.diary.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -11,6 +12,6 @@ import java.time.LocalDateTime;
 @Setter
 public class DiaryResDTO {
     private String emotion;
-    private LocalDateTime diaryDate;
+    private LocalDate diaryDate;
     private String comment;
 }

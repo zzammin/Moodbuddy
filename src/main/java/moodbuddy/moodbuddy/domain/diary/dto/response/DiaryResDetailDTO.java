@@ -12,6 +12,7 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class DiaryResDetailDTO {
     @Schema(description = "일기 제목", example = "쿼카의 하루")
     private String diaryTitle;
     @Schema(description = "일기 날짜", example = "2023-07-02T15:30:00")
-    private LocalDateTime diaryDate;
+    private LocalDate diaryDate;
     @Schema(description = "일기 내용", example = "쿼카쿼카쿼카쿼카쿼카쿼카")
     private String diaryContent;
     @Schema(description = "일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")
@@ -47,7 +48,7 @@ public class DiaryResDetailDTO {
     private List<String> diaryImgList;
 
 
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
@@ -60,7 +61,7 @@ public class DiaryResDetailDTO {
         this.diarySubject = diarySubject;
         this.diaryBookMarkCheck = diaryBookMarkCheck;
     }
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDateTime diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, List<String> diaryImgList) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, List<String> diaryImgList) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;

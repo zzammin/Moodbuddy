@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -170,15 +171,15 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
     @Override
     public Page<DiaryResDetailDTO> findAllByFilterWithPageable(DiaryReqFilterDTO filterDTO, Long kakaoId, Pageable pageable) {
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
+        LocalDate startDate = null;
+        LocalDate endDate = null;
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(diary.kakaoId.eq(kakaoId));
 
         if (filterDTO.getYear() != null) {
-            startDate = LocalDateTime.of(filterDTO.getYear(), 1, 1, 0, 0);
-            endDate = startDate.plusYears(1).minusSeconds(1);
+            startDate = LocalDate.of(filterDTO.getYear(), 1, 1);
+            endDate = startDate.plusYears(1);
             builder.and(betweenDates(startDate, endDate));
         }
 
@@ -248,7 +249,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .or(diary.diarySummary.containsIgnoreCase(keyword));
     }
 
-    private BooleanExpression betweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+    private BooleanExpression betweenDates(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null) {
             return diary.diaryDate.between(startDate, endDate);
         } else if (startDate != null) {
@@ -277,7 +278,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     }
 
     @Override
-    public long countByEmotionAndDateRange(DiaryEmotion emotion, LocalDateTime start, LocalDateTime end) {
+    public long countByEmotionAndDateRange(DiaryEmotion emotion, LocalDate start, LocalDate end) {
         QDiary qDiary = QDiary.diary;
         return queryFactory.selectFrom(qDiary)
                 .where(qDiary.diaryDate.between(start, end)
@@ -286,7 +287,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     }
 
     @Override
-    public long countBySubjectAndDateRange(DiarySubject subject, LocalDateTime start, LocalDateTime end) {
+    public long countBySubjectAndDateRange(DiarySubject subject, LocalDate start, LocalDate end) {
         QDiary qDiary = QDiary.diary;
         return queryFactory.selectFrom(qDiary)
                 .where(qDiary.diaryDate.between(start, end)

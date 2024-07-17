@@ -5,6 +5,7 @@ import lombok.*;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,8 +24,8 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_title", nullable = false, columnDefinition = "varchar(255)")
     private String diaryTitle;
 
-    @Column(name = "diary_date", nullable = false, columnDefinition = "datetime")
-    private LocalDateTime diaryDate;
+    @Column(name = "diary_date", nullable = false)
+    private LocalDate diaryDate;
 
 //    @Lob
     @Column(name = "diary_content", nullable = false, columnDefinition = "text")

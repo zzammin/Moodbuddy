@@ -10,6 +10,7 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class DiaryReqUpdateDTO {
     @Schema(description = "수정할 일기 제목", example = "쿼카의 하카")
     private String diaryTitle;
     @Schema(description = "수정할 일기 날짜", example = "2023-07-02T15:30:00")
-    private LocalDateTime diaryDate;
+    private LocalDate diaryDate;
     @Schema(description = "수정할 일기 내용", example = "쿼카쿼카쿼카쿼카쿼카쿼카")
     private String diaryContent;
     @Schema(description = "수정할 일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")

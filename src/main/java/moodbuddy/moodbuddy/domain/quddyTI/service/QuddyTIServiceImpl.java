@@ -40,7 +40,7 @@ public class QuddyTIServiceImpl implements QuddyTIService {
     @Transactional
     public void aggregateAndSaveDiaryData() {
         final Long kakaoId = JwtUtil.getUserId();
-        LocalDateTime[] lastMonthRange = getLastMonthDateTimeRange();
+        LocalDate[] lastMonthRange = getLastMonthDateTimeRange();
 
         Map<DiaryEmotion, Long> emotionCounts = getDiaryEmotionCounts(lastMonthRange[0], lastMonthRange[1]);
         Map<DiarySubject, Long> subjectCounts = getDiarySubjectCounts(lastMonthRange[0], lastMonthRange[1]);
@@ -63,15 +63,15 @@ public class QuddyTIServiceImpl implements QuddyTIService {
                 .orElseThrow(() -> new QuddyTINotFoundException(ErrorCode.NOT_FOUND_QUDDYTI));
     }
 
-    private LocalDateTime[] getLastMonthDateTimeRange() {
+    private LocalDate[] getLastMonthDateTimeRange() {
         LocalDate now = LocalDate.now();
         YearMonth lastMonth = YearMonth.from(now).minusMonths(1);
-        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
-        LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
-        return new LocalDateTime[]{startOfLastMonth, endOfLastMonth};
+        LocalDate startOfLastMonth = lastMonth.atDay(1);
+        LocalDate endOfLastMonth = lastMonth.atEndOfMonth();
+        return new LocalDate[]{startOfLastMonth, endOfLastMonth};
     }
 
-    private Map<DiaryEmotion, Long> getDiaryEmotionCounts(LocalDateTime start, LocalDateTime end) {
+    private Map<DiaryEmotion, Long> getDiaryEmotionCounts(LocalDate start, LocalDate end) {
         Map<DiaryEmotion, Long> emotionCounts = new EnumMap<>(DiaryEmotion.class);
         for (DiaryEmotion emotion : DiaryEmotion.values()) {
             emotionCounts.put(emotion, diaryCountService.getDiaryEmotionCount(emotion, start, end));
@@ -79,7 +79,7 @@ public class QuddyTIServiceImpl implements QuddyTIService {
         return emotionCounts;
     }
 
-    private Map<DiarySubject, Long> getDiarySubjectCounts(LocalDateTime start, LocalDateTime end) {
+    private Map<DiarySubject, Long> getDiarySubjectCounts(LocalDate start, LocalDate end) {
         Map<DiarySubject, Long> subjectCounts = new EnumMap<>(DiarySubject.class);
         for (DiarySubject subject : DiarySubject.values()) {
             subjectCounts.put(subject, diaryCountService.getDiarySubjectCount(subject, start, end));

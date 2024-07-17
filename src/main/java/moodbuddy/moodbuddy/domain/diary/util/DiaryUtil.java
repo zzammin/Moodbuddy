@@ -9,12 +9,13 @@ import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingExcep
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class DiaryUtil {
 
-    public static void validateExistingDiary(DiaryRepository diaryRepository, LocalDateTime diaryDate, Long kakaoId) {
+    public static void validateExistingDiary(DiaryRepository diaryRepository, LocalDate diaryDate, Long kakaoId) {
         if (diaryRepository.findByDiaryDateAndKakaoId(diaryDate, kakaoId).isPresent()) {
             throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
         }
