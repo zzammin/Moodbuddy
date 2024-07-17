@@ -74,13 +74,21 @@ public class UserServiceImpl implements UserService{
 
                 log.info("diaryList : "+diaryList);
 
-                // 횟수가 최댓값인 emotion과 그 값을 저장하기 위한 Map
-                Map<DiaryEmotion, Integer> emotionMap = emotionNum(diaryList);
-                log.info("emotionMap : "+emotionMap);
+                // 감정 데이터 초기화
+                DiaryEmotion diaryEmotion = null;
+                int maxEmotionNum = 0;
 
-                // Map에서 key와 value 가져오기
-                DiaryEmotion diaryEmotion = emotionMap.keySet().iterator().next(); // key가 하나밖에 없기 때문에 iterator().next() 사용
-                int maxEmotionNum = emotionMap.get(diaryEmotion);
+                if (!diaryList.isEmpty()) {
+                    // 횟수가 최댓값인 emotion과 그 값을 저장하기 위한 Map
+                    Map<DiaryEmotion, Integer> emotionMap = emotionNum(diaryList);
+                    log.info("emotionMap : "+emotionMap);
+
+                    // Map에서 key와 value 가져오기
+                    if (!emotionMap.isEmpty()) {
+                        diaryEmotion = emotionMap.keySet().iterator().next(); // key가 하나밖에 없기 때문에 iterator().next() 사용
+                        maxEmotionNum = emotionMap.get(diaryEmotion);
+                    }
+                }
 
                 return UserResMainPageDTO.builder()
                         .nickname(optionalUser.get().getNickname())
