@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class UserResUpdateTokenDTO {
+    @Schema(description = "유저의 닉네임")
+    String nickname;
     @Schema(description = "유저의 fcmToken")
     String fcmToken;
 }

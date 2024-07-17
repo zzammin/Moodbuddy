@@ -407,8 +407,11 @@ public class UserServiceImpl implements UserService{
         try{
             log.info("[UserService] updateToken");
             Long kakaoId = JwtUtil.getUserId();
+            User user = userRepository.findByKakaoId(kakaoId)
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
             userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
             return UserResUpdateTokenDTO.builder()
+                    .nickname(user.getNickname())
                     .fcmToken(userReqTokenDTO.getFcmToken())
                     .build();
         } catch (Exception e){
