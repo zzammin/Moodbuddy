@@ -84,6 +84,16 @@ public class DiaryImageServiceImpl implements DiaryImageService {
             }
         }
     }
+    @Transactional
+    public void deleteDiaryImage(DiaryImage diaryImage) {
+        try {
+            deleteImageFromS3(diaryImage.getDiaryImgURL());
+            diaryImageRepository.delete(diaryImage);
+        } catch (IOException e) {
+            log.error("Failed to delete image from S3", e);
+            throw new RuntimeException("Failed to delete image from S3", e);
+        }
+    }
 
     private void deleteImageFromS3(String imageUrl) throws IOException {
         String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
@@ -17,11 +18,11 @@ public class DiaryResDraftFindOneDTO {
     @Schema(description = "사용자 고유 식별자(kakaoId)", example = "2")
     private Long kakaoId;
     @Schema(description = "일기 날짜", example = "2023-07-02T15:30:00")
-    private LocalDateTime diaryDate;
+    private LocalDate diaryDate;
     @Schema(description = "일기 상태(DRAFT, PUBLISHED", example = "DRAFT")
     private DiaryStatus diaryStatus;
 
-    public DiaryResDraftFindOneDTO(Long diaryId, Long kakaoId, LocalDateTime diaryDate, DiaryStatus diaryStatus) {
+    public DiaryResDraftFindOneDTO(Long diaryId, Long kakaoId, LocalDate diaryDate, DiaryStatus diaryStatus) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryDate = diaryDate;

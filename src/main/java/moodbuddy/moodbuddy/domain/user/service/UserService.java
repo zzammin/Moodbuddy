@@ -67,4 +67,7 @@ public interface UserService {
 
     /** 테스트를 위한 임시 자체 로그인 **/
     LoginResponseDto login(UserReqLoginDTO userReqLoginDTO);
+
+    /** 오늘 일기 작성한 지 가능 여부 **/
+    UserResCheckTodayDiaryDTO checkTodayDiary();
 }

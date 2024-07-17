@@ -14,5 +14,6 @@ public interface DiaryImageService {
     void deleteAllDiaryImages(Diary diary) throws IOException;
     List<DiaryImage> findImagesByDiary(Diary diary);
     String saveProfileImages(MultipartFile newProfileImg) throws IOException;
+    void deleteDiaryImage(DiaryImage diaryImage);
 }
 

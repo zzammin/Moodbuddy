@@ -28,7 +28,7 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final StringPath diaryContent = createString("diaryContent");
 
-    public final DateTimePath<java.time.LocalDateTime> diaryDate = createDateTime("diaryDate", java.time.LocalDateTime.class);
+    public final DatePath<java.time.LocalDate> diaryDate = createDate("diaryDate", java.time.LocalDate.class);
 
     public final EnumPath<DiaryEmotion> diaryEmotion = createEnum("diaryEmotion", DiaryEmotion.class);
 

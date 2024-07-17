@@ -17,7 +17,7 @@ public class UserScheduler {
     public void resetCheckTodayDiary() {
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            user.setCheckTodayDairy(false);
+            user.setCheckTodayDairy(true);
         }
     }
 }
