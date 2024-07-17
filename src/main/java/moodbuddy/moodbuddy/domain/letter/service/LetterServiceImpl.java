@@ -61,7 +61,7 @@ public class LetterServiceImpl implements LetterService {
 //    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, timeout = 30)
     public LetterResPageDTO letterPage() {
         log.info("[LetterService] letterPage");
         try {
@@ -109,7 +109,7 @@ public class LetterServiceImpl implements LetterService {
 //            }
 
     @Override
-    @Transactional(timeout = 10)
+    @Transactional(timeout = 30)
     public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
@@ -157,7 +157,7 @@ public class LetterServiceImpl implements LetterService {
     }
 
     @Override
-    @Transactional(timeout = 10)
+    @Transactional(timeout = 30)
     public void letterAnswerSave(String worryContent, Integer format, Long letterId) {
         log.info("[LetterService] answerSave");
         try {
@@ -211,7 +211,7 @@ public class LetterServiceImpl implements LetterService {
 //    }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, timeout = 30)
     public LetterResDetailsDTO letterDetails(Long letterId) {
         log.info("[LetterService] details");
         try {

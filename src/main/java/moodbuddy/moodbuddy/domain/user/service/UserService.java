@@ -33,8 +33,8 @@ public interface UserService {
     // 한 달이 지나면 이번 달 일기 개수를 저번 달 일기 개수로 변경하고, 이번 달 일기 개수 초기화하기
     void changeDiaryNums();
 
-    //월별 통계 보기 _ 월별 감정 통계
-    List<EmotionStaticDto> getEmotionStatic(LocalDate month);
+    //월별 통계 보기
+    UserResStatisticsMonthDTO getMonthStatic(LocalDate month);
 
     //내 활동 _ 일기 횟수 조회 , 년 + 해당하는 월
     List<DiaryNumsDto> getDiaryNums(LocalDate year);
@@ -47,6 +47,9 @@ public interface UserService {
 
     //프로필 수정
     UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException;
+
+    // 다음 달 나에게 짧은 한 마디
+    UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO);
 
     // 알람 설정한 유저 리스트 보내기
     List<User> getAllUsersWithAlarms();

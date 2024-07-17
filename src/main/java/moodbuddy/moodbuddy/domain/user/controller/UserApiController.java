@@ -70,16 +70,25 @@ public class UserApiController {
         return ResponseEntity.ok(userService.summary(calendarSummaryDTO));
     }
 
-    //월별 통계 보기 _ 월별 감정 통계
-    @GetMapping("/main/emotion-static")
+    //월별 통계 보기
+    @GetMapping("/main/month-static")
     @Operation(summary = "월별 감정 통계 보기", description = "사용자가 선택한 월의 감정 통계를 보여줍니다.")
     @Parameters({
             @Parameter(name="month", description = "YYYY-MM-DD 형식으로 입력하세요"),
     })
-    public ResponseEntity<?> getEmotionStatic
+    public ResponseEntity<?> getMonthStatic
     (@RequestParam("month") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
-        List<EmotionStaticDto> emotionStats = userService.getEmotionStatic(month);
-        return ResponseEntity.ok(emotionStats);
+        return ResponseEntity.ok(userService.getMonthStatic(month));
+    }
+
+    // 다음 달 나에게 짧은 한 마디
+    @PostMapping("/main/month-comment")
+    @Operation(summary = "다음 달 나에게 짧은 한 마디")
+    public ResponseEntity<?> monthComment(
+            @Parameter(description = "한 마디를 받아오는 DTO")
+            @RequestBody UserReqMonthCommentDTO userReqMonthCommentDTO
+    ){
+        return ResponseEntity.ok(userService.monthComment(userReqMonthCommentDTO));
     }
 
 

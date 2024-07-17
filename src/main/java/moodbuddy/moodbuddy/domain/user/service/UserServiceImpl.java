@@ -6,6 +6,8 @@ import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageServiceImpl;
+import moodbuddy.moodbuddy.domain.monthcomment.entity.MonthComment;
+import moodbuddy.moodbuddy.domain.monthcomment.repository.MonthCommentRepository;
 import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +47,7 @@ public class UserServiceImpl implements UserService{
     private final ProfileRepository profileRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiaryRepository diaryRepository;
+    private final MonthCommentRepository monthCommentRepository;
     private final DiaryImageServiceImpl diaryImageService;
 
     /** =========================================================  재민  ========================================================= **/
@@ -233,7 +237,7 @@ public class UserServiceImpl implements UserService{
     //해당하는 월에 유저 아이디로 diary_emotion 조회 -> 감정별로 group by or 불러와서 리스트 또는 hashmap 형태로 가공 (감정(key), 횟수(value))
     @Override
     @Transactional(readOnly = true)
-    public List<EmotionStaticDto> getEmotionStatic(LocalDate month) {
+    public UserResStatisticsMonthDTO getMonthStatic(LocalDate month) {
 
         Long kakaoId = JwtUtil.getUserId();
 
@@ -258,14 +262,48 @@ public class UserServiceImpl implements UserService{
             }
         }
 
+        // LocalDate를 문자열로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        String formattedMonth = month.format(formatter);
+
+        // 다음 달 나에게 짧은 한 마디 내용
+        String monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,formattedMonth);
+
         // Map을 EmotionStaticDto 리스트로 변환하고 nums 값으로 내림차순 정렬
-        return emotionCountMap.entrySet().stream()
+        List<EmotionStaticDto> emotionStaticDtoList = emotionCountMap.entrySet().stream()
                 .map(entry -> new EmotionStaticDto(entry.getKey(), entry.getValue()))
                 .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
                 .collect(Collectors.toList());
 
-
+        return UserResStatisticsMonthDTO.builder()
+                .emotionStaticDtoList(emotionStaticDtoList)
+                .monthComment(monthComment)
+                .build();
     }
+
+    @Override
+    @Transactional
+    public UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO){
+        log.info("[UserService] monthComment");
+        try {
+            Long kakaoId = JwtUtil.getUserId();
+            MonthComment monthComment = MonthComment.builder()
+                    .kakaoId(kakaoId)
+                    .commentDate(userReqMonthCommentDTO.getChooseMonth())
+                    .commentContent(userReqMonthCommentDTO.getMonthComment())
+                    .build();
+            monthCommentRepository.save(monthComment);
+
+            return UserResMonthCommentDTO.builder()
+                    .chooseMonth(userReqMonthCommentDTO.getChooseMonth())
+                    .monthComment(userReqMonthCommentDTO.getMonthComment())
+                    .build();
+        } catch (Exception e){
+            log.error("[UserService] monthComment error"+e);
+            throw new RuntimeException(e);
+        }
+    }
+
 
     //일기 작성 횟수 조회
     //year parameter로 받아서 -> year에 해당하는 데이터 key,value <month, nums> 형태로 출력
@@ -404,6 +442,7 @@ public class UserServiceImpl implements UserService{
 
         return updateUserProfile;
     }
+
 
     @Override
     @Transactional
