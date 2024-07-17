@@ -113,7 +113,6 @@ public class LetterServiceImpl implements LetterService {
             );
 
             log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
-
             // 편지지가 없을 경우 예외 처리
             if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
                 throw new IllegalArgumentException("편지지가 없습니다.");
