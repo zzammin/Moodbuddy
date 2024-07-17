@@ -29,6 +29,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath birthday = createString("birthday");
 
+    public final BooleanPath checkTodayDairy = createBoolean("checkTodayDairy");
+
     public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
     public final BooleanPath deleted = createBoolean("deleted");

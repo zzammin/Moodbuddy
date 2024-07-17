@@ -19,7 +19,7 @@ public class DiaryReqSaveDTO {
     @Schema(description = "일기 제목", example = "쿼카의 하루")
     private String diaryTitle;
     @Schema(description = "일기 날짜", example = "2023-07-02T15:30:00")
-    private LocalDateTime diaryDate;
+    private String diaryDate;
     @Schema(description = "일기 내용", example = "쿼카쿼카쿼카쿼카쿼카쿼카")
     private String diaryContent;
     @Schema(description = "일기 날씨(CLEAR, CLOUDY, RAIN, SNOW)", example = "CLEAR")

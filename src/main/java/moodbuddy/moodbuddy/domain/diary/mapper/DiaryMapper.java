@@ -8,14 +8,16 @@ import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
 import org.modelmapper.ModelMapper;
 
+import java.time.LocalDateTime;
+
 public class DiaryMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, String summary, DiarySubject diarySubject) {
+    public static Diary toDiaryEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, LocalDateTime parsedDiaryDate, String summary, DiarySubject diarySubject) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
-                .diaryDate(diaryReqSaveDTO.getDiaryDate())
+                .diaryDate(parsedDiaryDate)
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
                 .diaryStatus(DiaryStatus.PUBLISHED)
@@ -26,10 +28,10 @@ public class DiaryMapper {
                 .build();
     }
 
-    public static Diary toDraftEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
+    public static Diary toDraftEntity(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId, LocalDateTime parsedDiaryDate) {
         return Diary.builder()
                 .diaryTitle(diaryReqSaveDTO.getDiaryTitle())
-                .diaryDate(diaryReqSaveDTO.getDiaryDate())
+                .diaryDate(parsedDiaryDate)
                 .diaryContent(diaryReqSaveDTO.getDiaryContent())
                 .diaryWeather(diaryReqSaveDTO.getDiaryWeather())
                 .diaryStatus(DiaryStatus.DRAFT)

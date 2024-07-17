@@ -79,4 +79,11 @@ public class User {
 
     @Column(name = "fcm_token", columnDefinition = "text")
     private String fcmToken;
+
+    @Column(name = "check_today_diary")
+    private Boolean checkTodayDairy;
+
+    public void setCheckTodayDiary(Boolean checkTodayDairy) {
+        this.checkTodayDairy = checkTodayDairy;
+    }
 }

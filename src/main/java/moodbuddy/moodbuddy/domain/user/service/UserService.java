@@ -60,6 +60,8 @@ public interface UserService {
     // 이번 달 일기 개수와 편지지 개수 증가
     void numPlus(Long kakaoId);
 
+     void setUserCheckTodayDairy(Long kakaoId);
+
     /** 테스트를 위한 임시 자체 로그인 **/
     LoginResponseDto login(UserReqLoginDTO userReqLoginDTO);
 }
