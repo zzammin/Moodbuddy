@@ -30,4 +30,12 @@ public class DiaryUtil {
     public static void deleteAllDiaryImages(DiaryImageService diaryImageService, Diary diary) throws IOException {
         diaryImageService.deleteAllDiaryImages(diary);
     }
+    public static void deleteExcludingImages(DiaryImageService diaryImageService, Diary diary, List<String> existingImgUrls) throws IOException {
+        List<DiaryImage> diaryImages = diaryImageService.findImagesByDiary(diary);
+        for (DiaryImage diaryImage : diaryImages) {
+            if (!existingImgUrls.contains(diaryImage.getDiaryImgURL())) {
+                diaryImageService.deleteDiaryImage(diaryImage);
+            }
+        }
+    }
 }
