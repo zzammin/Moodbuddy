@@ -1,5 +1,8 @@
 package moodbuddy.moodbuddy.domain.letter.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
@@ -32,6 +35,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -52,7 +56,9 @@ public class LetterServiceImpl implements LetterService {
     private final LetterRepository letterRepository;
     private final GptService gptService;
     private final FcmService fcmService;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
+    @PersistenceContext
+    private EntityManager entityManager;
+//    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
     @Override
     @Transactional(readOnly = true)
@@ -103,7 +109,7 @@ public class LetterServiceImpl implements LetterService {
 //            }
 
     @Override
-    @Transactional
+    @Transactional(timeout = 10)
     public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
@@ -111,6 +117,9 @@ public class LetterServiceImpl implements LetterService {
             User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
                     () -> new MemberIdNotFoundException(JwtUtil.getUserId())
             );
+
+            // LockTimeout 설정
+            entityManager.lock(user, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap("javax.persistence.lock.timeout", 10000));
 
             log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
             // 편지지가 없을 경우 예외 처리
@@ -148,12 +157,13 @@ public class LetterServiceImpl implements LetterService {
     }
 
     @Override
-    @Transactional
+    @Transactional(timeout = 10)
     public void letterAnswerSave(String worryContent, Integer format, Long letterId) {
         log.info("[LetterService] answerSave");
         try {
             GPTResponseDTO response = gptService.letterAnswerSave(worryContent, format).block();
 
+            log.info("letterId : "+letterId);
             if (response != null && response.getChoices() != null) {
                 for (GPTResponseDTO.Choice choice : response.getChoices()) {
                     GPTMessageDTO message = choice.getMessage();
