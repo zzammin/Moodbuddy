@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuddyTIScheduler {
     private final QuddyTIServiceImpl quddyTIService;
-
     @Scheduled(cron = "0 0 0 1 * ?")
     @Transactional
     public void aggregateAndSaveDiaryData() {
