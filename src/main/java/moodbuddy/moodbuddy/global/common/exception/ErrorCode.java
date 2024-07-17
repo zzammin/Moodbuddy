@@ -16,6 +16,7 @@ public enum ErrorCode {
     NOT_FOUND(404,"COMMON-ERR-404","PAGE NOT FOUND"),
     NOT_FOUND_DIARY(404, "DIARY_ERR-404", "일기를 찾을 수 없습니다."),
     NOT_FOUND_QUDDYTI(404, "QUDDYTI_ERR-404", "쿼디티아이를 찾을 수 없습니다."),
+    NOT_FOUND_USER(404, "USER_ERR-404", "아이디에 해당하는 회원을 찾을 수 없습니다."),
     TODAY_EXISTING_DIARY(409, "DIARY-ERR-409", "오늘 이미 일기를 작성했습니다."),
 
     /** 5XX **/

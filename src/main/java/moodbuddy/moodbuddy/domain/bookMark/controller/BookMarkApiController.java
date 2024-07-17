@@ -37,8 +37,7 @@ public class BookMarkApiController {
     public ResponseEntity<?> toggle(@Parameter(description = "일기 고유 식별자")
                                   @PathVariable("diaryId") Long diaryId) throws IOException {
         log.info("[BookMarkApiController] toggle");
-        BookMarkResToggleDTO result = bookMarkService.toggle(diaryId);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController toggle", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController toggle", bookMarkService.toggle(diaryId)));
     }
 
     @GetMapping("/findAll")
@@ -49,7 +48,6 @@ public class BookMarkApiController {
     })
     public ResponseEntity<?> findAll(Pageable pageable) throws IOException {
         log.info("[BookMarkApiController] findAll");
-        Page<DiaryResDetailDTO> result = bookMarkService.bookMarkFindAllByWithPageable(pageable);
-        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController findAll", result));
+        return ResponseEntity.ok().body(ApiResponse.SUCCESS(HttpStatus.CREATED.value(), "[SUCCESS] BookMarkApiController findAll", bookMarkService.bookMarkFindAllByWithPageable(pageable)));
     }
 }

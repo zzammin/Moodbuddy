@@ -43,7 +43,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO save(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] save");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         DiaryUtil.validateExistingDiary(diaryRepository, diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
@@ -64,7 +64,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO update(DiaryReqUpdateDTO diaryReqUpdateDTO) throws IOException {
         log.info("[DiaryServiceImpl] update");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         if (isDraftToPublished(diaryReqUpdateDTO)) {
             DiaryUtil.validateExistingDiary(diaryRepository, diaryReqUpdateDTO.getDiaryDate(), kakaoId);
@@ -78,7 +78,10 @@ public class DiaryServiceImpl implements DiaryService {
 
         findDiary.updateDiary(diaryReqUpdateDTO, summary, diarySubject);
 
-        DiaryUtil.deleteDiaryImages(diaryImageService, diaryReqUpdateDTO.getImagesToDelete());
+        // 기존 이미지 삭제
+        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
+
+        // 새로운 이미지 저장
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqUpdateDTO.getDiaryImgList(), findDiary);
 
         return DiaryMapper.toDetailDTO(findDiary);
@@ -88,12 +91,12 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public void delete(Long diaryId) throws IOException {
         log.info("[DiaryServiceImpl] delete");
-        Long kakaoId = JwtUtil.getUserId();
-        Diary findDiary = diaryFindService.findDiaryById(diaryId);
+        final Long kakaoId = JwtUtil.getUserId();
+        final Diary findDiary = diaryFindService.findDiaryById(diaryId);
         diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         bookMarkService.deleteByDiaryId(diaryId);
-        DiaryUtil.deleteDiaryImages(diaryImageService, findDiary);
+        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
         diaryRepository.delete(findDiary);
     }
 
@@ -101,7 +104,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId);
         diary = diaryRepository.save(diary);
@@ -114,7 +117,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResDraftFindAllDTO draftFindAll() {
         log.info("[DiaryServiceImpl] draftFindAll");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
         return diaryRepository.draftFindAllByKakaoId(kakaoId);
     }
 
@@ -122,7 +125,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional
     public void draftSelectDelete(DiaryReqDraftSelectDeleteDTO diaryReqDraftSelectDeleteDTO) {
         log.info("[DiaryServiceImpl] draftSelectDelete");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         List<Diary> diariesToDelete = diaryRepository.findAllById(diaryReqDraftSelectDeleteDTO.getDiaryIdList()).stream()
                 .peek(diary -> diaryFindService.validateDiaryAccess(diary, kakaoId)) // 접근 권한 확인
@@ -130,7 +133,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         diariesToDelete.forEach(diary -> {
             try {
-                DiaryUtil.deleteDiaryImages(diaryImageService, diary);
+                DiaryUtil.deleteAllDiaryImages(diaryImageService, diary);
             } catch (IOException e) {
                 log.error("Error deleting diary images", e);
                 throw new RuntimeException(e);  // 필요에 따라 적절한 예외 처리
@@ -144,9 +147,9 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
         log.info("[DiaryServiceImpl] findOneByDiaryId");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
-        Diary findDiary = diaryFindService.findDiaryById(diaryId);
+        final Diary findDiary = diaryFindService.findDiaryById(diaryId);
         diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
         return diaryRepository.findOneByDiaryId(diaryId);
@@ -155,7 +158,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Page<DiaryResDetailDTO> findAll(Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllWithPageable");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         return diaryRepository.findAllByKakaoIdWithPageable(kakaoId, pageable);
     }
@@ -163,7 +166,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Page<DiaryResDetailDTO> findAllByEmotion(DiaryEmotion diaryEmotion, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByEmotionWithPageable");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         return diaryRepository.findAllByEmotionWithPageable(diaryEmotion, kakaoId, pageable);
     }
@@ -171,7 +174,7 @@ public class DiaryServiceImpl implements DiaryService {
     @Override
     public Page<DiaryResDetailDTO> findAllByFilter(DiaryReqFilterDTO diaryReqFilterDTO, Pageable pageable) {
         log.info("[DiaryServiceImpl] findAllByFilter");
-        Long kakaoId = JwtUtil.getUserId();
+        final Long kakaoId = JwtUtil.getUserId();
 
         return diaryRepository.findAllByFilterWithPageable(diaryReqFilterDTO, kakaoId, pageable);
     }
