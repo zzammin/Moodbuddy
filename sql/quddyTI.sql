@@ -20,4 +20,4 @@ ALTER TABLE quddy_ti ADD COLUMN updated_time TIMESTAMP;
 
 INSERT INTO quddy_ti (kakao_id, happiness_count, anger_count, disgust_count, fear_count, neutral_count, sadness_count, surprise_count, daily_count, growth_count, emotion_count, travel_count, quddy_ti_type, created_time, updated_time)
 VALUES
-    (3601500664, 5, 5, 3, 4, 4, 4, 4, 17, 4, 4, 4, 'PEH', NOW(), NOW());
+    (3601500664, 5, 5, 4, 4, 4, 4, 4, 18, 5, 5, 2, 'JDH', NOW(), NOW());
