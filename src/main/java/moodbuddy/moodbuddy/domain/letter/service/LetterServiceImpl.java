@@ -76,7 +76,7 @@ public class LetterServiceImpl implements LetterService {
                 List<LetterResPageAnswerDTO> letterResPageAnswerDTOList = letters.stream()
                         .map(letter -> LetterResPageAnswerDTO.builder()
                                 .letterId(letter.getId())
-                                .letterCreatedTime(letter.getCreatedTime())
+                                .letterDate(letter.getLetterDate())
                                 .answerCheck(letter.getLetterAnswerContent() != null ? 1 : 0)
                                 .build())
                         .collect(Collectors.toList());

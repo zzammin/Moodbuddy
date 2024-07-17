@@ -16,7 +16,7 @@ public class LetterResPageAnswerDTO {
     @Schema(description = "고민 편지의 letterId")
     private Long letterId;
     @Schema(description = "고민 편지 작성 날짜")
-    private LocalDateTime letterCreatedTime;
+    private LocalDateTime letterDate;
     @Schema(description = "답장 도착 유무(답장 도착 O : 1, 답장 도착 X : 0")
     private Integer answerCheck;
 }

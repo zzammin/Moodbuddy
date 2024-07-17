@@ -40,7 +40,7 @@ public class GptServiceImpl implements GptService{
 
     @Override
     public Mono<String> emotionComment(String emotion){
-        String prompt = emotion + " 이 감정에 따른 코멘트를 한 줄로 해줘. 예를 들어서 감정이 행복이면 오늘 행복한 하루를 보냈네요! 같은 코멘트야. 꼭 한 줄로 해줘!";
+        String prompt = emotion + " 이 감정에 따른 한 줄 코멘트를 남겨주세요. 글자 수를 20자로 제한해서 꼭 한 줄로 해주세요!";
 
         GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
 
