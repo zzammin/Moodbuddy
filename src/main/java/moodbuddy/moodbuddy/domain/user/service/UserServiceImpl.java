@@ -219,8 +219,8 @@ public class UserServiceImpl implements UserService{
         try{
             List<User> users = userRepository.findAll();
             for(User user : users){
-                userRepository.updateLastDiaryNumsByKakaoId(user.getKakaoId(), user.getUserCurDiaryNums()); // 한 달이 지났으니 userCurDiaryNums를 userlastDiaryNums로 변경
-                userRepository.updateCurDiaryNumsByKakaoId(user.getKakaoId(), 0); // 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
+                userRepository.updateLastDiaryNumsById(user.getUserId(), user.getUserCurDiaryNums()); // 한 달이 지났으니 userCurDiaryNums를 userlastDiaryNums로 변경
+                userRepository.updateCurDiaryNumsById(user.getUserId(), 0); // 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
             }
         } catch (Exception e) {
             log.error("[UserService] changeDiaryNums error"+ e);
@@ -441,8 +441,8 @@ public class UserServiceImpl implements UserService{
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
             int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
             int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
-            userRepository.updateCurDiaryNumsByKakaoId(kakaoId,curDiaryNums);
-            userRepository.updateLetterNumsByKakaoId(kakaoId,letterNums);
+            userRepository.updateCurDiaryNumsById(user.getUserId(),curDiaryNums);
+            userRepository.updateLetterNumsById(user.getUserId(),letterNums);
         } catch (Exception e){
             log.error("[DiaryServiceImpl] numPlus error" + e);
             throw new RuntimeException(e);

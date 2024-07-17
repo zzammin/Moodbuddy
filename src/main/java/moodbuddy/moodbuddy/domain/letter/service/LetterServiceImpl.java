@@ -35,6 +35,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +52,7 @@ public class LetterServiceImpl implements LetterService {
     private final LetterRepository letterRepository;
     private final GptService gptService;
     private final FcmService fcmService;
-//    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
     @Override
     @Transactional(readOnly = true)
@@ -88,24 +91,37 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
+    //            // FCM
+//            log.info("사용자 FcmToken : " + user.getFcmToken());
+//            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
+//            if(user.getFcmToken()!=null){
+//                fcmService.sendMessageTo(FcmReqDTO.builder()
+//                        .token(user.getFcmToken())
+//                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
+//                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+//                        .build());
+//            }
+
     @Override
     @Transactional
     public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoId(kakaoId).orElseThrow(
+            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
                     () -> new MemberIdNotFoundException(JwtUtil.getUserId())
             );
 
             log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
+
             // 편지지가 없을 경우 예외 처리
             if(user.getUserLetterNums() == null || user.getUserLetterNums() <= 0){
                 throw new IllegalArgumentException("편지지가 없습니다.");
             }
 
             // 편지지 개수 업데이트
-            userRepository.updateLetterNumsByKakaoId(kakaoId, user.getUserLetterNums() - 1);
+            user.setUserLetterNums(user.getUserLetterNums() - 1);
+            userRepository.save(user);
 
             Letter letter = Letter.builder()
                     .user(user)
@@ -116,18 +132,7 @@ public class LetterServiceImpl implements LetterService {
             letterRepository.save(letter);
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
-
-//            // FCM
-//            log.info("사용자 FcmToken : " + user.getFcmToken());
-//            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
-//            if(user.getFcmToken()!=null){
-//                fcmService.sendMessageTo(FcmReqDTO.builder()
-//                        .token(user.getFcmToken())
-//                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
-//                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-//                        .build());
-//            }
-            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
+//            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
 //            scheduler.schedule(new ContextAwareRunnable(() -> {
 ////                letterAlarm(user.getUserId(), user.getFcmToken());
 //            }), 5, TimeUnit.SECONDS);

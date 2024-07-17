@@ -54,7 +54,7 @@ public class GptServiceImpl implements GptService{
 
     @Override
     public Mono<GPTResponseDTO> letterAnswerSave(String worryContent, Integer format){
-        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 존댓말로 따끔한 해결의 말을 해주세요");
+        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 존댓말로 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 따끔한 해결의 말을 해주세요. 이 때 해결의 말을 해주되, 건방지게 말하지 말고 존댓말로 해주세요");
 
         GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
 
