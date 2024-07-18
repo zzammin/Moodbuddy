@@ -72,7 +72,11 @@ public class UserApiController {
 
     //월별 통계 보기
     @GetMapping("/main/month-static")
-    @Operation(summary = "월별 감정 통계 보기", description = "사용자가 선택한 월의 감정 통계를 보여줍니다.")
+    @Operation(summary = "월별 통계 보기", description = "사용자가 선택한 월의 통계(감정 리스트, 짧은 한 마디) 를 보여줍니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResStatisticsMonthDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @Parameters({
             @Parameter(name="month", description = "YYYY-MM-DD 형식으로 입력하세요"),
     })
@@ -84,6 +88,10 @@ public class UserApiController {
     // 다음 달 나에게 짧은 한 마디
     @PostMapping("/main/month-comment")
     @Operation(summary = "다음 달 나에게 짧은 한 마디")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResMonthCommentDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<?> monthComment(
             @Parameter(description = "한 마디를 받아오는 DTO")
             @RequestBody UserReqMonthCommentDTO userReqMonthCommentDTO
