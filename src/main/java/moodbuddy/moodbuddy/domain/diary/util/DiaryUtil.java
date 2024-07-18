@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.domain.diary.util;
 
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.repository.DiaryRepository;
 import moodbuddy.moodbuddy.domain.diaryImage.entity.DiaryImage;
 import moodbuddy.moodbuddy.domain.diaryImage.service.DiaryImageService;
@@ -17,7 +18,7 @@ import java.util.List;
 public class DiaryUtil {
 
     public static void validateExistingDiary(DiaryRepository diaryRepository, LocalDate diaryDate, Long kakaoId) {
-        if (diaryRepository.findByDiaryDateAndKakaoId(diaryDate, kakaoId).isPresent()) {
+        if (diaryRepository.findByDiaryDateAndKakaoIdAndDiaryStatus(diaryDate, kakaoId, DiaryStatus.PUBLISHED).isPresent()) {
             throw new DiaryTodayExistingException(ErrorCode.TODAY_EXISTING_DIARY);
         }
     }
