@@ -93,10 +93,24 @@ public class UserApiController {
             // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> monthComment(
-            @Parameter(description = "한 마디를 받아오는 DTO")
+            @Parameter(description = "월별 통계의 달과 한 마디를 받아오는 DTO")
             @RequestBody UserReqMonthCommentDTO userReqMonthCommentDTO
     ){
         return ResponseEntity.ok(userService.monthComment(userReqMonthCommentDTO));
+    }
+
+    // 다음 달 나에게 짧은 한 마디 수정
+    @PostMapping("/main/month-comment-update")
+    @Operation(summary = "다음 달 나에게 짧은 한 마디 수정")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResMonthCommentUpdateDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> monthCommentUpdate(
+            @Parameter(description = "월별 통계의 달과 수정할 한 마디를 받아오는 DTO")
+            @RequestBody UserReqMonthCommentUpdateDTO userReqMonthCommentUpdateDTO
+    ){
+        return ResponseEntity.ok(userService.monthCommentUpdate(userReqMonthCommentUpdateDTO));
     }
 
 

@@ -51,6 +51,9 @@ public interface UserService {
     // 다음 달 나에게 짧은 한 마디
     UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO);
 
+    // 다음 달 나에게 짧은 한 마디 수정
+    UserResMonthCommentUpdateDTO monthCommentUpdate(UserReqMonthCommentUpdateDTO userReqMonthCommentUpdateDTO);
+
 //    // 알람 설정한 유저 리스트 보내기
 //    List<User> getAllUsersWithAlarms();
 //
@@ -70,4 +73,5 @@ public interface UserService {
 
     /** 오늘 일기 작성한 지 가능 여부 **/
     UserResCheckTodayDiaryDTO checkTodayDiary();
+
 }

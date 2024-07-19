@@ -267,7 +267,9 @@ public class UserServiceImpl implements UserService{
         String formattedMonth = month.format(formatter);
 
         // 다음 달 나에게 짧은 한 마디 내용
-        String monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,formattedMonth);
+        String monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,formattedMonth)
+                .map(MonthComment::getCommentContent)
+                .orElse(null);
 
         // Map을 EmotionStaticDto 리스트로 변환하고 nums 값으로 내림차순 정렬
         List<EmotionStaticDto> emotionStaticDtoList = emotionCountMap.entrySet().stream()
@@ -300,6 +302,26 @@ public class UserServiceImpl implements UserService{
                     .build();
         } catch (Exception e){
             log.error("[UserService] monthComment error"+e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public UserResMonthCommentUpdateDTO monthCommentUpdate(UserReqMonthCommentUpdateDTO userReqMonthCommentUpdateDTO){
+        log.info("[UserService] monthCommentUpdate");
+        try{
+            Long kakaoId = JwtUtil.getUserId();
+            monthCommentRepository.updateCommentByKakaoIdAndMonth(kakaoId, userReqMonthCommentUpdateDTO.getChooseMonth(), userReqMonthCommentUpdateDTO.getMonthComment());
+            MonthComment mc = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,userReqMonthCommentUpdateDTO.getChooseMonth())
+                    .orElseThrow(()->new NoSuchElementException("그 달에 해당하는 한 마디가 없습니다."));
+            return UserResMonthCommentUpdateDTO.builder()
+                    .chooseMonth(mc.getCommentDate())
+                    .monthComment(mc.getCommentContent())
+                    .build();
+        } catch (Exception e){
+            log.error("[UserService] monthCommentUpdate error",e);
             throw new RuntimeException(e);
         }
     }
