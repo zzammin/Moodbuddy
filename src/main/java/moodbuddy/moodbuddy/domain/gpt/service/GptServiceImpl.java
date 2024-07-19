@@ -39,6 +39,19 @@ public class GptServiceImpl implements GptService{
     }
 
     @Override
+    public Mono<String> summarize(String content){
+        String prompt = content + " 이 일기를 서술형인 한 문장으로 요약해주고, 꼭 한 문장이어야 되고, 무조건 요약한 내용만 주세요";
+        GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
+
+        return gptWebClient.post()
+                .uri(apiUrl)
+                .bodyValue(gptRequestDTO)
+                .retrieve()
+                .bodyToMono(GPTResponseDTO.class)
+                .map(response -> response.getChoices().get(0).getMessage().getContent().trim());
+    }
+
+    @Override
     public Mono<String> emotionComment(String emotion){
         String prompt = emotion + " 이 감정에 따른 한 줄 코멘트를 남겨주세요. 글자 수를 20자로 제한해서 꼭 한 줄로 해주세요!";
 
@@ -49,7 +62,7 @@ public class GptServiceImpl implements GptService{
                 .bodyValue(gptRequestDTO)
                 .retrieve()
                 .bodyToMono(GPTResponseDTO.class)
-                .map(response -> response.getChoices().get(0).getMessage().getContent().trim().toUpperCase());
+                .map(response -> response.getChoices().get(0).getMessage().getContent().trim());
     }
 
     @Override

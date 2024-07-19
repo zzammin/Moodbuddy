@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 public class DiaryServiceImpl implements DiaryService {
     private final DiaryRepository diaryRepository;
     private final DiaryImageService diaryImageService;
-    private final DiarySummarizeService diarySummarizeService;
     private final DiaryFindService diaryFindService;
     private final BookMarkService bookMarkService;
     private final UserService userService;
@@ -48,7 +47,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         DiaryUtil.validateExistingDiary(diaryRepository, diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
-        String summary = diarySummarizeService.summarize(diaryReqSaveDTO.getDiaryContent());
+        String summary = gptService.summarize(diaryReqSaveDTO.getDiaryContent()).block();
         DiarySubject diarySubject = classifyDiaryContent(diaryReqSaveDTO.getDiaryContent());
 
         Diary diary = DiaryMapper.toDiaryEntity(diaryReqSaveDTO, kakaoId, summary, diarySubject);
@@ -76,7 +75,7 @@ public class DiaryServiceImpl implements DiaryService {
         Diary findDiary = diaryFindService.findDiaryById(diaryReqUpdateDTO.getDiaryId());
         diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
-        String summary = diarySummarizeService.summarize(diaryReqUpdateDTO.getDiaryContent());
+        String summary = gptService.summarize(diaryReqUpdateDTO.getDiaryContent()).block();
         DiarySubject diarySubject = classifyDiaryContent(diaryReqUpdateDTO.getDiaryContent());
 
         findDiary.updateDiary(diaryReqUpdateDTO, summary, diarySubject);
