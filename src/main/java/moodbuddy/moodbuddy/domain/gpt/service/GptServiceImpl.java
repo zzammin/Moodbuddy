@@ -40,6 +40,10 @@ public class GptServiceImpl implements GptService{
 
     @Override
     public Mono<String> summarize(String content){
+        if(content.length() < 20){
+            return Mono.just("요약하기 어려운 일기 내용입니다.");
+        }
+
         String prompt = content + " 이 일기를 서술형인 한 문장으로 요약해주고, 꼭 한 문장이어야 되고, 무조건 요약한 내용만 주세요";
         GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
 
