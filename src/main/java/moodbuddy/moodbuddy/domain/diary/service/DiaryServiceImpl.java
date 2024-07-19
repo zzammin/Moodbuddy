@@ -62,8 +62,8 @@ public class DiaryServiceImpl implements DiaryService {
 
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);
 
-        checkTodayDiaryPlusLetter(diaryReqSaveDTO, kakaoId); // 오늘 날짜의 일기인 경우에만 편지지 개수를 늘려줍니다.
-        userService.setUserCheckTodayDairy(kakaoId); // 일기 작성 불가
+
+        checkTodayDiary(diaryReqSaveDTO, kakaoId);
 
         return DiaryMapper.toDetailDTO(diary);
     }
@@ -203,12 +203,11 @@ public class DiaryServiceImpl implements DiaryService {
         String classifiedSubject = subjectMono.block();
         return DiarySubject.valueOf(classifiedSubject);
     }
-
-    private void checkTodayDiaryPlusLetter(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
+    private void checkTodayDiary(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
         LocalDate today = LocalDate.now();
         if (diaryReqSaveDTO.getDiaryDate().isEqual(today)) {
             userService.numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
+            userService.setUserCheckTodayDairy(kakaoId); // 일기 작성 불가
         }
     }
-
 }
