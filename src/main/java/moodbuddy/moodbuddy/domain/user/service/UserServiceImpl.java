@@ -266,10 +266,12 @@ public class UserServiceImpl implements UserService{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         String formattedMonth = month.format(formatter);
 
-        // 다음 달 나에게 짧은 한 마디 내용
-        String monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,formattedMonth)
-                .map(MonthComment::getCommentContent)
-                .orElse(null);
+//        // 다음 달 나에게 짧은 한 마디 내용
+//        String monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId,formattedMonth)
+//                .map(MonthComment::getCommentContent)
+//                .orElse(null);
+
+        Optional<MonthComment> monthComment = monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId, formattedMonth);
 
         // Map을 EmotionStaticDto 리스트로 변환하고 nums 값으로 내림차순 정렬
         List<EmotionStaticDto> emotionStaticDtoList = emotionCountMap.entrySet().stream()
@@ -277,10 +279,16 @@ public class UserServiceImpl implements UserService{
                 .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
                 .collect(Collectors.toList());
 
-        return UserResStatisticsMonthDTO.builder()
-                .emotionStaticDtoList(emotionStaticDtoList)
-                .monthComment(monthComment)
-                .build();
+        return monthComment.map(mc -> UserResStatisticsMonthDTO.builder()
+                        .emotionStaticDtoList(emotionStaticDtoList)
+                        .monthComment(mc.getCommentContent())
+                        .commentCheck(true)
+                        .build())
+                .orElse(UserResStatisticsMonthDTO.builder()
+                        .emotionStaticDtoList(emotionStaticDtoList)
+                        .monthComment(null)
+                        .commentCheck(false)
+                        .build());
     }
 
     @Override

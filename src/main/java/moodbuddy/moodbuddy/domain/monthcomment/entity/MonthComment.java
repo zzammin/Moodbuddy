@@ -28,4 +28,5 @@ public class MonthComment extends BaseEntity {
 
     @Column(name = "comment_content", columnDefinition = "text")
     private String commentContent;
+
 }

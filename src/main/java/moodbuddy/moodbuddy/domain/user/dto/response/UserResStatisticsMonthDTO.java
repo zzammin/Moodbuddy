@@ -17,4 +17,6 @@ public class UserResStatisticsMonthDTO {
     private List<EmotionStaticDto> emotionStaticDtoList;
     @Schema(description = "다음 달 나에게 짧은 한 마디")
     private String monthComment;
+    @Schema(description = "다음 달 나에게 짧은 한 마디 작성 여부")
+    private Boolean commentCheck;
 }
