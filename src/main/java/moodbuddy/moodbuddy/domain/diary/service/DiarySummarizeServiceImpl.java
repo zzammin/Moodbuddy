@@ -57,8 +57,8 @@ public class DiarySummarizeServiceImpl implements DiarySummarizeService {
         } catch (DiaryInsufficientException e) { // 일기 내용이 요약을 할 수 없을만큼 부족하거나 요약하기 어려운 내용일 때
             return "요약하기 어려운 일기 내용입니다.";
         } catch (JsonProcessingException e){
-            log.error("[DiaryService] summarize error", e);
-            throw new RuntimeException("[DiaryService] summarize error", e);
+            log.error("[DiaryService] summarize JsonProcessingException error", e);
+            throw new RuntimeException("[DiaryService] summarize JsonProcessingException error", e);
         }
     }
 

@@ -210,8 +210,8 @@ public class UserServiceImpl implements UserService{
                             .build())
                     .orElse(UserResCalendarSummaryDTO.builder().build());
         } catch(Exception e){
-            log.error("[UserService] summary error", e);
-            throw new RuntimeException("[UserService] summary error", e);
+            log.error("[UserService] summary NoSuchElementException", e);
+            throw new RuntimeException("[UserService] summary NoSuchElementException", e);
         }
     }
 
@@ -289,6 +289,11 @@ public class UserServiceImpl implements UserService{
         log.info("[UserService] monthComment");
         try {
             Long kakaoId = JwtUtil.getUserId();
+
+            // 기존에 다음 달의 한 마디가 존재할 경우 예외 발생
+            monthCommentRepository.findCommentByKakaoIdAndMonth(kakaoId, userReqMonthCommentDTO.getChooseMonth())
+                    .ifPresent(monthComment -> { throw new RuntimeException("이미 다음 달의 한 마디가 존재합니다."); });
+
             MonthComment monthComment = MonthComment.builder()
                     .kakaoId(kakaoId)
                     .commentDate(userReqMonthCommentDTO.getChooseMonth())
