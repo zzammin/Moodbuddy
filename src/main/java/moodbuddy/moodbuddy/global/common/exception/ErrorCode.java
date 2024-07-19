@@ -12,6 +12,7 @@ public enum ErrorCode {
 
     /** 4XX **/
     EMAIL_DUPLICATION(400,"MEMBER-ERR-400","EMAIL DUPLICATED"),
+    BAD_REQUEST_SUMMARY(400, "DIARY_ERR-400", "일기가 요약하기에 불충분합니다."),
     NO_ACCESS_DIARY(403, "DIARY-ERR-403", "접근할 수 없는 일기입니다."),
     NOT_FOUND(404,"COMMON-ERR-404","PAGE NOT FOUND"),
     NOT_FOUND_DIARY(404, "DIARY_ERR-404", "일기를 찾을 수 없습니다."),

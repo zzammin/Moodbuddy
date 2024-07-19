@@ -1,8 +1,12 @@
 package moodbuddy.moodbuddy.domain.diary.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryInsufficientException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +45,7 @@ public class DiarySummarizeServiceImpl implements DiarySummarizeService {
                         return clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
                             log.error("API 요청 실패 - 상태 코드: " + clientResponse.statusCode());
                             log.error("오류 본문: " + errorBody);
-                            return Mono.error(new RuntimeException("API 요청 실패 - 상태 코드: " + clientResponse.statusCode() + ", 오류 본문: " + errorBody));
+                            return Mono.error(new DiaryInsufficientException(ErrorCode.BAD_REQUEST_SUMMARY));
                         });
                     })
                     .bodyToMono(String.class)
@@ -50,7 +54,9 @@ public class DiarySummarizeServiceImpl implements DiarySummarizeService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response);
             return jsonNode.path("summary").asText(); // summary 결과
-        } catch (Exception e) {
+        } catch (DiaryInsufficientException e) { // 일기 내용이 요약을 할 수 없을만큼 부족하거나 요약하기 어려운 내용일 때
+            return "요약하기 어려운 일기 내용입니다.";
+        } catch (JsonProcessingException e){
             log.error("[DiaryService] summarize error", e);
             throw new RuntimeException("[DiaryService] summarize error", e);
         }

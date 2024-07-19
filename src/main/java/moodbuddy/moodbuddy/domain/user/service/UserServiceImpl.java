@@ -202,13 +202,13 @@ public class UserServiceImpl implements UserService{
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
             Optional<Diary> summaryDiary = diaryRepository.findByKakaoIdAndDay(kakaoId, calendarSummaryDTO.getCalendarDay());
 
-            // summaryDiary가 존재하면 DTO를 반환하고, 그렇지 않으면 NoSuchElementException 예외 처리
+            // summaryDiary가 존재하면 그에 맞게 DTO를 build하여 반환하고, 그렇지 않으면 빈 DTO를 반환한다.
             return summaryDiary.map(diary -> UserResCalendarSummaryDTO.builder()
                             .diaryId(diary.getId())
                             .diaryTitle(diary.getDiaryTitle())
                             .diarySummary(diary.getDiarySummary())
                             .build())
-                    .orElseThrow(() -> new NoSuchElementException("해당 날짜에 대한 일기를 찾을 수 없습니다."));
+                    .orElse(UserResCalendarSummaryDTO.builder().build());
         } catch(Exception e){
             log.error("[UserService] summary error", e);
             throw new RuntimeException("[UserService] summary error", e);
@@ -444,32 +444,32 @@ public class UserServiceImpl implements UserService{
     }
 
 
-    @Override
-    @Transactional
-    public List<User> getAllUsersWithAlarms() {
-        return userRepository.findAll().stream()
-                .filter(user -> user.getAlarm() != null && user.getAlarm())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
-        try{
-            log.info("[UserService] updateToken");
-            Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoId(kakaoId)
-                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
-            return UserResUpdateTokenDTO.builder()
-                    .nickname(user.getNickname())
-                    .fcmToken(userReqTokenDTO.getFcmToken())
-                    .build();
-        } catch (Exception e){
-            log.error("[UserService] updateToken error",e);
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    @Transactional
+//    public List<User> getAllUsersWithAlarms() {
+//        return userRepository.findAll().stream()
+//                .filter(user -> user.getAlarm() != null && user.getAlarm())
+//                .collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    @Transactional
+//    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
+//        try{
+//            log.info("[UserService] updateToken");
+//            Long kakaoId = JwtUtil.getUserId();
+//            User user = userRepository.findByKakaoId(kakaoId)
+//                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+//            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
+//            return UserResUpdateTokenDTO.builder()
+//                    .nickname(user.getNickname())
+//                    .fcmToken(userReqTokenDTO.getFcmToken())
+//                    .build();
+//        } catch (Exception e){
+//            log.error("[UserService] updateToken error",e);
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     @Transactional

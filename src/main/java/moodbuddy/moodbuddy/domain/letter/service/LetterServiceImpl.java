@@ -55,7 +55,7 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
     private final GptService gptService;
-    private final FcmService fcmService;
+//    private final FcmService fcmService;
     @PersistenceContext
     private EntityManager entityManager;
 //    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성

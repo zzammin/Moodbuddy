@@ -1,6 +1,7 @@
 package moodbuddy.moodbuddy.global.common.exception;
 
 import moodbuddy.moodbuddy.global.common.exception.database.DatabaseNullOrEmptyException;
+import moodbuddy.moodbuddy.global.common.exception.diary.DiaryInsufficientException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNoAccessException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryNotFoundException;
 import moodbuddy.moodbuddy.global.common.exception.diary.DiaryTodayExistingException;
@@ -75,6 +76,17 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(UserKakaoIdNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleException(UserKakaoIdNotFoundException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return new ResponseEntity<>(
+                new ApiErrorResponse(
+                        errorCode.getErrorCode(),
+                        errorCode.getMessage()),
+                HttpStatus.valueOf(errorCode.getStatus())
+        );
+    }
+
+    @ExceptionHandler(DiaryInsufficientException.class)
+    public ResponseEntity<ApiErrorResponse> handleException(DiaryInsufficientException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return new ResponseEntity<>(
                 new ApiErrorResponse(

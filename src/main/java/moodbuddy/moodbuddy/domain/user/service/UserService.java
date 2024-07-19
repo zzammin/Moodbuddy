@@ -51,16 +51,16 @@ public interface UserService {
     // 다음 달 나에게 짧은 한 마디
     UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO);
 
-    // 알람 설정한 유저 리스트 보내기
-    List<User> getAllUsersWithAlarms();
-
-    // 사용자 token 받아서 update
-    UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO);
+//    // 알람 설정한 유저 리스트 보내기
+//    List<User> getAllUsersWithAlarms();
+//
+//    // 사용자 token 받아서 update
+//    UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO);
 
     // kakaoId를 통한 사용자 찾기
     User findUserByKakaoId(Long kakaoId);
 
-    // 이번 달 일기 개수와 편지지 개수 증가
+    // 이번 달 일기 개수와 편지지 개수 변경
     void changeCount(Long kakaoId, boolean increment);
 
      void setUserCheckTodayDairy(Long kakaoId, Boolean check);
