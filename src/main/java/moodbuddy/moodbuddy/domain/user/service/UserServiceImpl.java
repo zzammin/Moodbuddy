@@ -473,17 +473,24 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public void numPlus(Long kakaoId) {
+    public void changeCount(Long kakaoId, boolean increment) {
         log.info("[DiaryServiceImpl] numPlus");
-        try{
+        try {
             User user = userRepository.findByKakaoId(kakaoId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-            int curDiaryNums = user.getUserCurDiaryNums() == null ? 1 :user.getUserCurDiaryNums() + 1;
-            int letterNums = user.getUserLetterNums() == null ? 1 : user.getUserLetterNums() + 1;
-            userRepository.updateCurDiaryNumsById(user.getUserId(),curDiaryNums);
-            userRepository.updateLetterNumsById(user.getUserId(),letterNums);
-        } catch (Exception e){
-            log.error("[DiaryServiceImpl] numPlus error" + e);
+//            int curDiaryNums = user.getUserCurDiaryNums() == null ? 0 : user.getUserCurDiaryNums();
+//            int letterNums = user.getUserLetterNums() == null ? 0 : user.getUserLetterNums();
+
+            if (!increment) { // true
+                user.plusUserNumCount();
+            } else { // false
+                user.minusUserNumCount();
+            }
+
+//            userRepository.updateCurDiaryNumsById(user.getUserId(), curDiaryNums);
+//            userRepository.updateLetterNumsById(user.getUserId(), letterNums);
+        } catch (Exception e) {
+            log.error("[DiaryServiceImpl] numPlus error: " + e);
             throw new RuntimeException(e);
         }
     }
@@ -511,9 +518,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void setUserCheckTodayDairy(Long kakaoId) {
+    public void setUserCheckTodayDairy(Long kakaoId, Boolean check) {
         User findUser = getUser_kakaoId(kakaoId);
-        findUser.setCheckTodayDiary(false);
+        findUser.setCheckTodayDiary(check);
     }
 
 

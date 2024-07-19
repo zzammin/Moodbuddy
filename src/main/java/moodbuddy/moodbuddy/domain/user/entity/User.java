@@ -86,4 +86,12 @@ public class User {
     public void setCheckTodayDiary(Boolean checkTodayDairy) {
         this.checkTodayDairy = checkTodayDairy;
     }
+    public void plusUserNumCount() {
+        userCurDiaryNums++;
+        userLetterNums++;
+    }
+    public void minusUserNumCount() {
+        userCurDiaryNums--;
+        userLetterNums--;
+    }
 }

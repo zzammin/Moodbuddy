@@ -46,12 +46,6 @@ public class DiaryServiceImpl implements DiaryService {
         log.info("[DiaryServiceImpl] save");
         final Long kakaoId = JwtUtil.getUserId();
 
-//        /** format **/
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-//        LocalDate parsedDiaryDate = LocalDate.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
-//
-//        /** format **/
-
         DiaryUtil.validateExistingDiary(diaryRepository, diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
         String summary = diarySummarizeService.summarize(diaryReqSaveDTO.getDiaryContent());
@@ -63,7 +57,7 @@ public class DiaryServiceImpl implements DiaryService {
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);
 
 
-        checkTodayDiary(diaryReqSaveDTO, kakaoId);
+        checkTodayDiary(diaryReqSaveDTO.getDiaryDate(), kakaoId, false);
 
         return DiaryMapper.toDetailDTO(diary);
     }
@@ -76,6 +70,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         if (isDraftToPublished(diaryReqUpdateDTO)) {
             DiaryUtil.validateExistingDiary(diaryRepository, diaryReqUpdateDTO.getDiaryDate(), kakaoId);
+            checkTodayDiary(diaryReqUpdateDTO.getDiaryDate(), kakaoId, false);
         }
 
         Diary findDiary = diaryFindService.findDiaryById(diaryReqUpdateDTO.getDiaryId());
@@ -104,6 +99,8 @@ public class DiaryServiceImpl implements DiaryService {
         final Diary findDiary = diaryFindService.findDiaryById(diaryId);
         diaryFindService.validateDiaryAccess(findDiary, kakaoId);
 
+        checkTodayDiary(findDiary.getDiaryDate(), kakaoId, true);
+
         bookMarkService.deleteByDiaryId(diaryId);
         DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
         diaryRepository.delete(findDiary);
@@ -114,12 +111,6 @@ public class DiaryServiceImpl implements DiaryService {
     public DiaryResDetailDTO draftSave(DiaryReqSaveDTO diaryReqSaveDTO) throws IOException {
         log.info("[DiaryServiceImpl] draftSave");
         final Long kakaoId = JwtUtil.getUserId();
-
-//        /** format **/
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-//        LocalDateTime parsedDiaryDate = LocalDateTime.parse(diaryReqSaveDTO.getDiaryDate(), formatter);
-//        /** format **/
-
 
         Diary diary = DiaryMapper.toDraftEntity(diaryReqSaveDTO, kakaoId);
         diary = diaryRepository.save(diary);
@@ -203,11 +194,11 @@ public class DiaryServiceImpl implements DiaryService {
         String classifiedSubject = subjectMono.block();
         return DiarySubject.valueOf(classifiedSubject);
     }
-    private void checkTodayDiary(DiaryReqSaveDTO diaryReqSaveDTO, Long kakaoId) {
+    private void checkTodayDiary(LocalDate diaryDate, Long kakaoId, boolean check) {
         LocalDate today = LocalDate.now();
-        if (diaryReqSaveDTO.getDiaryDate().isEqual(today)) {
-            userService.numPlus(kakaoId); // 일기 작성하면 편지지 개수 늘려주기
-            userService.setUserCheckTodayDairy(kakaoId); // 일기 작성 불가
+        if (diaryDate.isEqual(today)) {
+            userService.changeCount(kakaoId, check); // 일기 작성하면 편지지 개수 늘려주기
+            userService.setUserCheckTodayDairy(kakaoId, check); // 일기 작성 불가
         }
     }
 }
