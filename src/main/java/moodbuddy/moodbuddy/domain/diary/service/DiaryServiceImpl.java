@@ -82,7 +82,7 @@ public class DiaryServiceImpl implements DiaryService {
 
         // 기존 이미지 삭제
 //        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
-        DiaryUtil.deleteExcludingImages(diaryImageService, findDiary, diaryReqUpdateDTO.getExistingDiaryImgList()
+        DiaryUtil.deleteExcludingImages(diaryImageService, findDiary, diaryReqUpdateDTO.getExistingDiaryImgList());
         // 새로운 이미지 저장
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqUpdateDTO.getDiaryImgList(), findDiary);
 
