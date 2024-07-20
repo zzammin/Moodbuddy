@@ -55,8 +55,8 @@ public class DiaryServiceImpl implements DiaryService {
 
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqSaveDTO.getDiaryImgList(), diary);
 
-
         checkTodayDiary(diaryReqSaveDTO.getDiaryDate(), kakaoId, false);
+        deleteDraftDiaries(diaryReqSaveDTO.getDiaryDate(), kakaoId);
 
         return DiaryMapper.toDetailDTO(diary);
     }
@@ -82,10 +82,11 @@ public class DiaryServiceImpl implements DiaryService {
 
         // 기존 이미지 삭제
 //        DiaryUtil.deleteAllDiaryImages(diaryImageService, findDiary);
-        DiaryUtil.deleteExcludingImages(diaryImageService, findDiary, diaryReqUpdateDTO.getExistingDiaryImgList());
-
+        DiaryUtil.deleteExcludingImages(diaryImageService, findDiary, diaryReqUpdateDTO.getExistingDiaryImgList()
         // 새로운 이미지 저장
         DiaryUtil.saveDiaryImages(diaryImageService, diaryReqUpdateDTO.getDiaryImgList(), findDiary);
+
+        deleteDraftDiaries(diaryReqUpdateDTO.getDiaryDate(), kakaoId);
 
         return DiaryMapper.toDetailDTO(findDiary);
     }
@@ -198,6 +199,12 @@ public class DiaryServiceImpl implements DiaryService {
         if (diaryDate.isEqual(today)) {
             userService.changeCount(kakaoId, check); // 일기 작성하면 편지지 개수 늘려주기
             userService.setUserCheckTodayDairy(kakaoId, check); // 일기 작성 불가
+        }
+    }
+    private void deleteDraftDiaries(LocalDate diaryDate, Long kakaoId) {
+        List<Diary> draftDiaries = diaryRepository.findAllByDiaryDateAndKakaoIdAndDiaryStatus(diaryDate, kakaoId, DiaryStatus.DRAFT);
+        if (!draftDiaries.isEmpty()) {
+            diaryRepository.deleteAll(draftDiaries);
         }
     }
 }
