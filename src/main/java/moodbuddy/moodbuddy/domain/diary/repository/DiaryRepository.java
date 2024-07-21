@@ -1,6 +1,5 @@
 package moodbuddy.moodbuddy.domain.diary.repository;
 
-import moodbuddy.moodbuddy.domain.diary.dto.request.DiarySummaryVo;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +14,11 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
 //    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m') = :month", nativeQuery = true)
 //    List<Diary> findByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("year") String year, @Param("month") String month);
 
-    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m') = :month", nativeQuery = true)
-    List<Diary> findByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("month") String month);
+    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m') = :month AND diary_status = :status", nativeQuery = true)
+    List<Diary> findByKakaoIdAndMonthAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("month") String month, @Param("status") String status);
 
-    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m-%d') = :day", nativeQuery = true)
-    Optional<Diary> findByKakaoIdAndDay(@Param("kakaoId") Long kakaoId, @Param("day") String day);
+    @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m-%d') = :day AND diary_status = :status", nativeQuery = true)
+    Optional<Diary> findByKakaoIdAndDayAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("day") String day, @Param("status") String status);
 
     // diaryId 기반으로 삭제하기
     List<Diary> findAllById(Iterable<Long> ids);
@@ -38,7 +36,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     List<Diary> findDiaryEmotionByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("month") int month);
 
     @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND YEAR(d.diaryDate) = :year AND d.diaryStatus = :status")
-    List<Diary> findAllByYear(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("status") DiaryStatus status);
+    List<Diary> findAllByYearAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("status") String status);
 
     @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND d.diaryEmotion is not null")
     List<Diary> findDiaryEmotionAllByKakaoId(@Param("kakaoId") Long kakaoId);

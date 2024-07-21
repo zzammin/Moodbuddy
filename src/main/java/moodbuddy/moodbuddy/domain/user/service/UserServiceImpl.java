@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService{
                 String currentYearMonth = yearMonth.toString();
 
                 // 현재 달의 일기 리스트
-                List<Diary> diaryList = diaryRepository.findByKakaoIdAndMonth(kakaoId, currentYearMonth);
+                List<Diary> diaryList = diaryRepository.findByKakaoIdAndMonthAndDiaryStatus(kakaoId, currentYearMonth, "PUBLISHED");
 
                 log.info("diaryList : "+diaryList);
 
@@ -113,7 +113,8 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    @Override
+
+    // 각 emotion의 횟수를 세는 메소드
     public Map<DiaryEmotion,Integer> emotionNum(List<Diary> diaryList){
         log.info("[UserService] emotionNum");
         try{
@@ -134,7 +135,7 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    @Override
+    // emotion 횟수의 최댓값을 찾기 위한 메소드
     public Map<DiaryEmotion, Integer> getMaxEmotion(Map<DiaryEmotion, Integer> emotionNum) {
         log.info("[UserService] getMaxEmotion");
         try{
@@ -174,7 +175,7 @@ public class UserServiceImpl implements UserService{
             // repository 에서는 LIKE 연산자를 이용해서 그 년, 월에 맞는 List<Diary>를 얻어온다
             // (여기서 user_id에 맞는 리스트 전체 조회를 하지 말고, user_id와 년 월에 맞는 리스트만 조회하자)
             // -> 그 Diary 리스트를 그대로 DTO에 넣어서 반환해주면 될 것 같다.
-            List<Diary> monthlyDiaryList = diaryRepository.findByKakaoIdAndMonth(kakaoId, calendarMonthDTO.getCalendarMonth());
+            List<Diary> monthlyDiaryList = diaryRepository.findByKakaoIdAndMonthAndDiaryStatus(kakaoId, calendarMonthDTO.getCalendarMonth(), "PUBLISHED");
 
             List<UserResCalendarMonthDTO> diaryResCalendarMonthDTOList = monthlyDiaryList.stream()
                     .map(diary -> UserResCalendarMonthDTO.builder()
@@ -201,7 +202,7 @@ public class UserServiceImpl implements UserService{
             Long kakaoId = JwtUtil.getUserId();
 
             // userEmail와 calendarSummaryDTO에서 가져온 day와 일치하는 Diary 하나를 가져온다.
-            Optional<Diary> summaryDiary = diaryRepository.findByKakaoIdAndDay(kakaoId, calendarSummaryDTO.getCalendarDay());
+            Optional<Diary> summaryDiary = diaryRepository.findByKakaoIdAndDayAndDiaryStatus(kakaoId, calendarSummaryDTO.getCalendarDay(), "PUBLISHED");
 
             // summaryDiary가 존재하면 그에 맞게 DTO를 build하여 반환하고, 그렇지 않으면 빈 DTO를 반환한다.
             return summaryDiary.map(diary -> UserResCalendarSummaryDTO.builder()
@@ -350,7 +351,7 @@ public class UserServiceImpl implements UserService{
         Long kakaoId = JwtUtil.getUserId();
         int yearValue = year.getYear();
 
-        List<Diary> diaries = diaryRepository.findAllByYear(kakaoId, yearValue, DiaryStatus.PUBLISHED);
+        List<Diary> diaries = diaryRepository.findAllByYearAndDiaryStatus(kakaoId, yearValue, "PUBLISHED");
 
         Map<Integer, Integer> yearCountMap = new HashMap<>();
 
@@ -478,34 +479,6 @@ public class UserServiceImpl implements UserService{
 
         return updateUserProfile;
     }
-
-
-//    @Override
-//    @Transactional
-//    public List<User> getAllUsersWithAlarms() {
-//        return userRepository.findAll().stream()
-//                .filter(user -> user.getAlarm() != null && user.getAlarm())
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    @Transactional
-//    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
-//        try{
-//            log.info("[UserService] updateToken");
-//            Long kakaoId = JwtUtil.getUserId();
-//            User user = userRepository.findByKakaoId(kakaoId)
-//                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-//            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
-//            return UserResUpdateTokenDTO.builder()
-//                    .nickname(user.getNickname())
-//                    .fcmToken(userReqTokenDTO.getFcmToken())
-//                    .build();
-//        } catch (Exception e){
-//            log.error("[UserService] updateToken error",e);
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     @Override
     @Transactional
