@@ -53,6 +53,7 @@ public class FcmServiceImpl implements FcmService {
             log.info("fcmReqDTO.getTitle() : "+fcmReqDTO.getTitle());
             log.info("fcmReqDTO.getBody() : "+fcmReqDTO.getBody());
             String message = makeMessage(fcmReqDTO);
+
             log.info("message : "+message);
             RestTemplate restTemplate = new RestTemplate();
 
