@@ -21,6 +21,7 @@ import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
+import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmResDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
 import moodbuddy.moodbuddy.domain.user.service.FcmService;
@@ -100,9 +101,11 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
-                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
-            );
+//            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
+//                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+//            );
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(()->new MemberIdNotFoundException(JwtUtil.getUserId()));
 
             // LockTimeout 설정
             entityManager.lock(user, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap("javax.persistence.lock.timeout", 10000));
@@ -126,15 +129,15 @@ public class LetterServiceImpl implements LetterService {
             letterRepository.save(letter);
 
 
-                        // FCM
+            // FCM
             log.info("사용자 FcmToken : " + user.getFcmToken());
-            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
             if(user.getFcmToken()!=null){
-                fcmService.sendMessageTo(FcmReqDTO.builder()
+                FcmResDTO fcmResDTO = fcmService.sendMessageTo(FcmReqDTO.builder()
                         .token(user.getFcmToken())
                         .title("moodbuddy : 고민 답장이 도착하였습니다.")
                         .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
                         .build());
+                log.info("fcmResDTO : "+fcmResDTO);
             }
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());

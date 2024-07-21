@@ -2,6 +2,9 @@ package moodbuddy.moodbuddy.domain.user.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmMessageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
@@ -24,6 +27,21 @@ import java.util.List;
 public class FcmServiceImpl implements FcmService {
     @Override
     public FcmResDTO sendMessageTo(FcmReqDTO fcmReqDTO) {
+//        Message message = Message.builder()
+//                .putData("title", fcmReqDTO.getTitle())
+//                .putData("body", fcmReqDTO.getBody())
+//                .setToken(fcmReqDTO.getToken())
+//                .build();
+//        try{
+//            String response = FirebaseMessaging.getInstance().send(message);
+//            return FcmResDTO.builder()
+//                    .response(response)
+//                    .title(fcmReqDTO.getTitle())
+//                    .body(fcmReqDTO.getBody())
+//                    .build();
+//        } catch (FirebaseMessagingException e){
+//            throw new RuntimeException(e);
+//        }
         try {
             log.info("fcmReqDTO.getToken() : "+fcmReqDTO.getToken());
             log.info("fcmReqDTO.getTitle() : "+fcmReqDTO.getTitle());
@@ -42,7 +60,7 @@ public class FcmServiceImpl implements FcmService {
             log.info("getAccessToken() : "+getAccessToken());
             HttpEntity<String> entity = new HttpEntity<>(message, headers);
 
-            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy-d8bfa/messages:send";
+            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy3/messages:send";
             ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
 
             System.out.println(response.getStatusCode());
