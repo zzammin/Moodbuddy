@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FcmResDTO {
-    private String response;
+//    private String response;
     @Schema(description = "FCM 푸시 알림 메시지의 제목")
     private String title;
     @Schema(description = "FCM 푸시 알림 메시지의 내용")
