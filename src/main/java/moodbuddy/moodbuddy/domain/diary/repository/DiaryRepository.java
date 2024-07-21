@@ -15,10 +15,10 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
 //    List<Diary> findByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("year") String year, @Param("month") String month);
 
     @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m') = :month AND diary_status = :status", nativeQuery = true)
-    List<Diary> findByKakaoIdAndMonthAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("month") String month, @Param("status") String status);
+    List<Diary> findByKakaoIdAndMonthAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("month") String month, @Param("status") String status); // nativeQuery 이므로 status를 enum 값으로 넘겨주면 안된다.
 
     @Query(value = "SELECT * FROM diary WHERE kakao_id = :kakaoId AND DATE_FORMAT(diary_date, '%Y-%m-%d') = :day AND diary_status = :status", nativeQuery = true)
-    Optional<Diary> findByKakaoIdAndDayAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("day") String day, @Param("status") String status);
+    Optional<Diary> findByKakaoIdAndDayAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("day") String day, @Param("status") String status); // nativeQuery 이므로 status를 enum 값으로 넘겨주면 안된다.
 
     // diaryId 기반으로 삭제하기
     List<Diary> findAllById(Iterable<Long> ids);
@@ -36,7 +36,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     List<Diary> findDiaryEmotionByKakaoIdAndMonth(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("month") int month);
 
     @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND YEAR(d.diaryDate) = :year AND d.diaryStatus = :status")
-    List<Diary> findAllByYearAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("status") String status);
+    List<Diary> findAllByYearAndDiaryStatus(@Param("kakaoId") Long kakaoId, @Param("year") int year, @Param("status") DiaryStatus status);
 
     @Query("SELECT d FROM Diary d WHERE d.kakaoId = :kakaoId AND d.diaryEmotion is not null")
     List<Diary> findDiaryEmotionAllByKakaoId(@Param("kakaoId") Long kakaoId);

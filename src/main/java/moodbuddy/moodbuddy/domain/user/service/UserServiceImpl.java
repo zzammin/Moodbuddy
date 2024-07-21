@@ -351,7 +351,7 @@ public class UserServiceImpl implements UserService{
         Long kakaoId = JwtUtil.getUserId();
         int yearValue = year.getYear();
 
-        List<Diary> diaries = diaryRepository.findAllByYearAndDiaryStatus(kakaoId, yearValue, "PUBLISHED");
+        List<Diary> diaries = diaryRepository.findAllByYearAndDiaryStatus(kakaoId, yearValue, DiaryStatus.PUBLISHED);
 
         Map<Integer, Integer> yearCountMap = new HashMap<>();
 
