@@ -480,6 +480,33 @@ public class UserServiceImpl implements UserService{
         return updateUserProfile;
     }
 
+//    @Override
+//    @Transactional
+//    public List<User> getAllUsersWithAlarms() {
+//        return userRepository.findAll().stream()
+//                .filter(user -> user.getAlarm() != null && user.getAlarm())
+//                .collect(Collectors.toList());
+//    }
+
+    @Override
+    @Transactional
+    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
+        try{
+            log.info("[UserService] updateToken");
+            Long kakaoId = JwtUtil.getUserId();
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
+            return UserResUpdateTokenDTO.builder()
+                    .nickname(user.getNickname())
+                    .fcmToken(userReqTokenDTO.getFcmToken())
+                    .build();
+        } catch (Exception e){
+            log.error("[UserService] updateToken error",e);
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     @Transactional
     public void changeCount(Long kakaoId, boolean increment) {

@@ -155,19 +155,19 @@ public class UserApiController {
         return ResponseEntity.ok(updateProfile);
     }
 
-//    // FCM Token 받아오기
-//    @PostMapping("/main/fcmToken")
-//    @Operation(summary = "FcmToken")
-//    @ApiResponses(value = {
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResUpdateTokenDTO.class)))
-//            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-//    })
-//    public ResponseEntity<?> getToken(
-//            @Parameter(description = "FCM Token을 받아오는 DTO")
-//            @RequestBody UserReqUpdateTokenDTO userReqUpdateTokenDTO
-//    ){
-//        return ResponseEntity.ok(userService.updateToken(userReqUpdateTokenDTO));
-//    }
+    // FCM Token 받아오기
+    @PostMapping("/main/fcmToken")
+    @Operation(summary = "FcmToken")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResUpdateTokenDTO.class)))
+            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> getToken(
+            @Parameter(description = "FCM Token을 받아오는 DTO")
+            @RequestBody UserReqUpdateTokenDTO userReqUpdateTokenDTO
+    ){
+        return ResponseEntity.ok(userService.updateToken(userReqUpdateTokenDTO));
+    }
 
     /** 테스트를 위한 임시 자체 로그인 **/
     @PostMapping("/test/login")
