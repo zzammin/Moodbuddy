@@ -20,8 +20,10 @@ import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
+import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
+import moodbuddy.moodbuddy.domain.user.service.FcmService;
 import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,7 +52,7 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
     private final GptService gptService;
-//    private final FcmService fcmService;
+    private final FcmService fcmService;
     @PersistenceContext
     private EntityManager entityManager;
 //    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
@@ -92,17 +94,6 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    //            // FCM
-//            log.info("사용자 FcmToken : " + user.getFcmToken());
-//            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
-//            if(user.getFcmToken()!=null){
-//                fcmService.sendMessageTo(FcmReqDTO.builder()
-//                        .token(user.getFcmToken())
-//                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
-//                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-//                        .build());
-//            }
-
     @Override
     @Transactional(timeout = 30)
     public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
@@ -133,6 +124,18 @@ public class LetterServiceImpl implements LetterService {
                     .letterDate(letterReqDTO.getLetterDate())
                     .build();
             letterRepository.save(letter);
+
+
+                        // FCM
+            log.info("사용자 FcmToken : " + user.getFcmToken());
+            // 이 FCM 작업을 12시간 뒤에 실행하도록 스케쥴링하기
+            if(user.getFcmToken()!=null){
+                fcmService.sendMessageTo(FcmReqDTO.builder()
+                        .token(user.getFcmToken())
+                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
+                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
+                        .build());
+            }
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 //            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
