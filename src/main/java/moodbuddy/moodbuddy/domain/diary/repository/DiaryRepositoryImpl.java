@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqFilterDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDetailDTO;
 import moodbuddy.moodbuddy.domain.diary.dto.response.DiaryResDraftFindAllDTO;
@@ -28,6 +29,7 @@ import static moodbuddy.moodbuddy.domain.diary.entity.QDiary.diary;
 import static moodbuddy.moodbuddy.domain.diaryImage.entity.QDiaryImage.diaryImage;
 import static org.hibernate.query.results.Builders.fetch;
 
+@Slf4j
 public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
@@ -42,14 +44,16 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         diary.id,
                         diary.kakaoId,
                         diary.diaryDate,
-                        diary.diaryStatus
+                        diary.diaryStatus,
+                        diary.diaryFont,
+                        diary.diaryFontSize
                 ))
                 .from(diary)
                 .where(diary.kakaoId.eq(kakaoId)
                         .and(diary.diaryStatus.eq(DiaryStatus.DRAFT)))
                 .fetch()
                 .stream()
-                .map(d -> new DiaryResDraftFindOneDTO(d.getDiaryId(), d.getKakaoId(), d.getDiaryDate(), d.getDiaryStatus()))
+                .map(d -> new DiaryResDraftFindOneDTO(d.getDiaryId(), d.getKakaoId(), d.getDiaryDate(), d.getDiaryStatus(), d.getDiaryFont(), d.getDiaryFontSize()))
                 .collect(Collectors.toList());
 
         return new DiaryResDraftFindAllDTO(draftList);
@@ -57,6 +61,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
     @Override
     public DiaryResDetailDTO findOneByDiaryId(Long diaryId) {
+        log.info("[findOneByDiaryId]");
         DiaryResDetailDTO diaryResDetailDTO = queryFactory.select(Projections.constructor(DiaryResDetailDTO.class,
                         diary.id,
                         diary.kakaoId,
@@ -68,7 +73,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         diary.diaryStatus,
                         diary.diarySummary,
                         diary.diarySubject,
-                        diary.diaryBookMarkCheck
+                        diary.diaryBookMarkCheck,
+                        diary.diaryFont,
+                        diary.diaryFontSize
                 ))
                 .from(diary)
                 .where(diary.id.eq(diaryId))
@@ -118,6 +125,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                     .kakaoId(d.getKakaoId())
                     .diaryImgList(diaryImgList)
                     .diaryBookMarkCheck(d.getDiaryBookMarkCheck())
+                    .diaryFont(d.getDiaryFont())
+                    .diaryFontSize(d.getDiaryFontSize())
                     .build();
         }).collect(Collectors.toList());
 
@@ -158,7 +167,9 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         d.getDiarySummary(),
                         d.getDiarySubject(),
                         d.getDiaryBookMarkCheck(),
-                        diaryImages.getOrDefault(d.getId(), List.of())
+                        diaryImages.getOrDefault(d.getId(), List.of()),
+                        d.getDiaryFont(),
+                        d.getDiaryFontSize()
                 ))
                 .collect(Collectors.toList());
 
@@ -234,6 +245,8 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         .diarySummary(d.getDiarySummary())
                         .diarySubject(d.getDiarySubject())
                         .diaryImgList(diaryImagesMap.getOrDefault(d.getId(), List.of()))
+                        .diaryFont(d.getDiaryFont())
+                        .diaryFontSize(d.getDiaryFontSize())
                         .build())
                 .collect(Collectors.toList());
 

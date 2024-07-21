@@ -25,6 +25,8 @@ public class DiaryMapper {
                 .diarySubject(diarySubject)
                 .kakaoId(kakaoId)
                 .diaryBookMarkCheck(false)
+                .diaryFont(diaryReqSaveDTO.getDiaryFont())
+                .diaryFontSize(diaryReqSaveDTO.getDiaryFontSize())
                 .build();
     }
 
@@ -37,6 +39,8 @@ public class DiaryMapper {
                 .diaryStatus(DiaryStatus.DRAFT)
                 .kakaoId(kakaoId)
                 .diaryBookMarkCheck(false)
+                .diaryFont(diaryReqSaveDTO.getDiaryFont())
+                .diaryFontSize(diaryReqSaveDTO.getDiaryFontSize())
                 .build();
     }
 

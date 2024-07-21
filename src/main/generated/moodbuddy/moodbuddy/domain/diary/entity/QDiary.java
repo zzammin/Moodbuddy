@@ -32,6 +32,10 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final EnumPath<DiaryEmotion> diaryEmotion = createEnum("diaryEmotion", DiaryEmotion.class);
 
+    public final EnumPath<DiaryFont> diaryFont = createEnum("diaryFont", DiaryFont.class);
+
+    public final EnumPath<DiaryFontSize> diaryFontSize = createEnum("diaryFontSize", DiaryFontSize.class);
+
     public final EnumPath<DiaryStatus> diaryStatus = createEnum("diaryStatus", DiaryStatus.class);
 
     public final EnumPath<DiarySubject> diarySubject = createEnum("diarySubject", DiarySubject.class);

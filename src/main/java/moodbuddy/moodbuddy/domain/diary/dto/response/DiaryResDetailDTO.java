@@ -7,10 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import moodbuddy.moodbuddy.domain.bookMark.entity.BookMark;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryEmotion;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
-import moodbuddy.moodbuddy.domain.diary.entity.DiarySubject;
-import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
+import moodbuddy.moodbuddy.domain.diary.entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,8 +44,13 @@ public class DiaryResDetailDTO {
     @Schema(description = "일기 이미지 List", example = "[이미지 URL, 이미지 URL]")
     private List<String> diaryImgList;
 
+    @Schema(description = "일기 폰트", example = "INTER")
+    private DiaryFont diaryFont;
+    @Schema(description = "일기 폰트 사이즈", example = "PX30")
+    private DiaryFontSize diaryFontSize;
 
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck) {
+
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, DiaryFont diaryFont, DiaryFontSize diaryFontSize) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
@@ -60,8 +62,10 @@ public class DiaryResDetailDTO {
         this.diarySummary = diarySummary;
         this.diarySubject = diarySubject;
         this.diaryBookMarkCheck = diaryBookMarkCheck;
+        this.diaryFont = diaryFont;
+        this.diaryFontSize = diaryFontSize;
     }
-    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, List<String> diaryImgList) {
+    public DiaryResDetailDTO(Long diaryId, Long kakaoId, String diaryTitle, LocalDate diaryDate, String diaryContent, DiaryWeather diaryWeather, DiaryEmotion diaryEmotion, DiaryStatus diaryStatus, String diarySummary, DiarySubject diarySubject, Boolean diaryBookMarkCheck, List<String> diaryImgList, DiaryFont diaryFont, DiaryFontSize diaryFontSize) {
         this.diaryId = diaryId;
         this.kakaoId = kakaoId;
         this.diaryTitle = diaryTitle;
@@ -74,5 +78,7 @@ public class DiaryResDetailDTO {
         this.diarySubject = diarySubject;
         this.diaryBookMarkCheck = diaryBookMarkCheck;
         this.diaryImgList = diaryImgList;
+        this.diaryFont = diaryFont;
+        this.diaryFontSize = diaryFontSize;
     }
 }

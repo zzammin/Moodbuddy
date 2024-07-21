@@ -5,6 +5,7 @@ import lombok.*;
 import moodbuddy.moodbuddy.domain.diary.dto.request.DiaryReqUpdateDTO;
 import moodbuddy.moodbuddy.global.common.base.BaseEntity;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -56,6 +57,20 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_book_mark_check", columnDefinition = "varchar(20)")
     private Boolean diaryBookMarkCheck; // 북마크 여부
 
+    /** 추가 칼럼 **/
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diary_font", columnDefinition = "varchar(10)")
+    private DiaryFont diaryFont;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diary_font_size", columnDefinition = "varchar(10)")
+    private DiaryFontSize diaryFontSize;
+
+    /** sql문 **/
+    // ALTER TABLE diary
+    // ADD COLUMN diary_font VARCHAR(10),
+    // ADD COLUMN diary_font_size VARCHAR(10);
+
     public void updateDiary(DiaryReqUpdateDTO diaryReqUpdateDTO, String diarySummary, DiarySubject diarySubject) {
         this.diaryTitle = diaryReqUpdateDTO.getDiaryTitle();
         this.diaryDate = diaryReqUpdateDTO.getDiaryDate();
@@ -64,6 +79,8 @@ public class Diary extends BaseEntity {
         this.diarySummary = diarySummary;
         this.diaryStatus = DiaryStatus.PUBLISHED;
         this.diarySubject = diarySubject;
+        this.diaryFont = diaryReqUpdateDTO.getDiaryFont();
+        this.diaryFontSize = diaryReqUpdateDTO.getDiaryFontSize();
     }
 
     public void setDiaryEmotion(DiaryEmotion diaryEmotion) {

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryFont;
+import moodbuddy.moodbuddy.domain.diary.entity.DiaryFontSize;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryStatus;
 import moodbuddy.moodbuddy.domain.diary.entity.DiaryWeather;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,4 +37,8 @@ public class DiaryReqUpdateDTO {
     private List<MultipartFile> diaryImgList;
     @Schema(description = "유지할 일기 이미지 List", example = "[\"이미지 URL\", \"이미지 URL\"]")
     private List<String> existingDiaryImgList;
+    @Schema(description = "일기 폰트", example = "INTER")
+    private DiaryFont diaryFont;
+    @Schema(description = "일기 폰트 사이즈", example = "PX30")
+    private DiaryFontSize diaryFontSize;
 }
