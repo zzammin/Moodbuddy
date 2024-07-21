@@ -27,53 +27,53 @@ import java.util.List;
 public class FcmServiceImpl implements FcmService {
     @Override
     public FcmResDTO sendMessageTo(FcmReqDTO fcmReqDTO) {
-//        Message message = Message.builder()
-//                .putData("title", fcmReqDTO.getTitle())
-//                .putData("body", fcmReqDTO.getBody())
-//                .setToken(fcmReqDTO.getToken())
-//                .build();
-//        try{
-//            String response = FirebaseMessaging.getInstance().send(message);
-//            return FcmResDTO.builder()
-//                    .response(response)
-//                    .title(fcmReqDTO.getTitle())
-//                    .body(fcmReqDTO.getBody())
-//                    .build();
-//        } catch (FirebaseMessagingException e){
-//            throw new RuntimeException(e);
-//        }
-        try {
-            log.info("fcmReqDTO.getToken() : "+fcmReqDTO.getToken());
-            log.info("fcmReqDTO.getTitle() : "+fcmReqDTO.getTitle());
-            log.info("fcmReqDTO.getBody() : "+fcmReqDTO.getBody());
-            String message = makeMessage(fcmReqDTO);
-            log.info("message : "+message);
-            RestTemplate restTemplate = new RestTemplate();
-
-            restTemplate.getMessageConverters()
-                    .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer " + getAccessToken());
-            log.info("headers : "+headers);
-            log.info("getAccessToken() : "+getAccessToken());
-            HttpEntity<String> entity = new HttpEntity<>(message, headers);
-
-            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy3/messages:send";
-            ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
-
-            System.out.println(response.getStatusCode());
-
+        Message message = Message.builder()
+                .putData("title", fcmReqDTO.getTitle())
+                .putData("body", fcmReqDTO.getBody())
+                .setToken(fcmReqDTO.getToken())
+                .build();
+        try{
+            String response = FirebaseMessaging.getInstance().send(message);
             return FcmResDTO.builder()
+                    .response(response)
                     .title(fcmReqDTO.getTitle())
                     .body(fcmReqDTO.getBody())
                     .build();
-        } catch (Exception e) {
-            log.error("[FcmService] sendMessageTo error", e);
-            log.error("[FcmService] 오류 발생 토큰 : " + fcmReqDTO.getToken());
+        } catch (FirebaseMessagingException e){
             throw new RuntimeException(e);
         }
+//        try {
+//            log.info("fcmReqDTO.getToken() : "+fcmReqDTO.getToken());
+//            log.info("fcmReqDTO.getTitle() : "+fcmReqDTO.getTitle());
+//            log.info("fcmReqDTO.getBody() : "+fcmReqDTO.getBody());
+//            String message = makeMessage(fcmReqDTO);
+//            log.info("message : "+message);
+//            RestTemplate restTemplate = new RestTemplate();
+//
+//            restTemplate.getMessageConverters()
+//                    .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setContentType(MediaType.APPLICATION_JSON);
+//            headers.set("Authorization", "Bearer " + getAccessToken());
+//            log.info("headers : "+headers);
+//            log.info("getAccessToken() : "+getAccessToken());
+//            HttpEntity<String> entity = new HttpEntity<>(message, headers);
+//
+//            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy3/messages:send";
+//            ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
+//
+//            System.out.println(response.getStatusCode());
+//
+//            return FcmResDTO.builder()
+//                    .title(fcmReqDTO.getTitle())
+//                    .body(fcmReqDTO.getBody())
+//                    .build();
+//        } catch (Exception e) {
+//            log.error("[FcmService] sendMessageTo error", e);
+//            log.error("[FcmService] 오류 발생 토큰 : " + fcmReqDTO.getToken());
+//            throw new RuntimeException(e);
+//        }
     }
 
     private String getAccessToken() {
