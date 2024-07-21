@@ -101,11 +101,11 @@ public class LetterServiceImpl implements LetterService {
         log.info("[LetterService] save");
         try {
             Long kakaoId = JwtUtil.getUserId();
-//            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
-//                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
-//            );
-            User user = userRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(()->new MemberIdNotFoundException(JwtUtil.getUserId()));
+            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
+                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+            );
+//            User user = userRepository.findByKakaoId(kakaoId)
+//                    .orElseThrow(()->new MemberIdNotFoundException(JwtUtil.getUserId()));
 
             // LockTimeout 설정
             entityManager.lock(user, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap("javax.persistence.lock.timeout", 10000));
