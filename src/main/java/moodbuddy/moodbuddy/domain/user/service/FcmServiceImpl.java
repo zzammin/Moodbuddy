@@ -67,7 +67,7 @@ public class FcmServiceImpl implements FcmService {
             log.info("getAccessToken() : "+getAccessToken());
             HttpEntity<String> entity = new HttpEntity<>(message, headers);
 
-            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy3/messages:send";
+            String API_URL = "https://fcm.googleapis.com/v1/projects/moodbuddy-e57b9/messages:send";
             ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
 
             // 응답 상태 코드 및 본문 로그 출력
