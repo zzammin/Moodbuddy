@@ -39,22 +39,22 @@ public class OAuthController {
 
     @Value("${kakao.redirect_url}") String kakaoRedirectUrl;
 
-//    @GetMapping("/login")
-//    public RedirectView loginRedirect() {
-//        String kakaoLoginUrl = String.format(
-//                "https://kauth.kakao.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code",
-//                kakaoApiKey,
-//                kakaoRedirectUrl
-//        );
-//
-//        return new RedirectView(kakaoLoginUrl);
-//    }
+    @GetMapping("/login")
+    public RedirectView loginRedirect() {
+        String kakaoLoginUrl = String.format(
+                "https://kauth.kakao.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code",
+                kakaoApiKey,
+                kakaoRedirectUrl
+        );
+
+        return new RedirectView(kakaoLoginUrl);
+    }
 
 //http://localhost:8080/api/v1/user/login/oauth2/code/kakao
     //kakao id가 있다면 -> login
     //kakao id가 없다면 -> signup
     @GetMapping("/login/oauth2/code/kakao")
-    public ResponseEntity<?> kakaoLogin(HttpServletRequest request) {
+    public ResponseEntity<LoginResponseDto> kakaoLogin(HttpServletRequest request) {
 
         String code = request.getParameter("code");
 

@@ -179,14 +179,27 @@ public class KakaoServiceImpl implements KakaoService{
 
             log.info("sign up is success" +kakaoProfile.getProperties().getNickname());
 
-            return modelMapper.map(save, LoginResponseDto.class);
+//            return modelMapper.map(save, LoginResponseDto.class);
+
+            // LoginResponseDto 생성
+            LoginResponseDto responseDto = new LoginResponseDto();
+            responseDto.setAccessToken(save.getAccessToken());
+            responseDto.setRefreshToken(save.getRefreshToken());
+
+            return responseDto;
 
         }else{
             User loginUser = byKakaoId.get();
 
             log.info("login is success" + kakaoProfile.getProperties().getNickname());
 
-            return  modelMapper.map(loginUser, LoginResponseDto.class);
+//            return  modelMapper.map(loginUser, LoginResponseDto.class);
+
+            LoginResponseDto responseDto = new LoginResponseDto();
+            responseDto.setAccessToken(loginUser.getAccessToken());
+            responseDto.setRefreshToken(loginUser.getRefreshToken());
+
+            return responseDto;
         }
 
     }
