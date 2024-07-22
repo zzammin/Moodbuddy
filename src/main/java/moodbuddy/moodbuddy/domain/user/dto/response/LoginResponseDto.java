@@ -10,10 +10,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class LoginResponseDto {
-    private Long userId;
+//    private Long userId;
     private String accessToken;
     private String refreshToken;
-    private String nickname;
-    private LocalDate accessTokenExpiredAt;
-    private LocalDate refreshTokenExpiredAt;
+//    private String nickname;
+//    private LocalDate accessTokenExpiredAt;
+//    private LocalDate refreshTokenExpiredAt;
 }
