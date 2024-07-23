@@ -1,10 +1,6 @@
 package moodbuddy.moodbuddy.domain.user.service;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmMessageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
