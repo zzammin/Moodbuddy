@@ -1,4 +1,5 @@
 package moodbuddy.moodbuddy.global.common.config;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -10,7 +11,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.InputStream;
 
-// 애플리케이션 시작 시 firebase 초기화
 @Configuration
 @Slf4j
 public class FcmConfig {
@@ -19,18 +19,27 @@ public class FcmConfig {
     private String firebaseServiceAccountFile;
 
     @PostConstruct
-    public void initializeFirebase(){
+    public void initializeFirebase() {
         try {
-            InputStream serviceAccount = new ClassPathResource(firebaseServiceAccountFile).getInputStream();
+            log.info("Initializing Firebase with service account file: {}", firebaseServiceAccountFile);
+            ClassPathResource resource = new ClassPathResource(firebaseServiceAccountFile);
+            if (!resource.exists()) {
+                log.error("Service account file does not exist: {}", firebaseServiceAccountFile);
+                return;
+            }
+            InputStream serviceAccount = resource.getInputStream();
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
-            if (FirebaseApp.getApps().isEmpty()) { // FirebaseApp이 이미 초기화되어 있지 않은 경우에만 초기화 실행
+            log.info("Fcm try");
+            if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
                 log.info("Fcm Setting Completed");
+            } else {
+                log.info("FirebaseApp already initialized");
             }
-        } catch (Exception e){
-            log.error("fcm error : ",e);
+        } catch (Exception e) {
+            log.error("fcm error: ", e);
         }
     }
 }
