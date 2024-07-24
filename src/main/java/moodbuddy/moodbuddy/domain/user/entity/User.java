@@ -43,6 +43,9 @@ public class User {
     @Column(name = "alarm_time", columnDefinition = "varchar(10)")
     private String alarmTime;
 
+    @Column(name = "letter_alarm", columnDefinition = "tinyint")
+    private Boolean letterAlarm;
+
     @Column(name = "phone_number", columnDefinition = "varchar(20)")
     private String phoneNumber;
 
