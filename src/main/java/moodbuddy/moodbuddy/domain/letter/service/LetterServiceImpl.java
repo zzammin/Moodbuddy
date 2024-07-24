@@ -136,7 +136,11 @@ public class LetterServiceImpl implements LetterService {
             letterRepository.save(letter);
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
-            letterMessage(user.getPhoneNumber(), letter.getLetterDate());
+
+            // 알람이 설정되어야 고민 편지 답장 알람도 전송
+            if(user.getAlarm()){
+                letterMessage(user.getPhoneNumber(), letter.getLetterDate());
+            }
 
             return LetterResSaveDTO.builder()
                     .letterId(letter.getId())

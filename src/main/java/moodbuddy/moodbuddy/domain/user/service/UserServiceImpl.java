@@ -535,7 +535,7 @@ public class UserServiceImpl implements UserService{
             Message message = new Message();
             message.setFrom(senderPhone);
             message.setTo(user.getPhoneNumber());
-            message.setText("[moodbuddy] 일기 작성할 시간이에요! 오늘도 소중한 순간들을 기록해보세요 :)");
+            message.setText("[moodbuddy] 일기를 작성할 시간이에요! 오늘의 소중한 순간을 쿼디와 함께 기록해볼까요?");
 
             try {
                 messageService.send(message);
