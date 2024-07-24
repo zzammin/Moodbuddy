@@ -89,6 +89,7 @@ public class LetterServiceImpl implements LetterService {
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)
                         .userLetterNums(optionalUser.get().getUserLetterNums())
+                        .letterAlarm(optionalUser.get().getLetterAlarm())
                         .letterResPageAnswerDTOList(letterResPageAnswerDTOList)
                         .build();
             }
@@ -204,7 +205,7 @@ public class LetterServiceImpl implements LetterService {
         message.setText("[moodbuddy] 쿼디의 고민 편지 답장이 도착했어요! 어서 확인해보세요 :)");
 
         try {
-            LocalDateTime localDateTime = letterDate.plusMinutes(1);
+            LocalDateTime localDateTime = letterDate.plusSeconds(30);
             log.info("localDateTime : "+localDateTime);
             ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(localDateTime);
             Instant instant = localDateTime.toInstant(zoneOffset);
