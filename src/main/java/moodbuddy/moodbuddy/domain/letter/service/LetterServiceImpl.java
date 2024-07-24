@@ -8,10 +8,8 @@ import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTResponseDTO;
 import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResDetailsDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageAnswerDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResPageDTO;
-import moodbuddy.moodbuddy.domain.letter.dto.response.LetterResSaveDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqUpdateDTO;
+import moodbuddy.moodbuddy.domain.letter.dto.response.*;
 import moodbuddy.moodbuddy.domain.letter.entity.Letter;
 import moodbuddy.moodbuddy.domain.letter.repository.LetterRepository;
 import moodbuddy.moodbuddy.domain.profile.entity.Profile;
@@ -63,7 +61,6 @@ public class LetterServiceImpl implements LetterService {
 
     @PersistenceContext
     private EntityManager entityManager;
-//    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
 
     @Override
     @Transactional(readOnly = true, timeout = 30)
@@ -103,6 +100,26 @@ public class LetterServiceImpl implements LetterService {
     }
 
     @Override
+    @Transactional
+    public LetterResUpdateDTO updateLetterAlarm(LetterReqUpdateDTO letterReqUpdateDTO){
+        log.info("[LetterService] updateLetterAlarm");
+        try{
+            Long kakaoId = JwtUtil.getUserId();
+            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
+                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+            );
+            user.setLetterAlarm(letterReqUpdateDTO.getLetterAlarm());
+            return LetterResUpdateDTO.builder()
+                    .nickname(user.getNickname())
+                    .letterAlarm(user.getLetterAlarm())
+                    .build();
+        } catch (Exception e){
+            log.error("[LetterService] updateLetterAlarm error", e);
+            throw new RuntimeException("[LetterService] updateLetterAlarm error", e);
+        }
+    }
+
+    @Override
     @Transactional(timeout = 30)
     public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
@@ -111,8 +128,6 @@ public class LetterServiceImpl implements LetterService {
             User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
                     () -> new MemberIdNotFoundException(JwtUtil.getUserId())
             );
-//            User user = userRepository.findByKakaoId(kakaoId)
-//                    .orElseThrow(()->new MemberIdNotFoundException(JwtUtil.getUserId()));
 
             // LockTimeout 설정
             entityManager.lock(user, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap("javax.persistence.lock.timeout", 10000));
@@ -137,8 +152,8 @@ public class LetterServiceImpl implements LetterService {
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 
-            // 알람이 설정되어야 고민 편지 답장 알람도 전송
-            if(user.getAlarm()){
+            // 편지 답장 알람이 설정되어야 고민 편지 답장 알람 전송
+            if(user.getLetterAlarm()){
                 letterMessage(user.getPhoneNumber(), letter.getLetterDate());
             }
 
@@ -189,17 +204,19 @@ public class LetterServiceImpl implements LetterService {
         message.setText("[moodbuddy] 쿼디의 고민 편지 답장이 도착했어요! 어서 확인해보세요 :)");
 
         try {
-            LocalDateTime localDateTime = letterDate.plusMinutes(10);
+            LocalDateTime localDateTime = letterDate.plusMinutes(1);
+            log.info("localDateTime : "+localDateTime);
             ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(localDateTime);
             Instant instant = localDateTime.toInstant(zoneOffset);
 
+            log.info("instant : "+instant);
             messageService.send(message, instant);
         } catch (NurigoMessageNotReceivedException exception) {
             // 발송에 실패한 메시지 목록을 확인
-            System.out.println(exception.getFailedMessageList());
-            System.out.println(exception.getMessage());
+            log.error("exception.getFailedMessageList() : "+exception.getFailedMessageList());
+            log.error("exception.getMessage() : "+exception.getMessage());
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
+            log.error("exception.getMessage() : "+exception.getMessage());
         }
     }
 
