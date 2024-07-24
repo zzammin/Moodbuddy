@@ -42,8 +42,8 @@ public interface UserService {
     //프로필 수정
     UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException;
 
-//    // 사용자가 설정한 알림 시간에 문자 보내기
-//    void scheduleUserMessage(Long kakaoId);
+    // 사용자가 설정한 알림 시간에 문자 보내기
+    void scheduleUserMessage(Long kakaoId);
 
     // 다음 달 나에게 짧은 한 마디
     UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO);

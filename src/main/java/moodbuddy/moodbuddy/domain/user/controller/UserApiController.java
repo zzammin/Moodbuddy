@@ -153,7 +153,7 @@ public class UserApiController {
     {
         Long kakaoId = JwtUtil.getUserId();
         UserProfileDto updateProfile = userService.updateProfile(updateDto);
-//        userService.scheduleUserMessage(kakaoId);
+        userService.scheduleUserMessage(kakaoId);
         return ResponseEntity.ok(updateProfile);
     }
 
