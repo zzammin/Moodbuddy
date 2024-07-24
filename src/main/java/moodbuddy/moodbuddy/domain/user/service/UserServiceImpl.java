@@ -38,6 +38,9 @@ import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static moodbuddy.moodbuddy.global.common.config.MapperConfig.modelMapper;
@@ -54,7 +57,8 @@ public class UserServiceImpl implements UserService{
     private final DiaryRepository diaryRepository;
     private final MonthCommentRepository monthCommentRepository;
     private final DiaryImageServiceImpl diaryImageService;
-    private final TaskScheduler taskScheduler;
+    private final ScheduledExecutorService scheduledExecutorService;
+
 
     @Value("${coolsms.api-key}")
     private String smsApiKey;
@@ -495,57 +499,57 @@ public class UserServiceImpl implements UserService{
         return updateUserProfile;
     }
 
-//    @Override
-//    public void scheduleUserMessage(Long kakaoId) {
-//        log.info("[UserService] scheduleUserMessage");
-//        try {
-//            User user = userRepository.findByKakaoId(kakaoId)
-//                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-//            String alarmTimeString = user.getAlarmTime();
-//            LocalTime alarmTime = LocalTime.parse(alarmTimeString, DateTimeFormatter.ofPattern("HH:mm"));
-//            LocalDateTime alarmDateTime = LocalDateTime.now().with(alarmTime);
-//
-//            if (alarmDateTime.isBefore(LocalDateTime.now())) {
-//                alarmDateTime = alarmDateTime.plusDays(1);
-//            }
-//
-//            long delay = Duration.between(LocalDateTime.now(), alarmDateTime).toMillis();
-//
-//            taskScheduler.schedule(() -> {
-//                sendUserMessage(user);
-//                scheduleUserMessage(kakaoId); // 다음 날 동일 시간에 다시 스케줄링
-//            }, new Date(delay));
-//
-//        } catch (Exception e) {
-//            log.error("[UserService] scheduleUserMessage error", e);
-//        }
-//    }
-//
-//
-//
-//    private void sendUserMessage(User user){
-//        log.info("[UserService] sendUserMessage");
-//        try{
-//            DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecretKey, "https://api.coolsms.co.kr");
-//
-//            Message message = new Message();
-//            message.setFrom(senderPhone);
-//            message.setTo(user.getPhoneNumber());
-//            message.setText("[moodbuddy] 일기 작성할 시간이에요! 오늘도 소중한 순간들을 기록해보세요 :)");
-//
-//            try {
-//                messageService.send(message);
-//            } catch (NurigoMessageNotReceivedException exception) {
-//                // 발송에 실패한 메시지 목록을 확인
-//                System.out.println(exception.getFailedMessageList());
-//                System.out.println(exception.getMessage());
-//            } catch (Exception exception) {
-//                System.out.println(exception.getMessage());
-//            }
-//        } catch (Exception e){
-//            log.error("[UserService] sendUserMessage error",e);
-//        }
-//    }
+
+    @Override
+    public void scheduleUserMessage(Long kakaoId) {
+        log.info("[UserService] scheduleUserMessage");
+        try {
+            User user = userRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            String alarmTimeString = user.getAlarmTime();
+            LocalTime alarmTime = LocalTime.parse(alarmTimeString, DateTimeFormatter.ofPattern("HH:mm"));
+            LocalDateTime alarmDateTime = LocalDateTime.now().with(alarmTime);
+
+            if (alarmDateTime.isBefore(LocalDateTime.now())) {
+                alarmDateTime = alarmDateTime.plusDays(1);
+            }
+
+            long delay = Duration.between(LocalDateTime.now(), alarmDateTime).toMillis();
+
+            scheduledExecutorService.schedule(() -> {
+                sendUserMessage(user);
+                // 다음 날 동일 시간에 다시 스케줄링
+                scheduleUserMessage(kakaoId);
+            }, delay, TimeUnit.MILLISECONDS);
+
+        } catch (Exception e) {
+            log.error("[UserService] scheduleUserMessage error", e);
+        }
+    }
+
+    private void sendUserMessage(User user){
+        log.info("[UserService] sendUserMessage");
+        try{
+            DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecretKey, "https://api.coolsms.co.kr");
+
+            Message message = new Message();
+            message.setFrom(senderPhone);
+            message.setTo(user.getPhoneNumber());
+            message.setText("[moodbuddy] 일기 작성할 시간이에요! 오늘도 소중한 순간들을 기록해보세요 :)");
+
+            try {
+                messageService.send(message);
+            } catch (NurigoMessageNotReceivedException exception) {
+                // 발송에 실패한 메시지 목록을 확인
+                System.out.println(exception.getFailedMessageList());
+                System.out.println(exception.getMessage());
+            } catch (Exception exception) {
+                System.out.println(exception.getMessage());
+            }
+        } catch (Exception e){
+            log.error("[UserService] sendUserMessage error",e);
+        }
+    }
 
     @Override
     @Transactional
