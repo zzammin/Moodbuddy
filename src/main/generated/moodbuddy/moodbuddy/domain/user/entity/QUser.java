@@ -35,13 +35,15 @@ public class QUser extends EntityPathBase<User> {
 
     public final BooleanPath deleted = createBoolean("deleted");
 
-    public final StringPath fcmToken = createString("fcmToken");
-
     public final BooleanPath gender = createBoolean("gender");
 
     public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
 
+    public final BooleanPath letterAlarm = createBoolean("letterAlarm");
+
     public final StringPath nickname = createString("nickname");
+
+    public final StringPath phoneNumber = createString("phoneNumber");
 
     public final StringPath refreshToken = createString("refreshToken");
 
