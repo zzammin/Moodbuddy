@@ -42,17 +42,14 @@ public interface UserService {
     //프로필 수정
     UserProfileDto updateProfile(UserProfileUpdateDto dto) throws IOException;
 
+//    // 사용자가 설정한 알림 시간에 문자 보내기
+//    void scheduleUserMessage(Long kakaoId);
+
     // 다음 달 나에게 짧은 한 마디
     UserResMonthCommentDTO monthComment(UserReqMonthCommentDTO userReqMonthCommentDTO);
 
     // 다음 달 나에게 짧은 한 마디 수정
     UserResMonthCommentUpdateDTO monthCommentUpdate(UserReqMonthCommentUpdateDTO userReqMonthCommentUpdateDTO);
-
-//    // 알람 설정한 유저 리스트 보내기
-//    List<User> getAllUsersWithAlarms();
-//
-    // 사용자 token 받아서 update
-    UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO);
 
     // kakaoId를 통한 사용자 찾기
     User findUserByKakaoId(Long kakaoId);

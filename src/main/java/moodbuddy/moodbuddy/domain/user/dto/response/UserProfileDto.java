@@ -18,6 +18,7 @@ public class UserProfileDto {
     String nickname;
     Boolean alarm;
     String alarmTime;
+    String phoneNumber;
     Boolean gender;
     String birthday;
 }

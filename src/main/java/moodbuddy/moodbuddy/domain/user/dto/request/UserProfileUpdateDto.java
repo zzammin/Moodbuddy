@@ -21,6 +21,8 @@ public class UserProfileUpdateDto {
     Boolean alarm;
     @Schema(description = "알림, HH:mm 형식")
     String alarmTime;
+    @Schema(description = "사용자 전화번호, -을 제외한 01012345678 형식")
+    String phoneNumber;
     @Schema(description = "수정할 프로필 이미지", example = "[\"image1.png\", \"image2.png\"]")
     MultipartFile newProfileImg;
     String nickname;
