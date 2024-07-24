@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Modifying
-    @Transactional
-    @Query("update User u set u.userLetterNums = :letterNums where u.userId = :userId")
-    void updateLetterNumsById(@Param("userId") Long userId, @Param("letterNums") Integer letterNums);
+//    @Modifying
+//    @Transactional
+//    @Query("update User u set u.userLetterNums = :letterNums where u.userId = :userId")
+//    void updateLetterNumsById(@Param("userId") Long userId, @Param("letterNums") Integer letterNums);
 
     @Query("select u from User u where u.kakaoId = :kakaoId")
     Optional<User> findByKakaoId(@Param("kakaoId") Long kakaoId);
@@ -23,11 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.kakaoId = :kakaoId")
     Optional<User> findByKakaoIdWithPessimisticLock(@Param("kakaoId") Long kakaoId);
-
-    @Modifying
-    @Transactional
-    @Query("update User u set u.fcmToken = :fcmToken where u.kakaoId = :kakaoId")
-    void updateFcmTokenByKakaoId(@Param("kakaoId") Long kakaoId, @Param("fcmToken") String fcmToken);
 
     @Modifying
     @Transactional

@@ -16,7 +16,7 @@ import moodbuddy.moodbuddy.domain.user.dto.response.UserResMainPageDTO;
 import moodbuddy.moodbuddy.domain.user.dto.response.*;
 import moodbuddy.moodbuddy.domain.user.service.UserService;
 import moodbuddy.moodbuddy.global.common.response.ApiResponse;
-import org.checkerframework.checker.units.qual.A;
+import moodbuddy.moodbuddy.global.common.util.JwtUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -151,22 +151,10 @@ public class UserApiController {
     @Operation(summary = "프로필 수정", description = "alarmTime(str) -> HH:mm 형식,birthday(str) -> YYYY-mm-dd 형식 ")
     public ResponseEntity<?> updateProfile(@ModelAttribute UserProfileUpdateDto updateDto) throws IOException
     {
+        Long kakaoId = JwtUtil.getUserId();
         UserProfileDto updateProfile = userService.updateProfile(updateDto);
+//        userService.scheduleUserMessage(kakaoId);
         return ResponseEntity.ok(updateProfile);
-    }
-
-    // FCM Token 받아오기
-    @PostMapping("/main/fcmToken")
-    @Operation(summary = "FcmToken")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "SUCCESS", content = @Content(schema = @Schema(implementation = UserResUpdateTokenDTO.class)))
-            // @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public ResponseEntity<?> getToken(
-            @Parameter(description = "FCM Token을 받아오는 DTO")
-            @RequestBody UserReqUpdateTokenDTO userReqUpdateTokenDTO
-    ){
-        return ResponseEntity.ok(userService.updateToken(userReqUpdateTokenDTO));
     }
 
     /** 테스트를 위한 임시 자체 로그인 **/

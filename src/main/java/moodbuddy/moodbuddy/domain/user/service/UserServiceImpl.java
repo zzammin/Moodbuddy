@@ -1,5 +1,4 @@
 package moodbuddy.moodbuddy.domain.user.service;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.diary.entity.Diary;
@@ -25,13 +24,18 @@ import moodbuddy.moodbuddy.global.common.exception.ErrorCode;
 import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.exception.user.UserKakaoIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +54,14 @@ public class UserServiceImpl implements UserService{
     private final DiaryRepository diaryRepository;
     private final MonthCommentRepository monthCommentRepository;
     private final DiaryImageServiceImpl diaryImageService;
+    private final TaskScheduler taskScheduler;
+
+    @Value("${coolsms.api-key}")
+    private String smsApiKey;
+    @Value("${coolsms.api-secret}")
+    private String smsApiSecretKey;
+    @Value("${coolsms.sender-phone}")
+    private String senderPhone;
 
     /** =========================================================  재민  ========================================================= **/
 
@@ -426,6 +438,7 @@ public class UserServiceImpl implements UserService{
                 .nickname(user.getNickname())
                 .alarm(user.getAlarm())
                 .alarmTime(user.getAlarmTime())
+                .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
                 .build();
@@ -455,6 +468,7 @@ public class UserServiceImpl implements UserService{
 
         user.setAlarm(dto.getAlarm());
         user.setAlarmTime(dto.getAlarmTime());
+        user.setPhoneNumber(dto.getPhoneNumber());
         user.setNickname(dto.getNickname());
         user.setGender(dto.getGender());
         user.setBirthday(dto.getBirthday());
@@ -472,6 +486,7 @@ public class UserServiceImpl implements UserService{
                 .profileComment(profile.getProfileComment())
                 .alarm(user.getAlarm())
                 .alarmTime(user.getAlarmTime())
+                .phoneNumber(user.getPhoneNumber())
                 .nickname(user.getNickname())
                 .gender(user.getGender())
                 .birthday(user.getBirthday())
@@ -481,36 +496,61 @@ public class UserServiceImpl implements UserService{
     }
 
 //    @Override
-//    @Transactional
-//    public List<User> getAllUsersWithAlarms() {
-//        return userRepository.findAll().stream()
-//                .filter(user -> user.getAlarm() != null && user.getAlarm())
-//                .collect(Collectors.toList());
+//    public void scheduleUserMessage(Long kakaoId) {
+//        log.info("[UserService] scheduleUserMessage");
+//        try {
+//            User user = userRepository.findByKakaoId(kakaoId)
+//                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+//            String alarmTimeString = user.getAlarmTime();
+//            LocalTime alarmTime = LocalTime.parse(alarmTimeString, DateTimeFormatter.ofPattern("HH:mm"));
+//            LocalDateTime alarmDateTime = LocalDateTime.now().with(alarmTime);
+//
+//            if (alarmDateTime.isBefore(LocalDateTime.now())) {
+//                alarmDateTime = alarmDateTime.plusDays(1);
+//            }
+//
+//            long delay = Duration.between(LocalDateTime.now(), alarmDateTime).toMillis();
+//
+//            taskScheduler.schedule(() -> {
+//                sendUserMessage(user);
+//                scheduleUserMessage(kakaoId); // 다음 날 동일 시간에 다시 스케줄링
+//            }, new Date(delay));
+//
+//        } catch (Exception e) {
+//            log.error("[UserService] scheduleUserMessage error", e);
+//        }
+//    }
+//
+//
+//
+//    private void sendUserMessage(User user){
+//        log.info("[UserService] sendUserMessage");
+//        try{
+//            DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecretKey, "https://api.coolsms.co.kr");
+//
+//            Message message = new Message();
+//            message.setFrom(senderPhone);
+//            message.setTo(user.getPhoneNumber());
+//            message.setText("[moodbuddy] 일기 작성할 시간이에요! 오늘도 소중한 순간들을 기록해보세요 :)");
+//
+//            try {
+//                messageService.send(message);
+//            } catch (NurigoMessageNotReceivedException exception) {
+//                // 발송에 실패한 메시지 목록을 확인
+//                System.out.println(exception.getFailedMessageList());
+//                System.out.println(exception.getMessage());
+//            } catch (Exception exception) {
+//                System.out.println(exception.getMessage());
+//            }
+//        } catch (Exception e){
+//            log.error("[UserService] sendUserMessage error",e);
+//        }
 //    }
 
     @Override
     @Transactional
-    public UserResUpdateTokenDTO updateToken(UserReqUpdateTokenDTO userReqTokenDTO){
-        try{
-            log.info("[UserService] updateToken");
-            Long kakaoId = JwtUtil.getUserId();
-            User user = userRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-            userRepository.updateFcmTokenByKakaoId(kakaoId, userReqTokenDTO.getFcmToken());
-            return UserResUpdateTokenDTO.builder()
-                    .nickname(user.getNickname())
-                    .fcmToken(userReqTokenDTO.getFcmToken())
-                    .build();
-        } catch (Exception e){
-            log.error("[UserService] updateToken error",e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    @Transactional
     public void changeCount(Long kakaoId, boolean increment) {
-        log.info("[DiaryServiceImpl] numPlus");
+        log.info("[UserService] changeCount");
         try {
             User user = userRepository.findByKakaoId(kakaoId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -526,7 +566,7 @@ public class UserServiceImpl implements UserService{
 //            userRepository.updateCurDiaryNumsById(user.getUserId(), curDiaryNums);
 //            userRepository.updateLetterNumsById(user.getUserId(), letterNums);
         } catch (Exception e) {
-            log.error("[DiaryServiceImpl] numPlus error: " + e);
+            log.error("[UserService] changeCount error: " + e);
             throw new RuntimeException(e);
         }
     }

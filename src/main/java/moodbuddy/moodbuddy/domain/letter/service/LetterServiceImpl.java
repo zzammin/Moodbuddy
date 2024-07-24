@@ -5,7 +5,6 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
-import moodbuddy.moodbuddy.domain.gpt.dto.GPTRequestDTO;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTResponseDTO;
 import moodbuddy.moodbuddy.domain.gpt.service.GptService;
 import moodbuddy.moodbuddy.domain.letter.dto.request.LetterReqDTO;
@@ -19,22 +18,24 @@ import moodbuddy.moodbuddy.domain.profile.entity.Profile;
 import moodbuddy.moodbuddy.domain.profile.repository.ProfileRepository;
 import moodbuddy.moodbuddy.domain.profileImage.entity.ProfileImage;
 import moodbuddy.moodbuddy.domain.profileImage.repository.ProfileImageRepository;
-import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmReqDTO;
-import moodbuddy.moodbuddy.domain.user.dto.fcm.FcmResDTO;
 import moodbuddy.moodbuddy.domain.user.entity.User;
 import moodbuddy.moodbuddy.domain.user.repository.UserRepository;
-import moodbuddy.moodbuddy.domain.user.service.FcmService;
 import moodbuddy.moodbuddy.global.common.exception.member.MemberIdNotFoundException;
 import moodbuddy.moodbuddy.global.common.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Qualifier;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,7 +53,14 @@ public class LetterServiceImpl implements LetterService {
     private final ProfileImageRepository profileImageRepository;
     private final LetterRepository letterRepository;
     private final GptService gptService;
-    private final FcmService fcmService;
+
+    @Value("${coolsms.api-key}")
+    private String smsApiKey;
+    @Value("${coolsms.api-secret}")
+    private String smsApiSecretKey;
+    @Value("${coolsms.sender-phone}")
+    private String senderPhone;
+
     @PersistenceContext
     private EntityManager entityManager;
 //    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4); // 4개의 쓰레드를 가진 풀 생성
@@ -127,23 +135,8 @@ public class LetterServiceImpl implements LetterService {
                     .build();
             letterRepository.save(letter);
 
-
-            // FCM
-            log.info("사용자 FcmToken : " + user.getFcmToken());
-            if (user.getFcmToken()!=null) {
-                FcmResDTO fcmResDTO = fcmService.sendMessageTo(FcmReqDTO.builder()
-                        .token(user.getFcmToken())
-                        .title("moodbuddy : 고민 답장이 도착하였습니다.")
-                        .body("고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-                        .build());
-                log.info("fcmResDTO : "+fcmResDTO);
-            }
-
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
-//            // ScheduledExecutorService를 사용하여 작업 예약, 지금은 임시로 5초 뒤에 작업을 실행하는 것으로 설정해 둠
-//            scheduler.schedule(new ContextAwareRunnable(() -> {
-////                letterAlarm(user.getUserId(), user.getFcmToken());
-//            }), 5, TimeUnit.SECONDS);
+            letterMessage(user.getPhoneNumber(), letter.getLetterDate());
 
             return LetterResSaveDTO.builder()
                     .letterId(letter.getId())
@@ -183,32 +176,28 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-//    @Override
-//    public void letterAlarm(Long userId, String fcmToken) {
-//        log.info("[LetterService] alarmTalk");
-//        try {
-//            // alarmTalk 메소드에서)
-//            // 4. com.google.firebase.messaging.Message 패키지의 Message를 이용해서 빌더 형식의 Message 생성
-//            // ex.  Message message = Message.builder()
-//            //        .setToken(token)
-//            //        .putData("title", title)
-//            //        .putData("body", body)
-//            //        .build();
-//            // 5. 이후에 예외 처리와 디버깅을 위해 FCM 응답값을 받아옴
-//            // ex. String response = FirebaseMessaging.getInstance().send(message);
-//            //     log.info("Successfully sent message: " + response);
-//            Message message = Message.builder()
-//                    .setToken(fcmToken)
-//                    .putData("title", "moodbuddy : 고민 답장이 도착하였습니다.")
-//                    .putData("body", "고민 편지에 대한 쿼디의 답장이 도착하였습니다! 어서 확인해보세요 :)")
-//                    .build();
-//
-//            String response = FirebaseMessaging.getInstance().send(message);
-//            log.info("Successfully sent message: " + response);
-//        } catch (Exception e) {
-//            log.error("[LetterService] alarmTalk error", e);
-//        }
-//    }
+    public void letterMessage(String to, LocalDateTime letterDate){
+        DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecretKey, "https://api.coolsms.co.kr");
+
+        Message message = new Message();
+        message.setFrom(senderPhone);
+        message.setTo(to);
+        message.setText("[moodbuddy] 쿼디의 고민 편지 답장이 도착했어요! 어서 확인해보세요 :)");
+
+        try {
+            LocalDateTime localDateTime = letterDate.plusMinutes(10);
+            ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(localDateTime);
+            Instant instant = localDateTime.toInstant(zoneOffset);
+
+            messageService.send(message, instant);
+        } catch (NurigoMessageNotReceivedException exception) {
+            // 발송에 실패한 메시지 목록을 확인
+            System.out.println(exception.getFailedMessageList());
+            System.out.println(exception.getMessage());
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
 
     @Override
     @Transactional(readOnly = true, timeout = 30)

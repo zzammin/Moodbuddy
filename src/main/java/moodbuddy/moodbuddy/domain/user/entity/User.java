@@ -43,6 +43,9 @@ public class User {
     @Column(name = "alarm_time", columnDefinition = "varchar(10)")
     private String alarmTime;
 
+    @Column(name = "phone_number", columnDefinition = "varchar(20)")
+    private String phoneNumber;
+
     @Column(name = "birthday", columnDefinition ="varchar(10)")
     private String birthday;
 
@@ -76,9 +79,6 @@ public class User {
 
     @Column(name = "user_letter_nums", columnDefinition = "int")
     private Integer userLetterNums;
-
-    @Column(name = "fcm_token", columnDefinition = "text")
-    private String fcmToken;
 
     @Column(name = "check_today_diary")
     private Boolean checkTodayDairy;
