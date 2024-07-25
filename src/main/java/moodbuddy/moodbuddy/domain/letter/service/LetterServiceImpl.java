@@ -63,7 +63,7 @@ public class LetterServiceImpl implements LetterService {
     private EntityManager entityManager;
 
     @Override
-    @Transactional(readOnly = true, timeout = 30)
+    @Transactional(timeout = 30)
     public LetterResPageDTO letterPage() {
         log.info("[LetterService] letterPage");
         try {
@@ -82,6 +82,10 @@ public class LetterServiceImpl implements LetterService {
                                 .answerCheck(letter.getLetterAnswerContent() != null ? 1 : 0)
                                 .build())
                         .collect(Collectors.toList());
+
+                if(optionalUser.get().getLetterAlarm()==null){
+                    userRepository.updateLetterAlarmByKakaoId(kakaoId, false);
+                }
 
                 return LetterResPageDTO.builder()
                         .nickname(optionalUser.get().getNickname())
@@ -153,8 +157,8 @@ public class LetterServiceImpl implements LetterService {
 
             letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
 
-            // 편지 답장 알람이 설정되어야 고민 편지 답장 알람 전송
-            if(user.getLetterAlarm()){
+            // 편지 답장 알람과 전화 번호가 설정되어야 고민 편지 답장 알람 전송
+            if(user.getLetterAlarm() && !user.getPhoneNumber().isEmpty()){
                 letterMessage(user.getPhoneNumber(), letter.getLetterDate());
             }
 

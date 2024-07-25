@@ -233,22 +233,22 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    @Override
-    @Transactional
-    @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 자정에 자동으로 실행
-    public void changeDiaryNums(){
-        log.info("[UserService] changeDiaryNums");
-        try{
-            List<User> users = userRepository.findAll();
-            for(User user : users){
-                userRepository.updateLastDiaryNumsById(user.getUserId(), user.getUserCurDiaryNums()); // 한 달이 지났으니 userCurDiaryNums를 userlastDiaryNums로 변경
-                userRepository.updateCurDiaryNumsById(user.getUserId(), 0); // 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
-            }
-        } catch (Exception e) {
-            log.error("[UserService] changeDiaryNums error"+ e);
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    @Transactional
+//    @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 자정에 자동으로 실행
+//    public void changeDiaryNums(){
+//        log.info("[UserService] changeDiaryNums");
+//        try{
+//            List<User> users = userRepository.findAll();
+//            for(User user : users){
+//                userRepository.updateLastDiaryNumsById(user.getUserId(), user.getUserCurDiaryNums()); // 한 달이 지났으니 userCurDiaryNums를 userlastDiaryNums로 변경
+//                userRepository.updateCurDiaryNumsById(user.getUserId(), 0); // 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
+//            }
+//        } catch (Exception e) {
+//            log.error("[UserService] changeDiaryNums error"+ e);
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /** =========================================================  다연  ========================================================= **/
 
@@ -417,8 +417,6 @@ public class UserServiceImpl implements UserService{
                 .map(entry -> new EmotionStaticDto(entry.getKey(), entry.getValue()))
                 .sorted((e1, e2) -> e2.getNums().compareTo(e1.getNums())) // nums 값으로 내림차순 정렬
                 .collect(Collectors.toList());
-
-
     }
 
     @Override
