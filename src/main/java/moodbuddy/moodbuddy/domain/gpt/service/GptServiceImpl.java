@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Service
 @Slf4j
@@ -79,6 +82,7 @@ public class GptServiceImpl implements GptService{
                 .uri(apiUrl)
                 .bodyValue(gptRequestDTO)
                 .retrieve()
-                .bodyToMono(GPTResponseDTO.class);
+                .bodyToMono(GPTResponseDTO.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)));
     }
 }
