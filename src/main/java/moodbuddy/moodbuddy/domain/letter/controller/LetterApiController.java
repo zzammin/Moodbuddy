@@ -77,7 +77,7 @@ public class LetterApiController {
                 // 30초 후에 실행할 작업
                 letterService.letterAnswerSave(kakaoId, letterResSaveDTO);
             }
-        }, 30000); // 30초 지연
+        }, 25000); // 25초 지연
     }
 
     @GetMapping("/details/{letterId}")
