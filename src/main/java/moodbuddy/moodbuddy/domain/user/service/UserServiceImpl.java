@@ -551,6 +551,22 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
+    @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 자정에 자동으로 실행
+    public void changeDiaryNums(){
+        log.info("[UserService] changeDiaryNums");
+        try{
+            List<User> users = userRepository.findAll();
+            for(User user : users){
+                user.setUserCurDiaryNums(0);// 새로운 달의 일기 개수를 위해 userCurDiaryNums 초기화
+            }
+        } catch (Exception e) {
+            log.error("[UserService] changeDiaryNums error"+ e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    @Transactional
     public void changeCount(Long kakaoId, boolean increment) {
         log.info("[UserService] changeCount");
         try {
