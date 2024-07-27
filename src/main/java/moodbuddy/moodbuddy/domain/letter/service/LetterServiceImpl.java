@@ -1,7 +1,4 @@
 package moodbuddy.moodbuddy.domain.letter.service;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moodbuddy.moodbuddy.domain.gpt.dto.GPTMessageDTO;
@@ -25,19 +22,22 @@ import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,11 +59,8 @@ public class LetterServiceImpl implements LetterService {
     @Value("${coolsms.sender-phone}")
     private String senderPhone;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Override
-    @Transactional(readOnly = true, timeout = 30)
+    @Transactional(timeout = 30)
     public LetterResPageDTO letterPage() {
         log.info("[LetterService] letterPage");
         try {
@@ -83,12 +80,17 @@ public class LetterServiceImpl implements LetterService {
                                 .build())
                         .collect(Collectors.toList());
 
+                if(optionalUser.get().getLetterAlarm()==null){
+                    userRepository.updateLetterAlarmByKakaoId(kakaoId, false);
+                }
+
                 return LetterResPageDTO.builder()
                         .nickname(optionalUser.get().getNickname())
                         .userBirth(optionalUser.get().getBirthday())
                         .profileComment(optionalProfile.get().getProfileComment())
                         .profileImageUrl(profileImageURL)
                         .userLetterNums(optionalUser.get().getUserLetterNums())
+                        .letterAlarm(optionalUser.get().getLetterAlarm())
                         .letterResPageAnswerDTOList(letterResPageAnswerDTOList)
                         .build();
             }
@@ -120,17 +122,13 @@ public class LetterServiceImpl implements LetterService {
     }
 
     @Override
-    @Transactional(timeout = 30)
-    public LetterResSaveDTO letterSave(LetterReqDTO letterReqDTO) {
+    @Transactional
+    public LetterResSaveDTO letterSave(Long kakaoId, LetterReqDTO letterReqDTO) {
         log.info("[LetterService] save");
         try {
-            Long kakaoId = JwtUtil.getUserId();
             User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
                     () -> new MemberIdNotFoundException(JwtUtil.getUserId())
             );
-
-            // LockTimeout 설정
-            entityManager.lock(user, LockModeType.PESSIMISTIC_WRITE, Collections.singletonMap("javax.persistence.lock.timeout", 10000));
 
             log.info("user.getUserLetterNums() : "+user.getUserLetterNums());
             // 편지지가 없을 경우 예외 처리
@@ -150,13 +148,6 @@ public class LetterServiceImpl implements LetterService {
                     .build();
             letterRepository.save(letter);
 
-            letterAnswerSave(letterReqDTO.getLetterWorryContent(), letterReqDTO.getLetterFormat(), letter.getId());
-
-            // 편지 답장 알람이 설정되어야 고민 편지 답장 알람 전송
-            if(user.getLetterAlarm()){
-                letterMessage(user.getPhoneNumber(), letter.getLetterDate());
-            }
-
             return LetterResSaveDTO.builder()
                     .letterId(letter.getId())
                     .userNickname(user.getNickname())
@@ -170,21 +161,27 @@ public class LetterServiceImpl implements LetterService {
 
     @Override
     @Transactional(timeout = 30)
-    public void letterAnswerSave(String worryContent, Integer format, Long letterId) {
+    public void letterAnswerSave(Long kakaoId, LetterResSaveDTO letterResSaveDTO) {
         log.info("[LetterService] answerSave");
         try {
-            GPTResponseDTO response = gptService.letterAnswerSave(worryContent, format).block();
+            User user = userRepository.findByKakaoIdWithPessimisticLock(kakaoId).orElseThrow(
+                    () -> new MemberIdNotFoundException(JwtUtil.getUserId())
+            );
 
-            log.info("letterId : "+letterId);
+            Letter letter = letterRepository.findById(letterResSaveDTO.getLetterId())
+                    .orElseThrow(()->new IllegalArgumentException("letterId에 해당하는 편지가 없습니다"));
+            GPTResponseDTO response = gptService.letterAnswerSave(letter.getLetterWorryContent(), letter.getLetterFormat()).block();
+
+            if(user.getLetterAlarm() && !user.getPhoneNumber().isEmpty()){
+                letterMessage(user.getPhoneNumber());
+            }
+
             if (response != null && response.getChoices() != null) {
                 for (GPTResponseDTO.Choice choice : response.getChoices()) {
                     GPTMessageDTO message = choice.getMessage();
                     if (message != null) {
                         String answer = message.getContent();
-                        Optional<Letter> optionalLetter = letterRepository.findById(letterId);
-                        if (optionalLetter.isPresent()) {
-                            letterRepository.updateAnswerByLetterId(letterId, answer);
-                        }
+                        letterRepository.updateAnswerByLetterId(letterResSaveDTO.getLetterId(), answer);
                     }
                 }
             } else {
@@ -195,7 +192,7 @@ public class LetterServiceImpl implements LetterService {
         }
     }
 
-    public void letterMessage(String to, LocalDateTime letterDate){
+    public void letterMessage(String to){
         DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecretKey, "https://api.coolsms.co.kr");
 
         Message message = new Message();
@@ -204,13 +201,7 @@ public class LetterServiceImpl implements LetterService {
         message.setText("[moodbuddy] 쿼디의 고민 편지 답장이 도착했어요! 어서 확인해보세요 :)");
 
         try {
-            LocalDateTime localDateTime = letterDate.plusMinutes(1);
-            log.info("localDateTime : "+localDateTime);
-            ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(localDateTime);
-            Instant instant = localDateTime.toInstant(zoneOffset);
-
-            log.info("instant : "+instant);
-            messageService.send(message, instant);
+            messageService.send(message); // 컨트롤러에서 30초 이후에 자동으로 호출하니까 sms는 따로 지연 시간 설정할 필요 X
         } catch (NurigoMessageNotReceivedException exception) {
             // 발송에 실패한 메시지 목록을 확인
             log.error("exception.getFailedMessageList() : "+exception.getFailedMessageList());

@@ -24,6 +24,8 @@ public class LetterResPageDTO {
     private String profileImageUrl;
     @Schema(description = "유저의 편지 개수")
     private Integer userLetterNums;
+    @Schema(description = "사용자의 쿼디 답장 알람 설정")
+    private Boolean letterAlarm;
     @Schema(description = "답장 도착 확인용 리스트")
     private List<LetterResPageAnswerDTO> letterResPageAnswerDTOList;
 }

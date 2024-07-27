@@ -24,9 +24,6 @@ public interface UserService {
     // 일기 한 줄 요약 보여주기
     UserResCalendarSummaryDTO summary(UserReqCalendarSummaryDTO calendarSummaryDTO);
 
-    // 한 달이 지나면 이번 달 일기 개수를 저번 달 일기 개수로 변경하고, 이번 달 일기 개수 초기화하기
-    void changeDiaryNums();
-
     //월별 통계 보기
     UserResStatisticsMonthDTO getMonthStatic(LocalDate month);
 
@@ -53,6 +50,9 @@ public interface UserService {
 
     // kakaoId를 통한 사용자 찾기
     User findUserByKakaoId(Long kakaoId);
+
+    // 매월 1이 자정에 자동으로 curDiaryNums 0으로 초기화
+    void changeDiaryNums();
 
     // 이번 달 일기 개수와 편지지 개수 변경
     void changeCount(Long kakaoId, boolean increment);

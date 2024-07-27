@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Service
 @Slf4j
@@ -71,7 +74,8 @@ public class GptServiceImpl implements GptService{
 
     @Override
     public Mono<GPTResponseDTO> letterAnswerSave(String worryContent, Integer format){
-        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 편한 친구같은 느낌의 따뜻한 위로의 말을 해주세요" : " 이 내용에 대해 편한 친구 같은 느낌의 따끔한 해결의 말을 해주세요. 이 때 친구 같이 편하게 해결의 말을 해주되, 건방지게 말하지 말아주세요");
+        String prompt = worryContent + (format == 1 ? " 이 내용에 대해 편한 친구같은 느낌으로 따뜻한 위로의 답변을 해주세요. 이 때 답변을 너무 건방지지 않고 부드럽게, 친구같이 편한 반말로 해주세요"
+                : " 이 내용에 대해 편한 친구 같은 느낌으로 따끔한 해결의 답변을 해주세요. 이 때 답변을 너무 건방지지 않고 부드럽게, 친구같이 편한 반말로 해주세요");
 
         GPTRequestDTO gptRequestDTO = new GPTRequestDTO(model, prompt);
 
@@ -79,6 +83,7 @@ public class GptServiceImpl implements GptService{
                 .uri(apiUrl)
                 .bodyValue(gptRequestDTO)
                 .retrieve()
-                .bodyToMono(GPTResponseDTO.class);
+                .bodyToMono(GPTResponseDTO.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)));
     }
 }

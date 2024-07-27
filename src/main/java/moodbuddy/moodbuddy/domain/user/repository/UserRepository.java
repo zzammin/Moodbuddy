@@ -33,4 +33,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("update User u set u.userLastDiaryNums = :curDiaryNums where u.userId = :userId")
     void updateLastDiaryNumsById(@Param("userId") Long userId, @Param("curDiaryNums") Integer curDiaryNums);
+
+    @Modifying
+    @Transactional
+    @Query("update User u set u.letterAlarm = :letterAlarm where u.kakaoId = :kakaoId")
+    void updateLetterAlarmByKakaoId(@Param("kakaoId") Long kakaoId, @Param("letterAlarm") boolean letterAlarm);
+
 }
